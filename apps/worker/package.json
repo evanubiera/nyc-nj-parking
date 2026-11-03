@@ -1,0 +1,22 @@
+{
+  "name": "@parking/worker",
+  "private": true,
+  "description": "Scheduled ingestion from admitted sources into PostGIS (ADR-0005). The only part of the system that calls upstream (ING-1).",
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file-if-exists=../../.env src/main.ts",
+    "ingest": "node --env-file-if-exists=../../.env src/cli.ts",
+    "typecheck": "tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@parking/db": "workspace:*",
+    "croner": "^10.0.1",
+    "pino": "^10.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.5"
+  }
+}

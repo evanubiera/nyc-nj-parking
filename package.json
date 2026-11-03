@@ -1,0 +1,34 @@
+{
+  "name": "nyc-nj-parking",
+  "private": true,
+  "description": "Suggests public parking near the user across New York City and New Jersey (specs/01-overview.md)",
+  "type": "module",
+  "packageManager": "pnpm@12.16.1",
+  "engines": {
+    "node": "^24.11.0",
+    "pnpm": "^12.16.1"
+  },
+  "scripts": {
+    "dev": "docker compose up --detach --wait && pnpm db:migrate && concurrently --kill-others-on-fail --names api,web --prefix-colors blue,magenta \"pnpm --filter @parking/api dev\" \"pnpm --filter @parking/web dev\"",
+    "build": "pnpm api:generate && pnpm --recursive --if-present build",
+    "typecheck": "pnpm api:generate && pnpm --recursive --if-present typecheck",
+    "test": "pnpm api:generate && pnpm --recursive --if-present test",
+    "lint": "pnpm lint:contract && pnpm api:generate && eslint --max-warnings 0 .",
+    "lint:contract": "redocly lint api/openapi.yaml",
+    "api:generate": "pnpm --filter @parking/api-client generate",
+    "db:migrate": "pnpm --filter @parking/db migrate",
+    "ingest": "pnpm --filter @parking/worker ingest"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@redocly/cli": "^2.72.1",
+    "concurrently": "^10.0.6",
+    "eslint": "^10.14.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.14.0",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.1"
+  }
+}

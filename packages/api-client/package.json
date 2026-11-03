@@ -1,0 +1,23 @@
+{
+  "name": "@parking/api-client",
+  "private": true,
+  "description": "Types generated from api/openapi.yaml, plus a typed client (ADR-0004). In apps/web, only services import it (WEB-3).",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "prepare": "pnpm generate",
+    "generate": "openapi-typescript ../../api/openapi.yaml --output src/generated/schema.ts --root-types --root-types-no-schema-prefix --enum-values",
+    "typecheck": "tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "openapi-fetch": "^0.17.0"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.13.0",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.5"
+  }
+}

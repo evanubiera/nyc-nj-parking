@@ -1,0 +1,24 @@
+{
+  "name": "@parking/api",
+  "private": true,
+  "description": "Fastify API. Routes come from api/openapi.yaml (ADR-0004). Reads our database only; never calls upstream (ING-1).",
+  "type": "module",
+  "scripts": {
+    "dev": "node --env-file-if-exists=../../.env --watch src/server.ts",
+    "start": "node src/server.ts",
+    "typecheck": "tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@parking/db": "workspace:*",
+    "fastify": "^5.12.7",
+    "fastify-openapi-glue": "^4.12.0",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "@parking/api-client": "workspace:*",
+    "@types/node": "^24.19.2",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.5"
+  }
+}

@@ -1,0 +1,81 @@
+openapi: 3.1.0
+info:
+  title: NYC and NJ public parking API
+  version: 0.1.0
+  description: >
+    Suggests public parking near a point in New York City and New Jersey. Contract-first (ADR-0004):
+    the server registers exactly these operations and serializes responses with these schemas.
+    Responses carry codes, never display text (FND-4).
+servers:
+  - url: /
+    description: Same origin as the web app, which calls the API under /api
+security: []
+tags:
+  - name: system
+    description: Service health
+paths:
+  /api/health:
+    get:
+      operationId: getHealth
+      summary: Report whether the API and its database are up
+      description: >
+        200 when the database answers within 2 seconds, otherwise 503. Never calls an upstream source (ING-1).
+      tags: [system]
+      x-requirements: [FND-3]
+      responses:
+        '200':
+          description: The API and database are up.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+              example:
+                status: ok
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '503':
+          description: The database isn't reachable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+              example:
+                status: unavailable
+components:
+  responses:
+    BadRequest:
+      description: The request can't be parsed, or a parameter is invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          example:
+            code: request.malformed
+  schemas:
+    Health:
+      type: object
+      additionalProperties: false
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [ok, unavailable]
+    ApiError:
+      description: Every error response (FND-4). The web app maps `code` to text from its message catalog.
+      type: object
+      additionalProperties: false
+      required: [code]
+      properties:
+        code:
+          type: string
+          description: One of the codes in specs/05-api.md.
+          enum:
+            - request.malformed
+            - request.invalid_parameter
+            - not_found
+            - method_not_allowed
+            - internal_error
+            - service_unavailable
+        parameter:
+          type: string
+          description: The name of the invalid parameter, for `request.invalid_parameter`.

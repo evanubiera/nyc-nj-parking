@@ -1,0 +1,43 @@
+# S0-8: lint, typecheck, tests against real PostGIS, and build, on every push and pull request.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgis:
+        image: postgis/postgis:18-3.6
+        env:
+          POSTGRES_USER: parking
+          POSTGRES_PASSWORD: parking
+          POSTGRES_DB: parking_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U parking -d parking_test"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 30
+    env:
+      # Database tests use this, not DATABASE_URL, so they can't touch a development database (ADR-0003).
+      TEST_DATABASE_URL: postgres://parking:parking@localhost:5432/parking_test
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build

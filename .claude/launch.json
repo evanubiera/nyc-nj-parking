@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "parking-api",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@parking/api", "dev"],
+      "port": 8180
+    },
+    {
+      "name": "parking-web",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@parking/web", "dev"],
+      "port": 5180
+    }
+  ]
+}

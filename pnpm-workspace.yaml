@@ -1,0 +1,13 @@
+packages:
+  - apps/*
+  - packages/*
+
+peerDependencyRules:
+  allowedVersions:
+    # openapi-typescript 7 declares TypeScript 5 but generates types fine with TypeScript 6.
+    # packages/api-client's typecheck fails if that stops being true.
+    openapi-typescript>typescript: '6'
+    # eslint-plugin-react and eslint-plugin-jsx-a11y work with ESLint 10 but haven't widened their
+    # peer ranges yet. apps/web/lint/rules.test.ts fails if their rules stop working.
+    eslint-plugin-react>eslint: '10'
+    eslint-plugin-jsx-a11y>eslint: '10'

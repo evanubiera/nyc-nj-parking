@@ -1,0 +1,34 @@
+{
+  "name": "@parking/web",
+  "private": true,
+  "description": "React + Vite web app, built to work on phones first. Text from the message catalog (WEB-1); only services call the API (WEB-3).",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@parking/api-client": "workspace:*",
+    "@tanstack/react-query": "^5.105.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-intl": "^12.1.6"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "~6.1.2",
+    "axe-core": "^4.14.0",
+    "jsdom": "^30.1.3",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
+  }
+}

@@ -1,0 +1,17 @@
+# Contract lint (ADR-0004, FND-1). Run with `pnpm lint:contract`.
+extends:
+  - recommended-strict
+
+rules:
+  # No license is chosen for this API yet. Don't invent one (CLAUDE.md, "How to work" 4).
+  info-license: off
+
+  rule/operation-requirements:
+    subject:
+      type: Operation
+      property: x-requirements
+    assertions:
+      defined: true
+      nonEmpty: true
+    message: Each operation lists its requirement IDs in x-requirements (specs/02-requirements.md).
+    severity: error
