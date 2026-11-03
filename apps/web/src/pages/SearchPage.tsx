@@ -5,7 +5,7 @@ import { ResultCard } from '../components/ResultCard.tsx';
 import { useDeviceLocation } from '../hooks/useDeviceLocation.ts';
 import { useRecommendations } from '../hooks/useRecommendations.ts';
 
-/** WEB-4, WEB-5. The map arrives once a tile provider is chosen (SRC-6); the list works on its own. */
+/** WEB-4, WEB-5. The map comes with S1-9b (ADR-0009); the list works on its own. */
 export function SearchPage({ geolocation }: { geolocation?: Geolocation }) {
   const intl = useIntl();
   const [radius, setRadius] = useState(DEFAULT_RADIUS);

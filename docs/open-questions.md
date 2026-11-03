@@ -13,7 +13,7 @@ Prefixes: SRC (a data source's terms or availability), PRD (product), LEG (legal
 | SRC-3 | NJDOT's park-and-ride layer (item ab33be6e4a51439c9ed179809b4d99cf) has only a liability disclaimer. Does NJDOT allow redistribution in a public app? | Slice 2 | Open |
 | SRC-4 | NJDEP's Data Distribution Agreement requires a set credit line and says the data "may not be reproduced or redistributed without all the metadata". Does an app that shows points (and links to the metadata) meet that? | NJ state park parking, slice 4 | Open |
 | SRC-5 | Jersey City: is there a current list of municipal lots, from the city or the Jersey City Parking Authority, and under what terms? The portal's only dataset has 7 lots from 2020. | Slice 4 | Open |
-| SRC-6 | Which map tile provider, and do its terms allow a public app at our expected traffic? OpenStreetMap's own tile servers aren't meant for this. | The map in slice 1 (the list works without it) | Open |
+| SRC-6 | Which map tile provider, and do its terms allow a public app at our expected traffic? | — | **Decided 2026-11-03 by the user (ADR-0009):** self-hosted Protomaps PMTiles in production; OpenFreeMap's public instance for development and previews until then. |
 
 ## Product
 
@@ -24,6 +24,7 @@ Prefixes: SRC (a data source's terms or availability), PRD (product), LEG (legal
 | PRD-3 | Coverage area: NYC plus NJ only, or all of New York State as well (adding the Thruway lots)? | Open, blocks slice 4 |
 | PRD-4 | NJ Transit lots with no recorded owner (72 of 511): show them as transit-agency lots, or leave them out until the owner is known? | Open, blocks slice 2 |
 | PRD-5 | Search radius: what default and maximum? | **Decided 2026-11-03 by the user:** 2 km default, 100 m to 10 km (REC-2). |
+| PRD-6 | Is the app commercial (advertising, fees, sponsorship, or run by a business)? Several vendors' free plans exclude commercial use, and some data terms may treat it differently. The chosen map options allow either (ADR-0009). | Open, not blocking yet |
 
 ## Legal
 
@@ -35,5 +36,5 @@ Prefixes: SRC (a data source's terms or availability), PRD (product), LEG (legal
 
 | ID | Question | Status |
 |---|---|---|
-| HOST-1 | Where to host the API, the worker, and PostGIS. The host's load balancer and CDN logs have to drop query strings (ADR-0006). | Open, blocks deployment |
+| HOST-1 | Where to host the API, the worker, PostGIS, and the map's PMTiles file (served with HTTP range requests, ADR-0009). The host's load balancer and CDN logs have to drop query strings (ADR-0006) and tile paths (ADR-0009). | Open, blocks deployment |
 | VEN-1 | A geocoder for address search ("parking near this address"), and its terms on caching and display. Slice 1 uses the device's location or a tap on the map instead. | Open, later slice |

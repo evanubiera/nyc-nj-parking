@@ -6,7 +6,7 @@
 upstream portals ──(scheduled HTTPS)──▶ apps/worker ──(SQL)──▶ PostgreSQL + PostGIS
                                                                      ▲
                        browser ──(HTTPS JSON /api)──▶ apps/api ──(SQL, read-only)
-                          ▲
+                          ▲    └──(map tiles)──▶ OpenFreeMap now; our own hosting in production (ADR-0009)
                      apps/web (static files)
 ```
 
@@ -57,6 +57,7 @@ Environment variables only, read and checked at startup:
 | `LOG_LEVEL` | api, worker | Default `info` |
 | `SOCRATA_APP_TOKEN` | worker | Optional locally, required in deployment. Never logged. |
 | `CONTACT_URL` | worker | Goes in the User-Agent (ING-5). Optional locally, required in deployment. |
+| `VITE_MAP_STYLE_URL` | web (build time) | The map's style JSON (ADR-0009). OpenFreeMap's in development and previews; our own self-hosted Protomaps style in production. |
 
 ## Logging
 
@@ -81,4 +82,4 @@ pino, JSON lines.
 
 ## Deployment
 
-Not decided (HOST-1). Requirements for whichever host we choose: run the API and the worker as separate processes; managed PostgreSQL with PostGIS; access logs without query strings (ADR-0006); HTTPS only.
+Not decided (HOST-1). Requirements for whichever host we choose: run the API and the worker as separate processes; managed PostgreSQL with PostGIS; object storage that serves the map's PMTiles file, glyphs, and sprites with HTTP range requests (ADR-0009); access logs without query strings (ADR-0006) or tile paths (ADR-0009); HTTPS only. A scheduled job refreshes the NYC and NJ map extract, roughly monthly.

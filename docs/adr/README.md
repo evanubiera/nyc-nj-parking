@@ -12,3 +12,4 @@ Each ADR records one decision: the context, the options, the choice, and what fo
 | [0006](0006-user-location-privacy.md) | Users' locations are rounded and never stored or logged | Accepted |
 | [0007](0007-public-agency-scope.md) | Scope is public-agency parking, labeled by operator | Accepted |
 | [0008](0008-attribution-and-disclaimer.md) | Every result shows where it came from, and every page carries the disclaimer | Accepted |
+| [0009](0009-map-tiles.md) | Map tiles from our own hosting, with OpenFreeMap until then | Accepted |

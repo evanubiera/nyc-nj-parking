@@ -35,6 +35,7 @@ Each requirement has an ID. Tasks, tests, and contract operations (`x-requiremen
 | PRIV-1 | No table, log, or metric stores a user's coordinates or place-search text. | 0 |
 | PRIV-2 | Request logs record the method, route pattern, status code, and duration, never the URL, the query string, or the request body. | 0 |
 | PRIV-3 | The web app rounds coordinates to 3 decimal places before sending them. The API rounds again before using them, and doesn't echo them in responses. | 1 |
+| PRIV-4 | The public app's map tiles come from our own hosting, whose logs drop tile paths as well as query strings. A third-party tile host (OpenFreeMap) is used only for development and previews (ADR-0009). | Deployment |
 
 ## Attribution and accuracy (ATT)
 
@@ -67,3 +68,4 @@ Reviewed by the user on 2026-11-03: metered hours are shown as metered hours, fa
 | WEB-4 | The user can share their device location, or tap a point on the map, to search. If they decline location sharing, the app explains how to search by tapping the map. | 1 |
 | WEB-5 | Results show on a list and on a map, nearest first, with each result's sources and data date. | 1 |
 | WEB-6 | Metered hours are labelled as metered hours with their time limit, never as opening hours. When hours are unknown, the result says so and links to the official page. | 1 |
+| WEB-7 | The map shows the attribution its tile style requires, including "© OpenStreetMap" linked to the licence, in a corner of the map. The map style comes from configuration (`VITE_MAP_STYLE_URL`), not code (ADR-0009). | 1 |
