@@ -22,7 +22,7 @@ A public web app, usable on phones, that suggests public parking near the user a
 ## Rules that must never be broken
 1. **Users' locations** are never stored or logged. The web app rounds coordinates to 3 decimal places, and the API rounds again. Request logs never contain the URL, the query string, or the body. (ADR-0006, PRIV-1 to PRIV-3)
 2. **No upstream calls during a request.** Only the worker calls upstream portals. (ADR-0005, ING-1)
-3. **Only Admitted sources** in `specs/06-sources.md` are ingested. (ING-6)
+3. **Only Admitted sources** in `specs/06-sources.md` are ingested. A source with unstated terms can be Admitted, terms pending while we ask its publisher; a source with stated restrictions can't. (ING-6, ADR-0011)
 4. **A failed ingestion run changes no facility data.** Normalizing and writing happen in one transaction. (ING-3)
 5. **Every facility shown carries its source and data date**, and every page shows the disclaimer. (ADR-0008, ATT-1, ATT-2)
 6. **Private facilities** (owner recorded as private) aren't shown. Every facility has an operator name and type. (ADR-0007)
@@ -35,11 +35,11 @@ A public web app, usable on phones, that suggests public parking near the user a
 13. **String arrays in SQL** go through `textArray` from `@parking/db`. postgres.js sends an untyped string array as plain text in a connection's first query. Lint enforces this.
 
 ## Commands
-Needs Node 24 with `corepack enable` (for the pinned pnpm), and Docker Desktop for `pnpm dev`.
+Needs Node 24 with `corepack enable` (for the pinned pnpm). Docker Desktop is optional: without it, `pnpm dev` uses PGlite (ADR-0010).
 
 ```bash
 pnpm install          # dependencies; also generates packages/api-client from the contract
-pnpm dev              # PostGIS in Docker (host port 5434), migrations, then the API (:8180) and the web app (:5180)
+pnpm dev              # database on 5434 (Docker, or PGlite in .data/), migrations, data on first start, then the API (:8180) and the web app (:5180)
 pnpm test             # Vitest in every package (database tests use TEST_DATABASE_URL, or PGlite if it isn't set)
 pnpm test:e2e         # Playwright smoke test on an emulated phone; starts its own stack from the saved fixtures
 pnpm lint             # contract lint, then ESLint everywhere

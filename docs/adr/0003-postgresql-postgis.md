@@ -1,6 +1,6 @@
 # ADR-0003: PostgreSQL with PostGIS as the only data store
 
-- Status: Accepted (2026-11-03, by the user)
+- Status: Accepted (2026-11-03, by the user); the local-development part is superseded by ADR-0010
 - Date: 2026-11-03
 
 ## Context

@@ -9,11 +9,13 @@ Prefixes: SRC (a data source's terms or availability), PRD (product), LEG (legal
 | ID | Question | Blocks | Status |
 |---|---|---|---|
 | SRC-1 | Can we republish the hours and rates on the nyc.gov DOT page (nyc.gov/html/dot/html/motorist/parkinglist.shtml), given that the nyc.gov Terms of Use say site content is "All rights are reserved"? Options: link out only; ask DOT or the Office of Technology and Innovation to publish the data on NYC Open Data; get a lawyer's view. | Rates in slice 3 | Open |
-| SRC-2 | NJ Transit's Parking Lot Database (ArcGIS item 2f311895a644453f8f679479187aa19e) states no license or terms. Ask the NJ Transit GIS Department for terms, and for a stable URL (the layer's name contains a date). | Slice 2 | Open |
-| SRC-3 | NJDOT's park-and-ride layer (item ab33be6e4a51439c9ed179809b4d99cf) has only a liability disclaimer. Does NJDOT allow redistribution in a public app? | Slice 2 | Open |
+| SRC-2 | NJ Transit's Parking Lot Database (ArcGIS item 2f311895a644453f8f679479187aa19e) states no license or terms. Ask the NJ Transit GIS Department for terms, and for a stable URL (the layer's name contains a date). | — | Open. Request drafted 2026-11-03, not yet sent. No longer blocks slice 2 (ADR-0011): the source can be used while we ask, and comes out if the publisher objects. |
+| SRC-3 | NJDOT's park-and-ride layer (item ab33be6e4a51439c9ed179809b4d99cf) has only a liability disclaimer. Does NJDOT allow redistribution in a public app? | — | Open. Request drafted 2026-11-03, not yet sent. No longer blocks slice 2 (ADR-0011): the source can be used while we ask, and comes out if the publisher objects. |
 | SRC-4 | NJDEP's Data Distribution Agreement requires a set credit line and says the data "may not be reproduced or redistributed without all the metadata". Does an app that shows points (and links to the metadata) meet that? | NJ state park parking, slice 4 | Open |
 | SRC-5 | Jersey City: is there a current list of municipal lots, from the city or the Jersey City Parking Authority, and under what terms? The portal's only dataset has 7 lots from 2020. | Slice 4 | Open |
 | SRC-6 | Which map tile provider, and do its terms allow a public app at our expected traffic? | — | **Decided 2026-11-03 by the user (ADR-0009):** self-hosted Protomaps PMTiles in production; OpenFreeMap's public instance for development and previews until then. |
+| SRC-7 | Hoboken: may we list the Parking Utility's garages and lots from hobokennj.gov (names, addresses, capacities, hours) and link to it, and is its garage availability table meant to be reused? The page states no terms. | Hoboken garages, slice 4 | Open, not yet asked |
+| SRC-8 | Other NJ parking authorities (Newark, Paterson, New Brunswick, Morristown, Montclair, Princeton, Elizabeth, Trenton, Camden, Atlantic City, Asbury Park, Red Bank, Hackensack) publish lots only on their websites, or not at all. For each: ask for a list and its terms, or rely on NJ Transit's database for their station lots. | Slice 4 | Open |
 
 ## Product
 

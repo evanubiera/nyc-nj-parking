@@ -1,6 +1,6 @@
 # ADR-0005: Aggregate and cache, and admit sources one at a time
 
-- Status: Accepted (2026-11-03, by the user)
+- Status: Accepted (2026-11-03, by the user); for sources with unstated terms, the "no open terms question" condition is superseded by ADR-0011
 - Date: 2026-11-03
 
 ## Context

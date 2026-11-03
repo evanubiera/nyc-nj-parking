@@ -6,13 +6,15 @@ Status: slice 1 (NYC DOT garages and fields) is built and smoke-tested. In devel
 
 ## Run it
 
-Needs Node 24 (`corepack enable` picks up the pinned pnpm) and Docker Desktop.
+Needs Node 24 (`corepack enable` picks up the pinned pnpm). Docker Desktop is optional.
 
 ```bash
 pnpm install
-cp .env.example .env
-pnpm dev        # PostGIS in Docker on port 5434, migrations, API on :8180, web app on :5180
+pnpm dev        # database on port 5434 (Docker if it's running, otherwise PGlite in .data/), migrations,
+                # NYC data on the first start, then the API on :8180 and the web app on :5180
 ```
+
+Then open http://localhost:5180. To refresh the data later, run `pnpm ingest nyc-facdb-dot` or `pnpm ingest nyc-meters-offstreet`. To start over, stop `pnpm dev` and delete `.data/`.
 
 ## Check it
 

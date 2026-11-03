@@ -6,7 +6,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./testing": "./src/testing.ts",
-    "./vitest-global-setup": "./src/vitest-global-setup.ts"
+    "./vitest-global-setup": "./src/vitest-global-setup.ts",
+    "./dev-database": "./src/dev-database.ts"
   },
   "scripts": {
     "migrate": "node --env-file-if-exists=../../.env src/cli.ts",

@@ -1,6 +1,8 @@
 node_modules/
 dist/
 coverage/
+# The local PGlite database used by `pnpm dev` without Docker (ADR-0010)
+.data/
 *.tsbuildinfo
 .env
 .env.*

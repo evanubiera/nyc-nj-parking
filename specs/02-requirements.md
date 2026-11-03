@@ -22,7 +22,7 @@ Each requirement has an ID. Tasks, tests, and contract operations (`x-requiremen
 | ING-3 | A run that fails at any step leaves facility data unchanged, and is recorded as `failed` with an error code. | 0 |
 | ING-4 | Every run is recorded: source, start and end time, status, rows read, rows written, and rows withdrawn. | 0 |
 | ING-5 | Upstream requests send a User-Agent that names the app and, when `CONTACT_URL` is set (required in deployment), a contact URL. They send the Socrata app token in the `X-App-Token` header for Socrata sources, and time out after 30 seconds. Tokens are never logged. | 0 |
-| ING-6 | The worker runs only sources marked Admitted in specs/06-sources.md. The worker's source registry is checked against that table by a test. | 0 |
+| ING-6 | The worker runs only sources marked Admitted (including Admitted, terms pending under ADR-0011) in specs/06-sources.md. The worker's source registry is checked against that table by a test. | 0 |
 | ING-7 | When a snapshot's hash matches the last successful run's snapshot, normalizing is skipped and the run is recorded as `unchanged`. | 0 |
 | ING-8 | Facilities that are no longer in a source are marked withdrawn, with the time, and aren't returned by the API. | 1 |
 | ING-9 | Snapshots older than the newest 10 per source are deleted. | 1 |

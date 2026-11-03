@@ -70,7 +70,7 @@ pino, JSON lines.
 ## Local development
 
 - `pnpm install`: installs everything and generates packages/api-client.
-- `pnpm dev`: starts PostGIS from compose.yaml (Docker Desktop, host port 5434), runs the migrations, then runs the API on :8180 and the web app on :5180. Vite proxies `/api` to the API. The ports differ from the usual 8080 and 5173 so this project can run next to the gear-rental project.
+- `pnpm dev` (scripts/dev.ts, ADR-0010): uses a database already on port 5434, or Docker's PostGIS from compose.yaml if Docker is running, or else PGlite with PostGIS saved in `.data/pglite`. It runs the migrations, loads each admitted source if there are no facilities yet (from the source, or its saved copy if that can't be reached), then runs the API on :8180 and the web app on :5180. Vite proxies `/api` to the API. `DEV_DATABASE=docker|pglite` forces a choice. The ports differ from the usual 8080 and 5173 so this project can run next to the gear-rental project.
 - `pnpm test`: Vitest in every package. Database tests use `TEST_DATABASE_URL` if it's set, otherwise PGlite + PostGIS in-process (ADR-0003).
 
 ## Testing
