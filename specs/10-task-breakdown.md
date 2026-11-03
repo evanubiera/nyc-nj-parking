@@ -45,7 +45,7 @@ Drafts reviewed by the user on 2026-11-03 (see specs/02, Recommendations).
 | S1-8 | `listSources` and the Sources page | ATT-3 | Tests pass on PGlite |
 | S1-9a | Web: device location, radius, results list with metered hours labelled as such, unknown hours with the operator's link, credits per result, Sources page | WEB-4, WEB-5, WEB-6, PRIV-3, ATT-2, ATT-3 | Done |
 | S1-9b | Web: the map (MapLibre, style from `VITE_MAP_STYLE_URL`, OpenFreeMap for now), numbered result markers matching the cards, and searching by tapping it | WEB-4, WEB-5, WEB-7 | Done |
-| S1-10 | Playwright smoke test and slice 1 close | All slice 1 | Not started: needs Playwright's Chromium downloaded |
+| S1-10 | Playwright smoke test on an emulated phone, against its own stack seeded from the saved fixtures, with axe checks in a real browser | All slice 1 | Done (locally, on PGlite) |
 
 ### Slice 1 status (2026-11-03)
 
@@ -55,6 +55,8 @@ The first live ingest found a bug the tests had missed: postgres.js sent a strin
 
 The map (S1-9b), checked in the browser at phone width with live data and OpenFreeMap tiles: the credits in the corner, the control labels from the catalog, a tap in Astoria sending `lat=40.771&lng=-73.912` and showing five fields with markers numbered like the cards, and a marker tap moving to its card. The first run found that MapLibre's worker didn't load under Vite (it looks for the worker next to its own module); fixed with `setWorkerUrl` and a `?url` import of the worker.
 
-Not checked yet: real PostGIS (no Docker), CI (no remote), and the Playwright smoke test (S1-10).
+The smoke test (S1-10, `pnpm test:e2e`): five tests on an emulated Pixel 7, all passing locally in about 8 seconds. Its axe checks run in a real browser, so they include colour contrast, which jsdom can't check. They found two problems, both fixed: the operator-page link's spoken name didn't start with its visible text (WCAG 2.5.3), and the map was two landmarks with the same name.
+
+Not checked yet: real PostGIS (no Docker) and CI (no remote; the workflow now has an `e2e` job too).
 
 The self-hosted map tiles for production (PRIV-4, ADR-0009) are deployment work, with HOST-1.

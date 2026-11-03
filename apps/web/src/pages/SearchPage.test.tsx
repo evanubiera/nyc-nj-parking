@@ -67,12 +67,12 @@ describe('SearchPage', () => {
   });
 
   it('WEB-4 explains what to do when location sharing is off and there is no map', async () => {
-    renderWithProviders(<SearchPage geolocation={geolocationAnswering({ error: 1 })} styleUrl={null} />);
+    const { container } = renderWithProviders(<SearchPage geolocation={geolocationAnswering({ error: 1 })} styleUrl={null} />);
 
     fireEvent.click(screen.getByRole('button', { name: en['search.useLocation'] }));
 
     expect(await screen.findByText(en['location.deniedNoMap'])).toBeInTheDocument();
-    expect(screen.queryByRole('region', { name: en['map.label'] })).not.toBeInTheDocument();
+    expect(container.querySelector('.results-map')).toBeNull();
     expect(recommend).not.toHaveBeenCalled();
   });
 

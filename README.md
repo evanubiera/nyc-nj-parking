@@ -2,7 +2,7 @@
 
 A public web app, usable on phones, that suggests public parking near you across New York City and New Jersey: garages, lots, and fields run by cities, counties, the state, and transit agencies. A scheduled worker pulls open data into PostgreSQL/PostGIS, and the API answers from that database only.
 
-Status: slice 1 (NYC DOT garages and fields) is built, apart from the Playwright smoke test. In development the map uses OpenFreeMap's tiles; production needs self-hosted tiles first (ADR-0009). See [specs/01-overview.md](specs/01-overview.md) for the slices, and [specs/06-sources.md](specs/06-sources.md) for what each data source actually contains.
+Status: slice 1 (NYC DOT garages and fields) is built and smoke-tested. In development the map uses OpenFreeMap's tiles; production needs self-hosted tiles first (ADR-0009). See [specs/01-overview.md](specs/01-overview.md) for the slices, and [specs/06-sources.md](specs/06-sources.md) for what each data source actually contains.
 
 ## Run it
 
@@ -21,6 +21,7 @@ pnpm lint       # contract lint, then ESLint
 pnpm typecheck
 pnpm test       # database tests use TEST_DATABASE_URL, or an in-process PGlite with PostGIS if it isn't set
 pnpm build
+pnpm test:e2e   # Playwright smoke test on an emulated phone; starts its own stack (once: pnpm --filter @parking/e2e exec playwright install --only-shell chromium)
 ```
 
 To run the database tests against real PostGIS locally, start the database with `docker compose up -d`, create a separate test database, and set `TEST_DATABASE_URL` to it. Tests empty the tables they use, so never point it at your development database.

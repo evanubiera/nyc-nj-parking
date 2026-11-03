@@ -41,3 +41,40 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build
+
+  # S1-10: the smoke test on an emulated phone. It seeds its own data from the saved fixtures and
+  # serves its own map style, so it calls neither NYC Open Data nor a tile host.
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgis:
+        image: postgis/postgis:18-3.6
+        env:
+          POSTGRES_USER: parking
+          POSTGRES_PASSWORD: parking
+          POSTGRES_DB: parking_e2e
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U parking -d parking_e2e"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 30
+    env:
+      TEST_DATABASE_URL: postgres://parking:parking@localhost:5432/parking_e2e
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @parking/e2e exec playwright install --with-deps --only-shell chromium
+      - run: pnpm test:e2e
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: playwright-traces
+          path: e2e/test-results/
+          retention-days: 7

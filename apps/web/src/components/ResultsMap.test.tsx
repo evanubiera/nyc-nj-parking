@@ -42,9 +42,9 @@ describe('ResultsMap', () => {
       'NavigationControl.ZoomOut': en['map.zoomOut'],
       'AttributionControl.ToggleAttribution': en['map.toggleAttribution'],
       'CooperativeGesturesHandler.MobileHelpText': en['map.gestures.mobile'],
+      'Map.Title': en['map.label'],
     });
     expect(map.options.cooperativeGestures).toBe(true);
-    expect(screen.getByRole('region', { name: en['map.label'] })).toBeInTheDocument();
   });
 
   it('PRIV-3 passes on a tapped point rounded to 3 decimal places', () => {

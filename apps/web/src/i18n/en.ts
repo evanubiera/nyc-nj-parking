@@ -50,7 +50,8 @@ export const en = {
   'meter.everyDay': 'every day',
   'hours.unknown': "Opening hours and rates aren't in the open data yet.",
   'facility.officialLink': 'Hours and rates on the operator’s page',
-  'facility.officialLinkLabel': 'Hours and rates for {name} on the operator’s page',
+  // Starts with the link's visible text, so voice control finds it (WCAG 2.5.3).
+  'facility.officialLinkLabel': 'Hours and rates on the operator’s page, for {name}',
 
   'credits.line': 'Data: {sources}',
   'credits.source': '{title}, as of {date}',

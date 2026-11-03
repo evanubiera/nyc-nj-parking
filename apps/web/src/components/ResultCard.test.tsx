@@ -36,7 +36,7 @@ describe('ResultCard', () => {
 
     expect(screen.getByText(en['hours.unknown'])).toBeInTheDocument();
     expect(screen.queryByText(en['meter.heading'])).not.toBeInTheDocument();
-    const link = screen.getByRole('link', { name: 'Hours and rates for Delancey - Essex Municipal Parking Garage on the operator’s page' });
+    const link = screen.getByRole('link', { name: 'Hours and rates on the operator’s page, for Delancey - Essex Municipal Parking Garage' });
     expect(link).toHaveAttribute('href', 'https://www.nyc.gov/html/dot/html/motorist/parkinglist.shtml#manhattan');
   });
 

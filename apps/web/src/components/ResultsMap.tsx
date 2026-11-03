@@ -103,8 +103,10 @@ export default function ResultsMap({ styleUrl, point, results, onSelectPoint, on
     return () => markers.forEach((marker) => marker.remove());
   }, [intl, point, results]);
 
+  // MapLibre makes the map a labelled region itself, named from 'Map.Title' (map.label), so this wrapper
+  // isn't one; two regions with one name would be a duplicate landmark (WEB-2).
   return (
-    <div className="results-map" role="region" aria-label={intl.formatMessage({ id: 'map.label' })}>
+    <div className="results-map">
       <div ref={container} className="results-map__canvas" />
     </div>
   );

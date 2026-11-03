@@ -9,5 +9,10 @@ coverage/
 !apps/web/.env.development
 .DS_Store
 
+# Playwright output (pnpm test:e2e)
+e2e/test-results/
+e2e/playwright-report/
+e2e/blob-report/
+
 # Generated from api/openapi.yaml by `pnpm api:generate` (ADR-0004)
 packages/api-client/src/generated/

@@ -41,6 +41,7 @@ Needs Node 24 with `corepack enable` (for the pinned pnpm), and Docker Desktop f
 pnpm install          # dependencies; also generates packages/api-client from the contract
 pnpm dev              # PostGIS in Docker (host port 5434), migrations, then the API (:8180) and the web app (:5180)
 pnpm test             # Vitest in every package (database tests use TEST_DATABASE_URL, or PGlite if it isn't set)
+pnpm test:e2e         # Playwright smoke test on an emulated phone; starts its own stack from the saved fixtures
 pnpm lint             # contract lint, then ESLint everywhere
 pnpm typecheck        # tsc in every package
 pnpm build            # every package

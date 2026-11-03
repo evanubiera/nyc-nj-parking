@@ -6,8 +6,9 @@ export default defineConfig({
   server: {
     port: 5180,
     strictPort: true,
-    // The API is same-origin in deployment; locally Vite forwards /api to it.
-    proxy: { '/api': 'http://127.0.0.1:8180' },
+    // The API is same-origin in deployment; locally Vite forwards /api to it. The smoke test runs its
+    // own API on another port and sets API_ORIGIN.
+    proxy: { '/api': process.env.API_ORIGIN ?? 'http://127.0.0.1:8180' },
   },
   test: {
     environment: 'jsdom',

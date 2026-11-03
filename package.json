@@ -17,7 +17,8 @@
     "lint:contract": "redocly lint api/openapi.yaml",
     "api:generate": "pnpm --filter @parking/api-client generate",
     "db:migrate": "pnpm --filter @parking/db migrate",
-    "ingest": "pnpm --filter @parking/worker ingest"
+    "ingest": "pnpm --filter @parking/worker ingest",
+    "test:e2e": "pnpm --filter @parking/e2e e2e"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

@@ -79,6 +79,7 @@ pino, JSON lines.
 - Database tests: real PostGIS in CI (a GitHub Actions service container). PGlite is only the local fallback.
 - Contract: Redocly lint, plus a test that every contract operation has a handler and no handler exists without an operation (FND-2).
 - Source adapters (slice 1): saved fixtures from the real sources, never live calls in tests.
+- Smoke test (`pnpm test:e2e`, e2e/): Playwright on an emulated phone. e2e/stack.ts starts a fresh database, ingests both sources through the real worker code from the saved fixtures, starts the real API on port 8181, and serves a one-layer map style on 8182; Vite runs on 5181 with `API_ORIGIN` and `VITE_MAP_STYLE_URL` pointing at them. So it calls neither NYC Open Data nor a tile host. Axe runs in the real browser there, including colour contrast. Needs Playwright's Chromium once: `pnpm --filter @parking/e2e exec playwright install --only-shell chromium`.
 
 ## Deployment
 
