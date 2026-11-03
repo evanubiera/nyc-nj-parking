@@ -1,6 +1,6 @@
 # ADR-0003: PostgreSQL with PostGIS as the only data store
 
-- Status: Proposed (PostGIS and Docker Desktop were chosen by the user on 2026-11-03)
+- Status: Accepted (2026-11-03, by the user)
 - Date: 2026-11-03
 
 ## Context

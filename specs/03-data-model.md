@@ -56,9 +56,9 @@ One row per run (ING-4).
 
 A run left as `running` by a crash is marked `failed` with `run.abandoned` when the next run of that source starts.
 
-## Slice 1 draft (for review)
+## Slice 1
 
-These tables arrive with S1-2. Names and columns may change in review.
+These tables arrive with S1-2. Reviewed by the user on 2026-11-03: hours from parking meters are metered periods, kept apart from opening hours.
 
 ### `facility`
 | Column | Type | Notes |
@@ -72,7 +72,6 @@ These tables arrive with S1-2. Names and columns may change in review.
 | time_zone | text | IANA name |
 | location | geography(Point, 4326) | GiST index |
 | spaces | integer, nullable | When a source gives it |
-| hours_text | text, nullable | The source's original hours text, kept next to the parsed schedule |
 | official_url | text | The operator's page for this facility |
 | status | text | `active` or `withdrawn` (ING-8) |
 | first_seen_at, last_seen_at, withdrawn_at | timestamptz | |
@@ -85,7 +84,23 @@ Links a facility to each source record it was built from, because one facility c
 | source_id, source_record_id | text, primary key together | Such as `nyc-facdb-dot` and the Facilities Database `uid` |
 | facility_id | text, references `facility` | |
 
+### `facility_meter_period`
+When payment is required at the meters, and the time limit. Built from the meters' `meter_hours` text, such as "4HR Pas Mon-Sat 0700-2200". This isn't when a facility is open (WEB-6).
+
+| Column | Type | Notes |
+|---|---|---|
+| facility_id | text | |
+| days | smallint | Bit mask: Monday = 1 through Sunday = 64 |
+| starts_at, ends_at | time | Local time. `ends_at` at or before `starts_at` means the period ends after midnight |
+| max_stay_minutes | integer, nullable | The time limit, such as 240 for "4HR" |
+| vehicle_class | text | `passenger` ("Pas") or `commercial` ("Com") |
+| source_text | text | The original `meter_hours` value |
+
+A `meter_hours` value that doesn't parse (the data has at least one, "Rate NOT Available …") produces no period; the facility keeps its other data.
+
 ### `facility_hours`
+Opening hours. Filled only from a source that states them; none is admitted yet (SRC-1).
+
 | Column | Type | Notes |
 |---|---|---|
 | facility_id | text | |

@@ -1,6 +1,6 @@
 # ADR-0004: Contract-first API, with codes instead of display text
 
-- Status: Proposed
+- Status: Accepted (2026-11-03, by the user)
 - Date: 2026-11-03
 
 ## Context

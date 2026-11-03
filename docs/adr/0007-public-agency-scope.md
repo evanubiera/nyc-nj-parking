@@ -1,6 +1,6 @@
 # ADR-0007: Scope is public-agency parking, labeled by operator
 
-- Status: Proposed (the scope was chosen by the user on 2026-11-03, PRD-1)
+- Status: Accepted (2026-11-03, by the user)
 - Date: 2026-11-03
 
 ## Context

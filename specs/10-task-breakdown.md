@@ -6,7 +6,7 @@ Each task lists the requirement IDs it meets. Tests are named after those IDs. A
 
 | Task | What | Requirements | Status |
 |---|---|---|---|
-| S0-1 | Docs baseline: specs 01–06 and 10, ADRs 0001–0008, open questions, CLAUDE.md, README | — | Done (ADRs are Proposed, waiting on review) |
+| S0-1 | Docs baseline: specs 01–06 and 10, ADRs 0001–0008, open questions, CLAUDE.md, README | — | Done (ADRs accepted by the user on 2026-11-03) |
 | S0-2 | Workspace and tooling: pnpm workspace, shared TypeScript config, ESLint (including the import-boundary rules), Vitest | FND-6, WEB-3 | Done |
 | S0-3 | Contract and generated types: api/openapi.yaml with `getHealth` and the error schema, Redocly lint with the `x-requirements` rule, packages/api-client | FND-1 | Done |
 | S0-4 | Database: compose.yaml (PostGIS 18-3.6), packages/db (connection, migration runner, `0001_foundation.sql`, test helper with the PGlite fallback) | FND-5 | Tests pass on PGlite; waiting on a real PostGIS run |
@@ -29,17 +29,19 @@ Not checked yet:
 
 Ports are 8180 (API) and 5180 (web), so this project can run next to gear-rental, which uses 8080 and 5173.
 
-## Slice 1: NYC DOT garages and fields (draft, for review)
+## Slice 1: NYC DOT garages and fields
+
+Drafts reviewed by the user on 2026-11-03 (see specs/02, Recommendations).
 
 | Task | What | Requirements |
 |---|---|---|
 | S1-1 | Contract: `getRecommendations` and `listSources`, from the draft in specs/05-api.md after review | FND-1, REC-1 to REC-4, ATT-3 |
-| S1-2 | Facility schema: `facility`, `facility_source`, `facility_hours`, `facility_rate` (specs/03) | REC-4, ING-8 |
+| S1-2 | Facility schema: `facility`, `facility_source`, `facility_meter_period`, `facility_hours`, `facility_rate` (specs/03) | REC-4, ING-8 |
 | S1-3 | Adapter `nyc-facdb-dot`, with a saved fixture; admit it in specs/06 | ING-6, ATT-2 |
-| S1-4 | Adapter `nyc-meters-offstreet`, plus a parser for `meter_hours` into weekly periods, keeping the original text; admit it in specs/06 | ING-6, REC-4 |
+| S1-4 | Adapter `nyc-meters-offstreet`, plus a parser for `meter_hours` into meter periods (days, times, time limit, vehicle class), keeping the original text; values that don't parse keep only the text. Admit it in specs/06 | ING-6, REC-4 |
 | S1-5 | Matching across the two sources by normalized name and distance under 150 m, giving one facility with both sources | REC-4, ATT-2 |
 | S1-6 | Withdrawals and snapshot retention | ING-8, ING-9 |
-| S1-7 | `getRecommendations`: rounding, the PostGIS query, distance rounding, the coverage check, and a performance test with 5,000 facilities | REC-1 to REC-5, PRIV-3 |
+| S1-7 | `getRecommendations`: rounding, the PostGIS query, distance rounding, the coverage check, facilities without hours, and a performance test with 5,000 facilities | REC-1 to REC-6, PRIV-3 |
 | S1-8 | `listSources` and the Sources page | ATT-3 |
-| S1-9 | Web: device location or a tap on the map, then a results list and a map, with credits per result. The map needs a tile provider (SRC-6); until then the list works on its own. | WEB-4, WEB-5, PRIV-3, ATT-2 |
+| S1-9 | Web: device location or a tap on the map, then a results list and a map, with credits per result and metered hours labelled as such. The map needs a tile provider (SRC-6); until then the list works on its own. | WEB-4, WEB-5, WEB-6, PRIV-3, ATT-2 |
 | S1-10 | Playwright smoke test and slice 1 close | All slice 1 |

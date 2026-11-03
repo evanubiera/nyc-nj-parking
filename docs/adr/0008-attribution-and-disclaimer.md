@@ -1,6 +1,6 @@
 # ADR-0008: Every result shows where it came from, and every page carries the disclaimer
 
-- Status: Proposed
+- Status: Accepted (2026-11-03, by the user)
 - Date: 2026-11-03
 
 ## Context

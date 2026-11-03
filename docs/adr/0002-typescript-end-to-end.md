@@ -1,6 +1,6 @@
 # ADR-0002: TypeScript end to end
 
-- Status: Proposed (the choice itself was made by the user on 2026-11-03)
+- Status: Accepted (2026-11-03, by the user)
 - Date: 2026-11-03
 
 ## Context

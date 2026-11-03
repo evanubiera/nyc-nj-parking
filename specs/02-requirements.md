@@ -43,15 +43,18 @@ Each requirement has an ID. Tasks, tests, and contract operations (`x-requiremen
 | ATT-2 | Every facility in a response carries its source IDs, the source's data date, and a link to the official page. The web app shows them with each result. | 1 |
 | ATT-3 | `GET /api/sources` and a Sources page list each admitted source: publisher, dataset link, terms link, data date, required credit text (if any), and what we change. | 1 |
 
-## Recommendations (REC), slice 1 draft for review
+## Recommendations (REC), slice 1
+
+Reviewed by the user on 2026-11-03: metered hours are shown as metered hours, facilities without hours are still shown, the default radius is 2 km, and fields are camelCase.
 
 | ID | Requirement | Slice |
 |---|---|---|
 | REC-1 | `GET /api/parking/recommendations` returns active public facilities within the radius of the given point, nearest first, at most 50. | 1 |
-| REC-2 | `radius` is in meters, from 100 to 10,000, with a default of 2,000 (PRD-5). A value outside that range returns 400 `request.invalid_parameter`. | 1 |
+| REC-2 | `radius` is in meters, from 100 to 10,000, with a default of 2,000 (PRD-5, decided). A value outside that range returns 400 `request.invalid_parameter`. | 1 |
 | REC-3 | A point outside the coverage area (NYC and NJ bounding boxes in specs/05-api.md) returns 422 `location.out_of_area`. | 1 |
-| REC-4 | Each result has: ID, name, kind (garage, lot, or field), operator name and type, facility address, facility location, distance in meters rounded to the nearest 10, the hours schedule and the source's original hours text, rates when known (minor units plus currency), and its sources (ATT-2). | 1 |
+| REC-4 | Each result has: ID, name, kind (garage, lot, or field), operator name and type, facility address, facility location, distance in meters rounded to the nearest 10, metered hours (periods with the time limit and vehicle class, plus the source's original text) when a source has them, opening hours when a source gives them (none admitted yet, SRC-1), rates when known (minor units plus currency), and its sources (ATT-2). | 1 |
 | REC-5 | The 95th percentile response time is under 300 ms with 5,000 facilities in the database. | 1 |
+| REC-6 | A facility with no hours from any source is still returned, with metered and opening hours both null and its official page link. | 1 |
 
 ## Web (WEB)
 
@@ -62,3 +65,4 @@ Each requirement has an ID. Tasks, tests, and contract operations (`x-requiremen
 | WEB-3 | Layers: components → hooks → services → packages/api-client. Only services call the network. Lint enforces this. | 0 |
 | WEB-4 | The user can share their device location, or tap a point on the map, to search. If they decline location sharing, the app explains how to search by tapping the map. | 1 |
 | WEB-5 | Results show on a list and on a map, nearest first, with each result's sources and data date. | 1 |
+| WEB-6 | Metered hours are labelled as metered hours with their time limit, never as opening hours. When hours are unknown, the result says so and links to the official page. | 1 |

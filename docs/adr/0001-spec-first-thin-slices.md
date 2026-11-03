@@ -1,6 +1,6 @@
 # ADR-0001: Spec-first delivery in thin vertical slices
 
-- Status: Proposed
+- Status: Accepted (2026-11-03, by the user)
 - Date: 2026-11-03
 
 ## Context
