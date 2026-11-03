@@ -7,9 +7,13 @@ export type LocationState =
   | { status: 'found'; point: Point }
   | { status: 'denied' | 'unavailable' | 'unsupported' };
 
-/** WEB-4. The point is rounded as soon as it arrives (PRIV-3) and lives only in this state. */
-export function useDeviceLocation(geolocation: Geolocation | undefined = globalThis.navigator?.geolocation) {
+/** WEB-4. The point is rounded as soon as it arrives (PRIV-3) and is kept only in memory. */
+export function useDeviceLocation(
+  geolocation: Geolocation | undefined = globalThis.navigator?.geolocation,
+  onFound?: (point: Point) => void,
+) {
   const [state, setState] = useState<LocationState>({ status: 'idle' });
+  const reset = useCallback(() => setState({ status: 'idle' }), []);
 
   const locate = useCallback(() => {
     if (!geolocation) {
@@ -18,12 +22,16 @@ export function useDeviceLocation(geolocation: Geolocation | undefined = globalT
     }
     setState({ status: 'locating' });
     geolocation.getCurrentPosition(
-      (position) => setState({ status: 'found', point: roundPoint({ lat: position.coords.latitude, lng: position.coords.longitude }) }),
+      (position) => {
+        const point = roundPoint({ lat: position.coords.latitude, lng: position.coords.longitude });
+        setState({ status: 'found', point });
+        onFound?.(point);
+      },
       (error) => setState({ status: error.code === error.PERMISSION_DENIED ? 'denied' : 'unavailable' }),
       // A coarse fix is enough after rounding, and is quicker and lighter on the battery.
       { enableHighAccuracy: false, timeout: 15_000, maximumAge: 60_000 },
     );
-  }, [geolocation]);
+  }, [geolocation, onFound]);
 
-  return { state, locate };
+  return { state, locate, reset };
 }

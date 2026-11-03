@@ -5,6 +5,8 @@ coverage/
 .env
 .env.*
 !.env.example
+# Holds no secrets: the development map style only (ADR-0009)
+!apps/web/.env.development
 .DS_Store
 
 # Generated from api/openapi.yaml by `pnpm api:generate` (ADR-0004)

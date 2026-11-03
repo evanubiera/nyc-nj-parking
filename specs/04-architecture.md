@@ -21,7 +21,7 @@ upstream portals ──(scheduled HTTPS)──▶ apps/worker ──(SQL)──�
 Rules:
 - apps/api and apps/worker never import each other (FND-6). ESLint blocks it.
 - apps/api can't use `fetch` or HTTP client modules (ING-1). ESLint blocks it.
-- In apps/web: components → hooks → services → packages/api-client. Only services call the network (WEB-3). ESLint blocks `fetch` and api-client imports outside services.
+- In apps/web: components → hooks → services → packages/api-client. Only services call the network (WEB-3). ESLint blocks `fetch` and api-client imports outside services. The one exception is MapLibre fetching map tiles, glyphs, and sprites from the configured style (ADR-0009); it never calls our API.
 
 ## Request flow (slice 1)
 
@@ -57,7 +57,7 @@ Environment variables only, read and checked at startup:
 | `LOG_LEVEL` | api, worker | Default `info` |
 | `SOCRATA_APP_TOKEN` | worker | Optional locally, required in deployment. Never logged. |
 | `CONTACT_URL` | worker | Goes in the User-Agent (ING-5). Optional locally, required in deployment. |
-| `VITE_MAP_STYLE_URL` | web (build time) | The map's style JSON (ADR-0009). OpenFreeMap's in development and previews; our own self-hosted Protomaps style in production. |
+| `VITE_MAP_STYLE_URL` | web (build time) | The map's style JSON (ADR-0009). Set to OpenFreeMap's Positron style in apps/web/.env.development, which is committed and used only by `vite` in development. Production builds set our own self-hosted Protomaps style; until then they have no map. |
 
 ## Logging
 

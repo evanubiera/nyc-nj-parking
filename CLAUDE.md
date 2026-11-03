@@ -27,7 +27,7 @@ A public web app, usable on phones, that suggests public parking near the user a
 5. **Every facility shown carries its source and data date**, and every page shows the disclaimer. (ADR-0008, ATT-1, ATT-2)
 6. **Private facilities** (owner recorded as private) aren't shown. Every facility has an operator name and type. (ADR-0007)
 7. **The API returns no display text.** Errors carry a `code`. The web app has no literal strings in JSX; text comes from the message catalog. (ADR-0004, FND-4, WEB-1)
-8. **Front-end layers:** components → hooks → services → `packages/api-client`. Only services call the network. (WEB-3)
+8. **Front-end layers:** components → hooks → services → `packages/api-client`. Only services call the network; MapLibre loading map tiles is the one exception, and it never calls our API. (WEB-3, ADR-0009)
 9. **apps/api and apps/worker never import each other.** Shared code goes in `packages/`. (FND-6)
 10. **Generated code is never edited by hand.** Change `api/openapi.yaml` and regenerate. (ADR-0004)
 11. **Money** is minor units plus a currency, never a float. **Time** is stored in UTC; opening hours are local wall-clock times with the facility's time zone. (specs/03)

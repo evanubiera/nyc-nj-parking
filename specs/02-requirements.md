@@ -68,4 +68,4 @@ Reviewed by the user on 2026-11-03: metered hours are shown as metered hours, fa
 | WEB-4 | The user can share their device location, or tap a point on the map, to search. If they decline location sharing, the app explains how to search by tapping the map. | 1 |
 | WEB-5 | Results show on a list and on a map, nearest first, with each result's sources and data date. | 1 |
 | WEB-6 | Metered hours are labelled as metered hours with their time limit, never as opening hours. When hours are unknown, the result says so and links to the official page. | 1 |
-| WEB-7 | The map shows the attribution its tile style requires, including "© OpenStreetMap" linked to the licence, in a corner of the map. The map style comes from configuration (`VITE_MAP_STYLE_URL`), not code (ADR-0009). | 1 |
+| WEB-7 | The map shows the attribution its tile source requires, including credit to OpenStreetMap linked to its copyright and licence page, in a corner of the map. The map style comes from configuration (`VITE_MAP_STYLE_URL`), not code; without it there's no map (ADR-0009). | 1 |

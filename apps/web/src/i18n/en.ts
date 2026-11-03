@@ -11,11 +11,12 @@ export const en = {
   'search.radius.label': 'Search within',
   'search.radius.option': '{km, number} km',
   'search.useLocation': 'Use my location',
-  'search.searchAgain': 'Search again from here',
+  'search.mapHint': 'Or tap the map to search there.',
 
   'location.locating': 'Finding your location…',
-  'location.denied':
-    "Location sharing is off for this site. To search near you, allow location for this site in your browser's settings, then try again. Searching by tapping a map comes in a later release.",
+  'location.denied': "Location sharing is off for this site. Tap the map to search there instead, or allow location for this site in your browser's settings.",
+  'location.deniedNoMap':
+    "Location sharing is off for this site. To search near you, allow location for this site in your browser's settings, then try again.",
   'location.unavailable': "Your device couldn't find its location. Try again in a moment.",
   'location.unsupported': "This browser can't share its location, so searching near you isn't possible here.",
 
@@ -76,6 +77,19 @@ export const en = {
   'sources.back': 'Back to search',
 
   'footer.sources': 'Data sources',
+
+  // The map (S1-9b). MapLibre's own control labels come from here too (WEB-1).
+  'map.label': 'Map of public parking. Tap a point to search there.',
+  'map.searchPoint': 'Search point',
+  'map.facility': '{position}. {name}, {distance}',
+  'map.zoomIn': 'Zoom in',
+  'map.zoomOut': 'Zoom out',
+  'map.resetBearing': 'Point the map north',
+  'map.toggleAttribution': 'Show map credits',
+  'map.gestures.mobile': 'Use two fingers to move the map',
+  'map.gestures.windows': 'Use Ctrl and scroll to zoom the map',
+  'map.gestures.mac': 'Use ⌘ and scroll to zoom the map',
+  'map.marker': 'Map marker',
   'status.checking': 'Checking the service…',
   'status.ok': 'The service is running.',
   'status.unavailable': "The service isn't available right now.",

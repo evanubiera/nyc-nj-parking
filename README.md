@@ -2,7 +2,7 @@
 
 A public web app, usable on phones, that suggests public parking near you across New York City and New Jersey: garages, lots, and fields run by cities, counties, the state, and transit agencies. A scheduled worker pulls open data into PostgreSQL/PostGIS, and the API answers from that database only.
 
-Status: slice 1 (NYC DOT garages and fields) is built, apart from the map (S1-9b, ADR-0009) and the Playwright smoke test. See [specs/01-overview.md](specs/01-overview.md) for the slices, and [specs/06-sources.md](specs/06-sources.md) for what each data source actually contains.
+Status: slice 1 (NYC DOT garages and fields) is built, apart from the Playwright smoke test. In development the map uses OpenFreeMap's tiles; production needs self-hosted tiles first (ADR-0009). See [specs/01-overview.md](specs/01-overview.md) for the slices, and [specs/06-sources.md](specs/06-sources.md) for what each data source actually contains.
 
 ## Run it
 

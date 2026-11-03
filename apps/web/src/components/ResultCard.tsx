@@ -4,13 +4,18 @@ import { MeteredHours } from './MeteredHours.tsx';
 import { SourceCredits } from './SourceCredits.tsx';
 
 /** One suggestion (REC-4, ATT-2, WEB-6). */
-export function ResultCard({ facility }: { facility: RecommendedFacility }) {
+export function ResultCard({ facility, position }: { facility: RecommendedFacility; position?: number }) {
   const intl = useIntl();
   const hoursKnown = facility.meteredHours !== null || facility.openingHours !== null;
 
   return (
-    <article className="result" aria-labelledby={`result-${facility.id}`}>
+    <article id={`card-${facility.id}`} className="result" aria-labelledby={`result-${facility.id}`} tabIndex={-1}>
       <h3 id={`result-${facility.id}`} className="result__name">
+        {position !== undefined && (
+          <span className="result__number" aria-hidden="true">
+            {position}
+          </span>
+        )}
         {facility.name}
       </h3>
       <p className="result__meta">

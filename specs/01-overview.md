@@ -34,7 +34,7 @@ A scheduled worker pulls public data from city and state portals, keeps a snapsh
 | Slice | What a user can do at the end | Status |
 |---|---|---|
 | 0 | Nothing user-facing yet: the foundation (repo, contract, database, ingestion skeleton, web shell, CI). | Done; real PostGIS and CI not run yet |
-| 1 | Find NYC DOT municipal garages and fields near them, nearest first, on a list and a map, with hours, sources, and the disclaimer. | Built, except the map (S1-9b) |
+| 1 | Find NYC DOT municipal garages and fields near them, nearest first, on a list and a map, with hours, sources, and the disclaimer. | Built; the Playwright smoke test (S1-10) is left |
 | 2 | Also find NJ commuter lots (NJ Transit and NJDOT), filtered by operator type. Blocked on SRC-2, SRC-3, and PRD-4. | Planned |
 | 3 | See rates and an "open now" filter. Rates depend on SRC-1. | Planned |
 | 4 | More NJ municipalities, one city at a time, plus state-run lots if PRD-3 includes them. | Planned |
