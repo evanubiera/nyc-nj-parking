@@ -2,10 +2,11 @@ import { QueryClient } from '@tanstack/react-query';
 import { render, type RenderResult } from '@testing-library/react';
 import axe from 'axe-core';
 import type { ReactElement } from 'react';
+import { MemoryRouter } from 'react-router';
 import { AppProviders } from '../AppProviders.tsx';
 
 /** Renders with the real providers. A missing or broken message throws, so the test fails (WEB-1). */
-export function renderWithProviders(ui: ReactElement): RenderResult {
+export function renderWithProviders(ui: ReactElement, { path = '/' }: { path?: string } = {}): RenderResult {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <AppProviders
@@ -14,7 +15,7 @@ export function renderWithProviders(ui: ReactElement): RenderResult {
         throw error;
       }}
     >
-      {ui}
+      <MemoryRouter initialEntries={[path]}>{ui}</MemoryRouter>
     </AppProviders>,
   );
 }

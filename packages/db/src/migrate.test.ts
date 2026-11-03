@@ -13,7 +13,7 @@ describe('migrations', () => {
     // The global setup has already migrated this database.
     expect(await migrate(sql)).toEqual([]);
     const rows = await sql<{ version: string }[]>`select version from schema_migrations order by version`;
-    expect(rows.map((row) => row.version)).toContain('0001_foundation');
+    expect(rows.map((row) => row.version)).toEqual(['0001_foundation', '0002_facilities']);
   });
 
   it('FND-5 creates the slice 0 tables with PostGIS available', async () => {
@@ -47,13 +47,13 @@ describe('migrations', () => {
   });
 
   it('PRIV-1 no table has a column that could hold a user location', async () => {
-    // Facility locations are geography columns on facility tables (slice 1). Nothing else may be.
+    // The only location columns are facility locations. A new one needs a reason, and an entry here.
+    const FACILITY_LOCATIONS = ['facility.location', 'source_record.location'];
     const columns = await sql<{ table_name: string; column_name: string }[]>`
       select table_name, column_name from information_schema.columns
       where table_schema = 'public'
         and (udt_name in ('geography', 'geometry') or column_name ~* '(^|_)(lat|lng|lon|latitude|longitude|query|search)(_|$)')
-        and table_name not in ('spatial_ref_sys')
-        and table_name not like 'facility%'`;
-    expect(columns).toEqual([]);
+        and table_name not in ('spatial_ref_sys', 'geography_columns', 'geometry_columns')`;
+    expect(columns.map((column) => `${column.table_name}.${column.column_name}`).sort()).toEqual(FACILITY_LOCATIONS.sort());
   });
 });

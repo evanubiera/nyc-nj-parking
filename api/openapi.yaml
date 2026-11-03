@@ -1,11 +1,11 @@
 openapi: 3.1.0
 info:
   title: NYC and NJ public parking API
-  version: 0.1.0
+  version: 0.2.0
   description: >
     Suggests public parking near a point in New York City and New Jersey. Contract-first (ADR-0004):
     the server registers exactly these operations and serializes responses with these schemas.
-    Responses carry codes, never display text (FND-4).
+    Responses carry codes, never display text (FND-4). No operation calls an upstream source (ING-1).
 servers:
   - url: /
     description: Same origin as the web app, which calls the API under /api
@@ -13,13 +13,17 @@ security: []
 tags:
   - name: system
     description: Service health
+  - name: parking
+    description: Public parking suggestions
+  - name: sources
+    description: Where the data comes from
 paths:
   /api/health:
     get:
       operationId: getHealth
       summary: Report whether the API and its database are up
       description: >
-        200 when the database answers within 2 seconds, otherwise 503. Never calls an upstream source (ING-1).
+        200 when the database answers within 2 seconds, otherwise 503.
       tags: [system]
       x-requirements: [FND-3]
       responses:
@@ -41,6 +45,78 @@ paths:
                 $ref: '#/components/schemas/Health'
               example:
                 status: unavailable
+  /api/parking/recommendations:
+    get:
+      operationId: getRecommendations
+      summary: Public parking facilities near a point, nearest first
+      description: >
+        The server rounds `lat` and `lng` to 3 decimal places before using them, and never logs, stores,
+        or echoes them (PRIV-3, ADR-0006). At most 50 results. A facility without hours from any source
+        is still returned (REC-6).
+      tags: [parking]
+      x-requirements: [REC-1, REC-2, REC-3, REC-4, REC-6, PRIV-3, ATT-2]
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          description: Latitude in degrees (WGS 84). Rounded to 3 decimal places.
+          schema:
+            type: number
+            minimum: -90
+            maximum: 90
+        - name: lng
+          in: query
+          required: true
+          description: Longitude in degrees (WGS 84). Rounded to 3 decimal places.
+          schema:
+            type: number
+            minimum: -180
+            maximum: 180
+        - name: radius
+          in: query
+          required: false
+          description: Search radius in meters (REC-2, PRD-5).
+          schema:
+            type: integer
+            minimum: 100
+            maximum: 10000
+            default: 2000
+      responses:
+        '200':
+          description: Facilities within the radius, nearest first.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecommendationList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          description: The point is outside the coverage area (REC-3).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              example:
+                code: location.out_of_area
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /api/sources:
+    get:
+      operationId: listSources
+      summary: The data sources behind the suggestions, with their credits and data dates
+      tags: [sources]
+      x-requirements: [ATT-3]
+      responses:
+        '200':
+          description: Every admitted source.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourceList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
 components:
   responses:
     BadRequest:
@@ -50,7 +126,16 @@ components:
           schema:
             $ref: '#/components/schemas/ApiError'
           example:
-            code: request.malformed
+            code: request.invalid_parameter
+            parameter: radius
+    ServiceUnavailable:
+      description: The database isn't reachable.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          example:
+            code: service_unavailable
   schemas:
     Health:
       type: object
@@ -74,8 +159,256 @@ components:
             - request.invalid_parameter
             - not_found
             - method_not_allowed
+            - location.out_of_area
             - internal_error
             - service_unavailable
         parameter:
           type: string
           description: The name of the invalid parameter, for `request.invalid_parameter`.
+    RecommendationList:
+      type: object
+      additionalProperties: false
+      required: [results]
+      properties:
+        results:
+          type: array
+          maxItems: 50
+          items:
+            $ref: '#/components/schemas/RecommendedFacility'
+    RecommendedFacility:
+      description: One facility (REC-4). Values are data or codes, never display text.
+      type: object
+      additionalProperties: false
+      required: [id, name, kind, operator, address, location, distanceMeters, openingHours, meteredHours, rates, officialUrl, sources]
+      properties:
+        id:
+          type: string
+          example: nyc-dot-avenue-m
+        name:
+          type: string
+          description: The facility's name, from its source.
+        kind:
+          type: string
+          enum: [garage, lot, field]
+        operator:
+          $ref: '#/components/schemas/Operator'
+        address:
+          $ref: '#/components/schemas/Address'
+        location:
+          $ref: '#/components/schemas/LatLng'
+        distanceMeters:
+          type: integer
+          minimum: 0
+          description: From the rounded request point, rounded to the nearest 10 m.
+        openingHours:
+          description: When the facility is open. Null until a source states it (SRC-1).
+          anyOf:
+            - $ref: '#/components/schemas/OpeningHours'
+            - type: 'null'
+        meteredHours:
+          description: When payment is required at the meters, and the time limit. Never opening hours (WEB-6).
+          anyOf:
+            - $ref: '#/components/schemas/MeteredHours'
+            - type: 'null'
+        rates:
+          type: array
+          description: Empty until a source with rates is admitted (slice 3).
+          items:
+            $ref: '#/components/schemas/Rate'
+        officialUrl:
+          type: string
+          format: uri
+          description: The operator's page for this facility.
+        sources:
+          type: array
+          minItems: 1
+          description: Every source this facility was built from (ATT-2).
+          items:
+            $ref: '#/components/schemas/SourceRef'
+    Operator:
+      type: object
+      additionalProperties: false
+      required: [name, type]
+      properties:
+        name:
+          type: string
+          example: NYC Department of Transportation
+        type:
+          type: string
+          enum: [municipal, county, state, transit_agency, public_authority]
+    Address:
+      type: object
+      additionalProperties: false
+      required: [line, locality, region]
+      properties:
+        line:
+          type: [string, 'null']
+          description: Street address, when the source gives one.
+        locality:
+          type: string
+          description: Borough or municipality.
+        region:
+          type: string
+          enum: [NY, NJ]
+    LatLng:
+      type: object
+      additionalProperties: false
+      required: [lat, lng]
+      properties:
+        lat:
+          type: number
+        lng:
+          type: number
+    Day:
+      type: string
+      enum: [mon, tue, wed, thu, fri, sat, sun]
+    TimeOfDay:
+      type: string
+      description: Local wall-clock time, 00:00 to 24:00.
+      pattern: '^(([01][0-9]|2[0-3]):[0-5][0-9]|24:00)$'
+      example: '07:00'
+    MeteredHours:
+      type: object
+      additionalProperties: false
+      required: [timeZone, periods, sourceText]
+      properties:
+        timeZone:
+          type: string
+          example: America/New_York
+        periods:
+          type: array
+          items:
+            $ref: '#/components/schemas/MeterPeriod'
+        sourceText:
+          type: array
+          description: The source's original text, such as "4HR Pas Mon-Sat 0700-2200".
+          items:
+            type: string
+    MeterPeriod:
+      type: object
+      additionalProperties: false
+      required: [days, from, to, maxStayMinutes, vehicleClass]
+      properties:
+        days:
+          type: array
+          items:
+            $ref: '#/components/schemas/Day'
+        from:
+          $ref: '#/components/schemas/TimeOfDay'
+        to:
+          $ref: '#/components/schemas/TimeOfDay'
+        maxStayMinutes:
+          type: [integer, 'null']
+        vehicleClass:
+          type: [string, 'null']
+          enum: [passenger, commercial, null]
+    OpeningHours:
+      type: object
+      additionalProperties: false
+      required: [timeZone, periods]
+      properties:
+        timeZone:
+          type: string
+        periods:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [days, opens, closes]
+            properties:
+              days:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Day'
+              opens:
+                $ref: '#/components/schemas/TimeOfDay'
+              closes:
+                $ref: '#/components/schemas/TimeOfDay'
+    Rate:
+      type: object
+      additionalProperties: false
+      required: [days, from, to, kind, upToMinutes, price]
+      properties:
+        days:
+          type: array
+          items:
+            $ref: '#/components/schemas/Day'
+        from:
+          $ref: '#/components/schemas/TimeOfDay'
+        to:
+          $ref: '#/components/schemas/TimeOfDay'
+        kind:
+          type: string
+          enum: [per_hour, up_to_duration, daily_max, monthly_permit]
+        upToMinutes:
+          type: [integer, 'null']
+        price:
+          $ref: '#/components/schemas/Money'
+    Money:
+      description: Minor units plus a currency. Never a float.
+      type: object
+      additionalProperties: false
+      required: [amountMinor, currency]
+      properties:
+        amountMinor:
+          type: integer
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+    SourceRef:
+      type: object
+      additionalProperties: false
+      required: [id, dataUpdatedAt]
+      properties:
+        id:
+          type: string
+          example: nyc-facdb-dot
+        dataUpdatedAt:
+          type: [string, 'null']
+          format: date-time
+          description: The source's own "data updated" time at our last successful run.
+    SourceList:
+      type: object
+      additionalProperties: false
+      required: [sources]
+      properties:
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/Source'
+    Source:
+      description: An admitted source and its credit (ATT-3). Names and titles are as published.
+      type: object
+      additionalProperties: false
+      required: [id, publisher, title, datasetUrl, termsUrl, creditText, modifications, dataUpdatedAt]
+      properties:
+        id:
+          type: string
+        publisher:
+          type: string
+        title:
+          type: string
+        datasetUrl:
+          type: string
+          format: uri
+        termsUrl:
+          type: string
+          format: uri
+        creditText:
+          type: [string, 'null']
+          description: Exact credit wording, only where the publisher requires one.
+        modifications:
+          type: array
+          description: What we change in this source's data, as codes.
+          items:
+            type: string
+            enum:
+              - names_reformatted
+              - addresses_reformatted
+              - merged_across_sources
+              - meter_hours_parsed
+              - location_from_meters
+              - inactive_meters_excluded
+        dataUpdatedAt:
+          type: [string, 'null']
+          format: date-time

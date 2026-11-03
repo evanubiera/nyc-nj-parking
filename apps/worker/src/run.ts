@@ -1,6 +1,6 @@
 // One ingestion run for one source (ADR-0005, specs/04-architecture.md "Ingestion flow").
 import { createHash } from 'node:crypto';
-import type { Sql } from '@parking/db';
+import { textArray, type Sql } from '@parking/db';
 import type { Logger } from 'pino';
 import { errorCodeOf, type IngestionErrorCode } from './errors.ts';
 import type { UpstreamHttp } from './http.ts';
@@ -72,22 +72,35 @@ export async function runSource(source: SourceDefinition, { sql, http, logger, n
     });
 
     await finish(sql, runId, { status: 'succeeded', snapshotId, counts, errorCode: null }, now());
+    await pruneSnapshots(sql, source.id);
     logger.info({ sourceId: source.id, runId, status: 'succeeded', ...counts }, 'ingestion run finished');
     return { runId, status: 'succeeded', errorCode: null, snapshotId, counts };
   } catch (error) {
     const errorCode = errorCodeOf(error);
     await finish(sql, runId, { status: 'failed', snapshotId, counts: null, errorCode }, now());
+    if (snapshotId !== null) await pruneSnapshots(sql, source.id);
     // Codes only: messages can quote upstream content, and request details include the token (ING-5).
     logger.warn({ sourceId: source.id, runId, status: 'failed', errorCode }, 'ingestion run failed');
     return { runId, status: 'failed', errorCode, snapshotId, counts: null };
   }
 }
 
+/** ING-9: keeps the newest SNAPSHOTS_KEPT snapshots per source. Runs keep their row; their link is cleared. */
+export const SNAPSHOTS_KEPT = 10;
+
+async function pruneSnapshots(sql: Sql, sourceId: string): Promise<void> {
+  await sql`
+    delete from source_snapshot
+    where source_id = ${sourceId} and id not in (
+      select id from source_snapshot where source_id = ${sourceId}
+      order by fetched_at desc, id desc limit ${SNAPSHOTS_KEPT})`;
+}
+
 export async function upsertSource(sql: Sql, source: SourceMetadata): Promise<void> {
   await sql`
     insert into source (id, publisher, title, dataset_url, terms_url, credit_text, modification_codes)
     values (${source.id}, ${source.publisher}, ${source.title}, ${source.datasetUrl}, ${source.termsUrl},
-            ${source.creditText}, ${sql.array([...source.modificationCodes])})
+            ${source.creditText}, ${textArray(sql, source.modificationCodes)})
     on conflict (id) do update set
       publisher = excluded.publisher, title = excluded.title, dataset_url = excluded.dataset_url,
       terms_url = excluded.terms_url, credit_text = excluded.credit_text,

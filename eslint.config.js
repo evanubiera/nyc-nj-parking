@@ -48,6 +48,20 @@ export default defineConfig(
     },
   },
   {
+    // Strings arrays go through textArray from @parking/db, which names the type (see its comment).
+    files: ['apps/api/**/*.ts', 'apps/worker/**/*.ts', 'packages/db/src/**/*.ts'],
+    ignores: ['packages/db/src/index.ts'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "CallExpression[callee.property.name='array'][arguments.length=1]",
+          message: 'Use textArray(sql, values) from @parking/db, so the first query on a connection gets text[].',
+        },
+      ],
+    },
+  },
+  {
     files: ['apps/api/src/**/*.ts'],
     rules: {
       'no-restricted-imports': [

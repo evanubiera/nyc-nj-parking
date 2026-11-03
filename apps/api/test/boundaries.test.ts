@@ -36,6 +36,13 @@ describe('boundaries', () => {
     expect(await rulesBroken(code, 'apps/worker/src/thing.ts')).toContain('no-restricted-imports');
   });
 
+  it('rejects a string array parameter without its type, in the API and the worker', async () => {
+    const code = `export const ids = (sql: { array: (v: string[]) => unknown }) => sql.array(['a']);\n`;
+
+    expect(await rulesBroken(code, 'apps/api/src/thing.ts')).toContain('no-restricted-syntax');
+    expect(await rulesBroken(code, 'apps/worker/src/thing.ts')).toContain('no-restricted-syntax');
+  });
+
   it('FND-6 allows both to import shared packages', async () => {
     const code = `import { connect } from '@parking/db';\nexport const open = connect;\n`;
 

@@ -33,15 +33,24 @@ Ports are 8180 (API) and 5180 (web), so this project can run next to gear-rental
 
 Drafts reviewed by the user on 2026-11-03 (see specs/02, Recommendations).
 
-| Task | What | Requirements |
-|---|---|---|
-| S1-1 | Contract: `getRecommendations` and `listSources`, from the draft in specs/05-api.md after review | FND-1, REC-1 to REC-4, ATT-3 |
-| S1-2 | Facility schema: `facility`, `facility_source`, `facility_meter_period`, `facility_hours`, `facility_rate` (specs/03) | REC-4, ING-8 |
-| S1-3 | Adapter `nyc-facdb-dot`, with a saved fixture; admit it in specs/06 | ING-6, ATT-2 |
-| S1-4 | Adapter `nyc-meters-offstreet`, plus a parser for `meter_hours` into meter periods (days, times, time limit, vehicle class), keeping the original text; values that don't parse keep only the text. Admit it in specs/06 | ING-6, REC-4 |
-| S1-5 | Matching across the two sources by normalized name and distance under 150 m, giving one facility with both sources | REC-4, ATT-2 |
-| S1-6 | Withdrawals and snapshot retention | ING-8, ING-9 |
-| S1-7 | `getRecommendations`: rounding, the PostGIS query, distance rounding, the coverage check, facilities without hours, and a performance test with 5,000 facilities | REC-1 to REC-6, PRIV-3 |
-| S1-8 | `listSources` and the Sources page | ATT-3 |
-| S1-9 | Web: device location or a tap on the map, then a results list and a map, with credits per result and metered hours labelled as such. The map needs a tile provider (SRC-6); until then the list works on its own. | WEB-4, WEB-5, WEB-6, PRIV-3, ATT-2 |
-| S1-10 | Playwright smoke test and slice 1 close | All slice 1 |
+| Task | What | Requirements | Status |
+|---|---|---|---|
+| S1-1 | Contract: `getRecommendations` and `listSources`, from the reviewed shapes in specs/05-api.md | FND-1, REC-1 to REC-4, REC-6, ATT-3 | Done |
+| S1-2 | Facility schema: `source_record`, `facility`, `facility_source`, `facility_meter_period`, `facility_hours`, `facility_rate` (specs/03) | REC-4, ING-8 | Tests pass on PGlite |
+| S1-3 | Adapter `nyc-facdb-dot`, with a saved fixture; admitted in specs/06 | ING-6, ATT-2 | Tests pass on PGlite |
+| S1-4 | Adapter `nyc-meters-offstreet`, plus a parser for `meter_hours` into meter periods (days, times, time limit, vehicle class), keeping the original text; values that don't parse add no period. Admitted in specs/06 | ING-6, REC-4 | Tests pass on PGlite |
+| S1-5 | Matching across the two sources by name and distance, giving one facility with both sources. The limit is 750 m, not the 150 m first planned: correct matches on 2026-11-03 were up to 497 m apart (specs/03, "How facilities are built") | REC-4, ATT-2 | Tests pass on PGlite |
+| S1-6 | Withdrawals, snapshot retention, and the guard against empty or unreadable data | ING-8, ING-9, ING-10 | Tests pass on PGlite |
+| S1-7 | `getRecommendations`: rounding, the PostGIS query, distance rounding, the coverage check, facilities without hours, 503 when the database is down, and a performance test with 5,000 facilities | REC-1 to REC-6, PRIV-3 | Tests pass on PGlite |
+| S1-8 | `listSources` and the Sources page | ATT-3 | Tests pass on PGlite |
+| S1-9a | Web: device location, radius, results list with metered hours labelled as such, unknown hours with the operator's link, credits per result, Sources page | WEB-4, WEB-5, WEB-6, PRIV-3, ATT-2, ATT-3 | Done |
+| S1-9b | Web: the map, and searching by tapping it | WEB-4, WEB-5 | Waiting on SRC-6 (tile provider) |
+| S1-10 | Playwright smoke test and slice 1 close | All slice 1 | Not started: needs Playwright's Chromium downloaded |
+
+### Slice 1 status (2026-11-03)
+
+Checked from a clean copy: `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm typecheck`, `pnpm test` (160 tests: web 50, worker 61, api 42, db 5, api-client 2, on the PGlite fallback), and `pnpm build`. Then, against a PGlite + PostGIS stand-in, a live ingest of both sources from NYC Open Data: 35 Facilities Database records and 29 meter groups became 38 facilities, and a second meters run was `unchanged`. In the browser at phone width: a search near Avenue M (metered hours with both limits, both sources credited), a search near Delancey and Essex (hours unknown, the link to DOT's Manhattan section), and the Sources page in dark mode. The request sent `lat=40.618&lng=-73.959`, rounded from the device's position, and the API's request log had no coordinates.
+
+The first live ingest found a bug the tests had missed: postgres.js sent a string array as plain text in a connection's first query. Fixed with `textArray` (packages/db), a regression test on a fresh connection, and a lint rule.
+
+Not checked yet: real PostGIS (no Docker), CI (no remote), the map (SRC-6), and the Playwright smoke test (S1-10).

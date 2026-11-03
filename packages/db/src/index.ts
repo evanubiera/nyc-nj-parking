@@ -1,6 +1,7 @@
 import postgres from 'postgres';
 
 export { migrate } from './migrate.ts';
+export { DAYS, daysToMask, maskToDays, timeOfDay, type DayCode } from './encoding.ts';
 
 export type Sql = postgres.Sql;
 export type TransactionSql = postgres.TransactionSql;
@@ -20,6 +21,17 @@ export function connect(url: string, options: ConnectOptions = {}): Sql {
     // postgres.js prints server notices to the console by default. We keep logs to what we choose.
     onnotice: () => {},
   });
+}
+
+/**
+ * A text[] parameter. Always use this instead of sql.array for strings: postgres.js infers an array's
+ * type from types it loads after connecting, so in a connection's first query an inferred string array
+ * is sent as plain text and PostgreSQL rejects it (found by the first live ingest, 2026-11-03).
+ */
+export const TEXT_ARRAY_OID = 1009;
+
+export function textArray(sql: Sql | TransactionSql, values: readonly string[]) {
+  return sql.array([...values], TEXT_ARRAY_OID);
 }
 
 /** Reads DATABASE_URL, failing with a clear message when it's missing. */

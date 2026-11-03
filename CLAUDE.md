@@ -32,6 +32,7 @@ A public web app, usable on phones, that suggests public parking near the user a
 10. **Generated code is never edited by hand.** Change `api/openapi.yaml` and regenerate. (ADR-0004)
 11. **Money** is minor units plus a currency, never a float. **Time** is stored in UTC; opening hours are local wall-clock times with the facility's time zone. (specs/03)
 12. **Worker logs** never contain request headers (the Socrata token) or response bodies. (ING-5)
+13. **String arrays in SQL** go through `textArray` from `@parking/db`. postgres.js sends an untyped string array as plain text in a connection's first query. Lint enforces this.
 
 ## Commands
 Needs Node 24 with `corepack enable` (for the pinned pnpm), and Docker Desktop for `pnpm dev`.

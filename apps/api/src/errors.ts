@@ -14,6 +14,18 @@ export function pathMatcher(contractPath: string): RegExp {
   return new RegExp(`^${pattern}/?$`);
 }
 
+// Errors from postgres.js and the server that mean the database can't be reached right now.
+const UNAVAILABLE_CODES = new Set([
+  'ECONNREFUSED', 'ECONNRESET', 'ETIMEDOUT', 'ENOTFOUND', 'EHOSTUNREACH',
+  'CONNECT_TIMEOUT', 'CONNECTION_CLOSED', 'CONNECTION_ENDED', 'CONNECTION_DESTROYED',
+  '57P01', '57P02', '57P03', '53300',
+]);
+
+export function isDatabaseUnavailable(error: unknown): boolean {
+  const code = (error as { code?: unknown } | null)?.code;
+  return typeof code === 'string' && UNAVAILABLE_CODES.has(code);
+}
+
 export function registerErrorHandling(app: FastifyInstance, contractPaths: readonly string[]): void {
   const matchers = contractPaths.map(pathMatcher);
 
@@ -32,6 +44,11 @@ export function registerErrorHandling(app: FastifyInstance, contractPaths: reado
       const parameter = typeof missing === 'string' ? missing : fromPath;
       const body: ApiError = parameter ? { code: 'request.invalid_parameter', parameter } : { code: 'request.invalid_parameter' };
       return reply.code(400).send(body);
+    }
+    if (isDatabaseUnavailable(error)) {
+      request.log.warn({ errorName: error.name, errorCode: error.code ?? null }, 'database unavailable');
+      const body: ApiError = { code: 'service_unavailable' };
+      return reply.code(503).send(body);
     }
     const status = error.statusCode ?? 500;
     if (status >= 400 && status < 500) {

@@ -46,7 +46,7 @@ Parameters:
 | `radius` | integer, meters | 100 to 10,000. Default 2,000 (PRD-5, decided) |
 | `operatorType` | repeated code | Optional filter (from slice 2) |
 
-Coverage area: latitude 38.9 to 41.4 and longitude −75.6 to −73.6, which covers NYC and NJ. Outside it, the server returns 422 `location.out_of_area`. Inside it, an area with no data gets an empty list.
+Coverage area: latitude 38.9 to 41.4 and longitude −75.6 to −73.6, which covers NYC and NJ. Outside it, the server returns 422 `location.out_of_area`. Inside it, an area with no data gets an empty list. The box is a simplification: it also takes in nearby parts of Pennsylvania (including Philadelphia), New York State, and Connecticut, which get an empty list. Real boundaries can replace it once PRD-3 settles the coverage area.
 
 Response, `200`:
 

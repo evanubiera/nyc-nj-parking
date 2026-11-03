@@ -37,10 +37,13 @@ For each admitted source, on its schedule (ADR-0005):
 1. Mark any of this source's runs left as `running` as `failed` / `run.abandoned`. Insert a new `running` row.
 2. Fetch, with our User-Agent, the Socrata token header where it applies, and a 30 s timeout (ING-5).
 3. If the SHA-256 matches the last successful run's snapshot, finish as `unchanged` (ING-7). Otherwise store the snapshot (ING-2).
-4. In one transaction, the adapter normalizes the snapshot and writes facilities. Any error rolls the whole transaction back (ING-3).
-5. Finish the run with its status, counts, and error code (ING-4).
+4. In one transaction, the adapter normalizes the snapshot into source records, replaces that source's records, and rebuilds the facility tables from every source's records (specs/03, "How facilities are built"). Any error rolls the whole transaction back (ING-3).
+5. Delete snapshots beyond the newest 10 for the source (ING-9).
+6. Finish the run with its status, counts, and error code (ING-4).
 
 The worker runs as one long-lived process (`pnpm --filter @parking/worker start`), using cron expressions from each source's definition. `pnpm ingest <source-id>` runs one source once.
+
+Sources in slice 1: `nyc-facdb-dot` weekly (Mondays 04:15) and `nyc-meters-offstreet` daily (04:45), New York time. Each run makes two requests: the rows, and the dataset's metadata for its data date.
 
 ## Configuration
 

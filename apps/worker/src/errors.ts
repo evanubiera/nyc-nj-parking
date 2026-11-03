@@ -3,7 +3,10 @@ export type IngestionErrorCode =
   | 'upstream.timeout'
   | 'upstream.network'
   | 'upstream.http_status'
+  | 'upstream.too_large'
+  | 'normalize.unexpected_format'
   | 'normalize.invalid_record'
+  | 'normalize.empty'
   | 'run.abandoned'
   | 'run.unexpected';
 

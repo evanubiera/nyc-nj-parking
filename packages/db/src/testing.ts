@@ -57,7 +57,9 @@ export function connectTest(info: TestDatabaseInfo): Sql {
 
 /** Empties every data table. Tests call it in beforeEach. */
 export async function resetData(sql: Sql): Promise<void> {
-  await sql`truncate ingestion_run, source_snapshot, source restart identity cascade`;
+  await sql`
+    truncate facility_rate, facility_hours, facility_meter_period, facility_source, facility, source_record,
+      ingestion_run, source_snapshot, source restart identity cascade`;
 }
 
 async function migrateDatabase(url: string): Promise<void> {

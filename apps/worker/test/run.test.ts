@@ -110,6 +110,22 @@ describe('runSource', () => {
     expect(await sql`select 1 from source_snapshot`).toHaveLength(2);
   });
 
+  it('ING-9 keeps the newest 10 snapshots per source, and every run', async () => {
+    let version = 0;
+    const source = fakeSource({ body: () => `{"version":${version}}` });
+    const context = { sql, http, logger: testLogger().logger };
+
+    for (version = 1; version <= 12; version += 1) {
+      await runSource(source, context);
+    }
+
+    const snapshots = await sql<{ body: Buffer }[]>`select body from source_snapshot order by id`;
+    expect(snapshots.map((snapshot) => snapshot.body.toString())).toEqual(
+      Array.from({ length: 10 }, (_, index) => `{"version":${index + 3}}`),
+    );
+    expect(await runs()).toHaveLength(12);
+  });
+
   it('ING-4 marks a run left running by a crash as failed with run.abandoned', async () => {
     const source = fakeSource();
     await runSource(source, { sql, http, logger: testLogger().logger });

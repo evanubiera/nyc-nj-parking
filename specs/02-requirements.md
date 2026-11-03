@@ -26,6 +26,7 @@ Each requirement has an ID. Tasks, tests, and contract operations (`x-requiremen
 | ING-7 | When a snapshot's hash matches the last successful run's snapshot, normalizing is skipped and the run is recorded as `unchanged`. | 0 |
 | ING-8 | Facilities that are no longer in a source are marked withdrawn, with the time, and aren't returned by the API. | 1 |
 | ING-9 | Snapshots older than the newest 10 per source are deleted. | 1 |
+| ING-10 | A run whose data gives no facilities, or where rows that can't be read outnumber those that can, fails with a code and changes nothing. | 1 |
 
 ## Privacy (PRIV)
 
