@@ -57,6 +57,7 @@ The `Admitted` table is read by a test (ING-6). Keep its format: one source ID p
 | — | NJ Transit Developer Portal: BUSDATA, RailData, GTFS-BUS, GTFS-RAIL | NJ Transit | [developer.njtransit.com](https://developer.njtransit.com/), HTTP POST with a token | Bus and rail real-time data and schedules | — | Needs an account, an administrator's approval, and accepting a data-feed agreement whose text isn't shown without an account. Limit of about 40,000 requests a day | **Rejected.** None of its four APIs has parking data, and its sign-up and agreement don't meet ADR-0011's conditions. Checked 2026-11-03. |
 | — | Municipal Parking Lots | City of Jersey City | [municipal-parking-lots](https://data.jerseycitynj.gov/explore/dataset/municipal-parking-lots/), OpenDataSoft | `lots`, `address`, `zip_code`, `geopoints` | Once, 2020-11-25 (rechecked 2026-11-03: still 7 records, unchanged) | Portal terms | **Rejected for now (SRC-5).** 7 lots, with no hours or rates. Its "2 hours free" note was a 2020 holiday promotion. |
 | — | Jersey City Parking Authority | JCPA | None found | — | — | — | **Blocked (SRC-5).** Only third-party listings, which we can't use. |
+| — | Parcels and MOD-IV Composite of NJ (checked 2026-11-04) | NJOGIS, from county and municipal parcel maps and the Division of Taxation's MOD-IV tax list | ArcGIS item [533599bbfbaa4748bf39faf1375a8a9c](https://www.arcgis.com/home/item.html?id=533599bbfbaa4748bf39faf1375a8a9c), `Parcels_Composite_NJ_WM/FeatureServer/0`, polygons in Web Mercator (query with `outSR=4326`), 3,481,240 parcels, 2,000 per query | `PAMS_PIN` (municipality, block, lot), `PROP_CLASS`, `PROP_LOC`, `BLDG_DESC`, `LAND_DESC`, `FAC_NAME`, `PROP_USE`. `OWNER_NAME` is blank on every parcel: the State redacts it under Daniel's Law (P.L. 2020, c. 125) | Published 2026-08-24. No stated cadence | Liability disclaimer; not survey data; credit to NJOGIS requested. Also under the State's [Conditions of Use](https://www.nj.gov/nj/legal.shtml): Section F lets anyone view, copy, and distribute State information unless particular material says otherwise, and the State seal is restricted. The county records it points to weren't reviewed | **Later (slice 4): for finding candidate public lots, not for facility details.** See "State parcels and tax records" below. |
 | — | Port Authority facilities | PANYNJ | None found | — | — | — | **Rejected.** There's no parking-facility endpoint. |
 
 ## New Jersey adapters (slice 2)
@@ -139,6 +140,21 @@ Many of these authorities' lots at train stations are already in NJ Transit's Pa
 | Hackensack | The city code covers its municipal lots and garages; no map or list found. |
 
 Third-party sites such as Parkopedia, ParkMobile, Parksy, and Neighbor list many of these lots, but they're commercial aggregators, not publishers, and aren't sources we use.
+
+## State parcels and tax records (checked 2026-11-04)
+
+The statewide parcel layer (above) carries each parcel's tax record: its property class and the assessor's free-text description, which sometimes says parking.
+
+- **Counts:** Jersey City has 139 public parcels (class 15C) described as parking ("PARKING AREA" or "PARKING LOT" in `BLDG_DESC` or `FAC_NAME`) and 459 commercial ones (class 4A). New Jersey has 2,429 public ones.
+- **Cross-check, Jersey City block 11401** (1st Street to Newark Avenue, between Jersey Avenue and Erie Street):
+  - 253 and 247 First Street and 174 Newark Avenue are 15C, "PARKING AREA". That's Municipal Lot 52: the city's Municipal Parking Lots dataset places it on the 174 Newark Avenue parcel, and OpenStreetMap has "Municipal Lot 52" there with hours of 08:00–19:00 daily, entered by volunteers.
+  - 257 and 259 First Street and 184 Newark Avenue, nearer Jersey Avenue, are 4A, "PARKING LOT": a private lot.
+- **Limits:**
+  - A parcel isn't a facility. One lot can span several parcels; 468 to 480 Manila Avenue is 10.
+  - "Parking area" on public land often serves a public building, such as a post office, police station, or school, rather than the public.
+  - Descriptions are free text, entered by each town's assessor.
+  - There are no hours, rates, spaces, or rules on who may park. With owner names redacted, it doesn't say which public body holds a 15C parcel.
+- **Use:** finding candidate public lots near a place, to confirm with each operator before anything is admitted (slice 4, SRC-5, SRC-8). It isn't a source of facility details.
 
 ## Claims from the original notes that didn't hold up
 
