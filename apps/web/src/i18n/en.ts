@@ -53,7 +53,11 @@ export const en = {
   'meter.hours': '{count, plural, one {# hour} other {# hours}}',
   'meter.dayRange': '{first}–{last}',
   'meter.everyDay': 'every day',
-  'hours.unknown': "Opening hours and rates aren't in the open data yet.",
+  // WEB-6: says what the result doesn't show, so nobody takes a missing rate as free (decided 2026-11-04).
+  'details.missing.hoursRatesSpaces': "Hours, rates, and number of spaces aren't shown here. Check with the operator before you park.",
+  'details.missing.ratesSpaces': "Rates and number of spaces aren't shown here. Check with the operator before you park.",
+  'details.missing.hoursSpaces': "Hours and number of spaces aren't shown here. Check with the operator before you park.",
+  'details.missing.spaces': "The number of spaces isn't shown here.",
   'facility.officialLink': 'Hours and rates on the operator’s page',
   // Starts with the link's visible text, so voice control finds it (WCAG 2.5.3).
   'facility.officialLinkLabel': 'Hours and rates on the operator’s page, for {name}',

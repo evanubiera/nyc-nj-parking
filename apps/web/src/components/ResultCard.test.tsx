@@ -24,6 +24,23 @@ describe('ResultCard', () => {
     expect(screen.getByText('Morristown Town')).toBeInTheDocument();
   });
 
+  it('WEB-6 says rates and spaces are missing on a metered field, which shows its metered hours', () => {
+    renderWithProviders(<ResultCard facility={avenueM} />);
+
+    expect(screen.getByText(en['details.missing.ratesSpaces'])).toBeInTheDocument();
+    expect(screen.queryByText(en['details.missing.hoursRatesSpaces'])).not.toBeInTheDocument();
+  });
+
+  it('WEB-6 says only spaces are missing once hours and rates are known', () => {
+    const withRates = {
+      ...avenueM,
+      rates: [{ days: ['mon' as const], from: '07:00', to: '22:00', kind: 'per_hour' as const, upToMinutes: null, price: { amountMinor: 150, currency: 'USD' } }],
+    };
+    renderWithProviders(<ResultCard facility={withRates} />);
+
+    expect(screen.getByText(en['details.missing.spaces'])).toBeInTheDocument();
+  });
+
   it('REC-4 shows distances of a kilometer or more in kilometers', () => {
     renderWithProviders(<ResultCard facility={delancey} />);
 
@@ -42,7 +59,7 @@ describe('ResultCard', () => {
   it('REC-6 says when hours are unknown and links to the operator’s page', () => {
     renderWithProviders(<ResultCard facility={delancey} />);
 
-    expect(screen.getByText(en['hours.unknown'])).toBeInTheDocument();
+    expect(screen.getByText("Hours, rates, and number of spaces aren't shown here. Check with the operator before you park.")).toBeInTheDocument();
     expect(screen.queryByText(en['meter.heading'])).not.toBeInTheDocument();
     const link = screen.getByRole('link', { name: 'Hours and rates on the operator’s page, for Delancey - Essex Municipal Parking Garage' });
     expect(link).toHaveAttribute('href', 'https://www.nyc.gov/html/dot/html/motorist/parkinglist.shtml#manhattan');

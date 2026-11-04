@@ -8,6 +8,11 @@ import { SourceCredits } from './SourceCredits.tsx';
 export function ResultCard({ facility, position }: { facility: RecommendedFacility; position?: number }) {
   const intl = useIntl();
   const hoursKnown = facility.meteredHours !== null || facility.openingHours !== null;
+  const ratesKnown = facility.rates.length > 0;
+  // WEB-6: the API doesn't send the number of spaces, so it's always among what's missing.
+  const missing = hoursKnown
+    ? ratesKnown ? 'details.missing.spaces' : 'details.missing.ratesSpaces'
+    : ratesKnown ? 'details.missing.hoursSpaces' : 'details.missing.hoursRatesSpaces';
   const name = facilityName(intl, facility);
 
   return (
@@ -42,11 +47,9 @@ export function ResultCard({ facility, position }: { facility: RecommendedFacili
       </p>
 
       {facility.meteredHours && <MeteredHours hours={facility.meteredHours} />}
-      {!hoursKnown && (
-        <p className="result__unknown">
-          <FormattedMessage id="hours.unknown" />
-        </p>
-      )}
+      <p className="result__unknown">
+        <FormattedMessage id={missing} />
+      </p>
 
       <p className="result__link">
         <a
