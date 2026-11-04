@@ -19,6 +19,11 @@ const MODIFICATIONS: Record<Source['modifications'][number], true> = {
   meter_hours_parsed: true,
   location_from_meters: true,
   inactive_meters_excluded: true,
+  location_from_outline: true,
+  private_or_unowned_excluded: true,
+  lot_numbers_reformatted: true,
+  duplicates_removed: true,
+  municipalities_reformatted: true,
 };
 
 describe('message catalog', () => {

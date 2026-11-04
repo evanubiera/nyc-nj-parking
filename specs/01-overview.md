@@ -35,7 +35,7 @@ A scheduled worker pulls public data from city and state portals, keeps a snapsh
 |---|---|---|
 | 0 | Nothing user-facing yet: the foundation (repo, contract, database, ingestion skeleton, web shell, CI). | Done |
 | 1 | Find NYC DOT municipal garages and fields near them, nearest first, on a list and a map, with hours, sources, and the disclaimer. | Done |
-| 2 | Also find NJ commuter lots (NJ Transit and NJDOT), filtered by operator type. Can start under ADR-0011 while SRC-2 and SRC-3 are asked; PRD-4 still to decide. | Planned |
+| 2 | Also find NJ commuter lots (NJ Transit and NJDOT), filtered by operator type. Under ADR-0011 the two sources go live once SRC-2 and SRC-3 are asked; PRD-4 decided. | In progress |
 | 3 | See rates and an "open now" filter. Rates depend on SRC-1. | Planned |
 | 4 | More NJ municipalities, one city at a time, plus state-run lots if PRD-3 includes them. | Planned |
 | Later | On-street parking; a native app if needed. | — |
@@ -47,5 +47,5 @@ A scheduled worker pulls public data from city and state portals, keeps a snapsh
 - [04 Architecture](04-architecture.md): components, rules between them, logging, local development, and testing.
 - [05 API](05-api.md): conventions, error codes, and operations, including the slice 1 draft.
 - [06 Sources](06-sources.md): the verified source inventory and which sources are admitted.
-- [10 Task breakdown](10-task-breakdown.md): the tasks for slices 0 and 1.
+- [10 Task breakdown](10-task-breakdown.md): the tasks for slices 0 to 2.
 - ADRs: [docs/adr](../docs/adr/README.md). Open questions: [docs/open-questions.md](../docs/open-questions.md).

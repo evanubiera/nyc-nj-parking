@@ -13,7 +13,7 @@ describe('migrations', () => {
     // The global setup has already migrated this database.
     expect(await migrate(sql)).toEqual([]);
     const rows = await sql<{ version: string }[]>`select version from schema_migrations order by version`;
-    expect(rows.map((row) => row.version)).toEqual(['0001_foundation', '0002_facilities']);
+    expect(rows.map((row) => row.version)).toEqual(['0001_foundation', '0002_facilities', '0003_nj_lots']);
   });
 
   it('FND-5 creates the slice 0 tables with PostGIS available', async () => {

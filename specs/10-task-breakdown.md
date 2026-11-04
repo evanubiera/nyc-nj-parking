@@ -60,3 +60,29 @@ The smoke test (S1-10, `pnpm test:e2e`): five tests on an emulated Pixel 7, all 
 **CI, 2026-11-03** ([run 41697302747](https://github.com/evanubiera/nyc-nj-parking/actions/runs/41697302747), commit b3264ba): both jobs passed against `postgis/postgis:18-3.6`. The `check` job ran lint, typecheck, all 171 tests (web 61, worker 61, api 42, db 5, api-client 2), and the build. The `e2e` job's stack reported `(postgres)`, and its 5 smoke tests passed. So every database test has now passed on real PostGIS as well as on the PGlite fallback.
 
 The self-hosted map tiles for production (PRIV-4, ADR-0009) are deployment work, with HOST-1.
+
+## Slice 2: NJ commuter lots
+
+Decided with the user on 2026-11-03: lots with no recorded owner are left out (PRD-4); lots shared by NJ Transit and a town go under NJ Transit, and lots recorded as part private are left out; NJDOT's lots are included and merged with NJ Transit's within 100 m; both adapters are built and tested now, and run only once the SRC-2 and SRC-3 requests are sent (ADR-0011). Rules and counts are in specs/06, "New Jersey adapters".
+
+| Task | What | Requirements | Status |
+|---|---|---|---|
+| S2-1 | Specs: requirements, sources, data model, API, and these tasks; PRD-4 recorded | — | Done |
+| S2-2 | Migration `0003_nj_lots.sql`: `lot_number` on `source_record` and `facility`, `withheld_reason` on `source_record` | REC-8, ING-11 | Done |
+| S2-3 | ArcGIS fetching: item to service to layer, one query, the layer's data date, and failing a cut-short response | ING-2, ING-5 | Done |
+| S2-4 | Adapter `njt-parking-lots`, with saved fixtures: exclusions, withheld private lots, owner mapping, centroids, lot numbers, official pages | ING-10, ING-11, REC-8, ATT-2 | Done |
+| S2-5 | Adapter `njdot-park-ride`, with saved fixtures: duplicate names, operator, official page | ING-10, ATT-2 | Done |
+| S2-6 | Matching: same region only; NJ Transit and NJDOT within 100 m; facilities with a withheld record aren't published | ING-11, ING-12 | Done |
+| S2-7 | API: the `operatorType` filter, and `lotNumber` in results | REC-7, REC-8 | Done |
+| S2-8 | Web: the operator filter, and lot numbers on cards and map markers | WEB-8, REC-8 | Done |
+| S2-9 | Smoke test: the e2e stack also loads both NJ fixtures; a search at an NJ station, and the filter | All slice 2 | Done |
+| S2-10 | Admission: once the user has sent the SRC-2 and SRC-3 requests, add both adapters to the registry, mark them Admitted, terms pending with the date asked, show "terms pending" on the Sources page, and update the search intro | ING-6, ATT-3 | Waiting for the requests |
+
+### Slice 2 status (2026-11-03)
+
+Built and checked, except S2-10, which waits for the user to send the SRC-2 and SRC-3 requests.
+
+- `pnpm lint`, `pnpm typecheck`, `pnpm test` (210 tests: web 71, worker 85, api 47, db 5, api-client 2, on the PGlite fallback), `pnpm build`, and `pnpm test:e2e` (6 smoke tests) all passed.
+- From the saved fixtures: NJ Transit's 511 rows give 399 published lots and 32 withheld; NJDOT's 17 give 16 records, 4 of them merged into NJ Transit lots (Beverwyck stays hidden), so 411 NJ facilities.
+- In the browser at phone width, against the smoke-test stack: near Morristown station, "Morristown, lot 1" (transit agency) and "lot 2" (city-run) showed, and lot 3, recorded as part private, didn't. At 10 km, 20 lots; with City-run and Transit agency unchosen, only NJDOT's Route 46 and Waterview Boulevard lot, on the list and the map. Checked in dark mode too. The stack's request logs had no coordinates.
+- `pnpm dev` applied `0003_nj_lots` on restart and still serves the 38 NYC facilities. NJ data isn't in it until S2-10.

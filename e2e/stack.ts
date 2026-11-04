@@ -1,10 +1,13 @@
-// The smoke test's own stack (S1-10), in one process. A fresh database (TEST_DATABASE_URL, or PGlite +
-// PostGIS in-process), both NYC sources ingested through the real worker code from the saved fixtures
-// (no calls to NYC Open Data), the real API, and a one-layer map style, so no tile host is called.
+// The smoke test's own stack (S1-10, S2-9), in one process. A fresh database (TEST_DATABASE_URL, or PGlite +
+// PostGIS in-process), the NYC and NJ sources ingested through the real worker code from the saved fixtures
+// (no upstream calls), the real API, and a one-layer map style, so no tile host is called. The NJ sources
+// aren't admitted yet (S2-10); loading their fixtures into this throwaway database is testing, not ingesting.
 import { createServer } from 'node:http';
 import { connectTest, startTestDatabase } from '@parking/db/testing';
 import { buildApp } from '../apps/api/src/app.ts';
 import { runSource } from '../apps/worker/src/run.ts';
+import { njdotParkRide } from '../apps/worker/src/sources/njdot-park-ride.ts';
+import { njtParkingLots } from '../apps/worker/src/sources/njt-parking-lots.ts';
 import { nycFacdbDot } from '../apps/worker/src/sources/nyc-facdb-dot.ts';
 import { nycMetersOffstreet } from '../apps/worker/src/sources/nyc-meters-offstreet.ts';
 import { fixtureHttp } from '../apps/worker/test/fixtures.ts';
@@ -25,7 +28,7 @@ const database = await startTestDatabase();
 const sql = connectTest(database);
 const { http } = fixtureHttp();
 const { logger } = testLogger();
-for (const source of [nycFacdbDot, nycMetersOffstreet]) {
+for (const source of [nycFacdbDot, nycMetersOffstreet, njtParkingLots, njdotParkRide]) {
   const outcome = await runSource(source, { sql, http, logger });
   if (outcome.status !== 'succeeded') throw new Error(`Seeding ${source.id} ended ${outcome.status} (${outcome.errorCode})`);
 }

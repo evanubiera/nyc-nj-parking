@@ -8,6 +8,7 @@ import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import { useEffect, useRef } from 'react';
 import { useIntl, type IntlShape } from 'react-intl';
 import type { MessageId } from '../i18n/en.ts';
+import { facilityName } from '../utils/facilityName.ts';
 import { roundPoint, type Point } from '../utils/location.ts';
 
 export interface ResultsMapProps {
@@ -75,7 +76,7 @@ export default function ResultsMap({ styleUrl, point, results, onSelectPoint, on
     results.forEach((facility, index) => {
       const label = intl.formatMessage(
         { id: 'map.facility' },
-        { position: index + 1, name: facility.name, distance: distanceText(intl, facility.distanceMeters) },
+        { position: index + 1, name: facilityName(intl, facility), distance: distanceText(intl, facility.distanceMeters) },
       );
       const element = markerElement('facility', label, String(index + 1));
       element.addEventListener('click', (event) => {

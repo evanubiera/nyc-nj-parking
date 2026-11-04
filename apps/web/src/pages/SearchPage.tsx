@@ -1,25 +1,31 @@
+import type { OperatorType } from '@parking/api-client';
 import { lazy, Suspense, useCallback, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { OperatorFilter } from '../components/OperatorFilter.tsx';
 import { DEFAULT_RADIUS, RadiusPicker } from '../components/RadiusPicker.tsx';
 import { ResultCard } from '../components/ResultCard.tsx';
 import { mapStyleUrl } from '../config.ts';
 import { useDeviceLocation } from '../hooks/useDeviceLocation.ts';
 import { useRecommendations } from '../hooks/useRecommendations.ts';
 import type { Point } from '../utils/location.ts';
+import { OPERATOR_TYPES } from '../utils/operatorTypes.ts';
 
 // MapLibre is large, so the map loads only when it's configured (ADR-0009) and the page has rendered.
 const ResultsMap = lazy(() => import('../components/ResultsMap.tsx'));
 
-/** WEB-4, WEB-5. Search from the device's location or a tapped point; the list works without the map. */
+/** WEB-4, WEB-5, WEB-8. Search from the device's location or a tapped point; the list works without the map. */
 export function SearchPage({ geolocation, styleUrl = mapStyleUrl }: { geolocation?: Geolocation; styleUrl?: string | null }) {
   const intl = useIntl();
   const [radius, setRadius] = useState(DEFAULT_RADIUS);
+  // WEB-8: kept in memory only, like the point.
+  const [operatorTypes, setOperatorTypes] = useState<readonly OperatorType[]>(OPERATOR_TYPES);
   // The search point, already rounded (PRIV-3). Kept in memory only: never in the URL or storage.
   const [point, setPoint] = useState<Point | null>(null);
   const { state, locate, reset } = useDeviceLocation(geolocation, setPoint);
-  const recommendations = useRecommendations(point, radius);
+  const recommendations = useRecommendations(point, radius, operatorTypes);
+  const noOperators = operatorTypes.length === 0;
   const distance = intl.formatMessage({ id: 'search.radius.option' }, { km: radius / 1000 });
-  const results = recommendations.data?.status === 'ok' ? recommendations.data.results : [];
+  const results = !noOperators && recommendations.data?.status === 'ok' ? recommendations.data.results : [];
 
   const searchAt = useCallback(
     (tapped: Point) => {
@@ -49,6 +55,7 @@ export function SearchPage({ geolocation, styleUrl = mapStyleUrl }: { geolocatio
           <FormattedMessage id="search.useLocation" />
         </button>
       </div>
+      <OperatorFilter value={operatorTypes} onChange={setOperatorTypes} />
       {styleUrl && (
         <p className="search__hint">
           <FormattedMessage id="search.mapHint" />
@@ -60,13 +67,16 @@ export function SearchPage({ geolocation, styleUrl = mapStyleUrl }: { geolocatio
         {state.status === 'denied' && <FormattedMessage id={styleUrl ? 'location.denied' : 'location.deniedNoMap'} />}
         {state.status === 'unavailable' && <FormattedMessage id="location.unavailable" />}
         {state.status === 'unsupported' && <FormattedMessage id="location.unsupported" />}
-        {point && recommendations.isPending && <FormattedMessage id="results.searching" />}
-        {recommendations.data?.status === 'error' && (
+        {noOperators && <FormattedMessage id="search.operators.none" />}
+        {!noOperators && point && recommendations.isPending && <FormattedMessage id="results.searching" />}
+        {!noOperators && recommendations.data?.status === 'error' && (
           <FormattedMessage
             id={recommendations.data.code === 'location.out_of_area' ? 'results.error.location.out_of_area' : 'results.error.generic'}
           />
         )}
-        {recommendations.data?.status === 'ok' && results.length === 0 && <FormattedMessage id="results.empty" values={{ distance }} />}
+        {!noOperators && recommendations.data?.status === 'ok' && results.length === 0 && (
+          <FormattedMessage id="results.empty" values={{ distance }} />
+        )}
       </div>
 
       {styleUrl && (

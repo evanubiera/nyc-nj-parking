@@ -27,6 +27,8 @@ Each requirement has an ID. Tasks, tests, and contract operations (`x-requiremen
 | ING-8 | Facilities that are no longer in a source are marked withdrawn, with the time, and aren't returned by the API. | 1 |
 | ING-9 | Snapshots older than the newest 10 per source are deleted. | 1 |
 | ING-10 | A run whose data gives no facilities, or where rows that can't be read outnumber those that can, fails with a code and changes nothing. | 1 |
+| ING-11 | A record whose owner is recorded as private (ADR-0007), or that has no recorded owner (PRD-4), isn't published. A private record is kept as withheld, so the same lot from another source isn't published either. | 2 |
+| ING-12 | Records in different regions never match. An NJ Transit record and an NJDOT record within 100 m of each other are the same lot, whatever their names, and NJ Transit's record is the primary. | 2 |
 
 ## Privacy (PRIV)
 
@@ -57,6 +59,8 @@ Reviewed by the user on 2026-11-03: metered hours are shown as metered hours, fa
 | REC-4 | Each result has: ID, name, kind (garage, lot, or field), operator name and type, facility address, facility location, distance in meters rounded to the nearest 10, metered hours (periods with the time limit and vehicle class, plus the source's original text) when a source has them, opening hours when a source gives them (none admitted yet, SRC-1), rates when known (minor units plus currency), and its sources (ATT-2). | 1 |
 | REC-5 | The 95th percentile response time is under 300 ms with 5,000 facilities in the database. | 1 |
 | REC-6 | A facility with no hours from any source is still returned, with metered and opening hours both null and its official page link. | 1 |
+| REC-7 | `operatorType` limits results to one or more operator types (`municipal`, `county`, `state`, `transit_agency`, `public_authority`). Without it, every type is returned. An unknown code returns 400 `request.invalid_parameter`. | 2 |
+| REC-8 | When a source numbers several lots with the same name (such as an NJ Transit station's lots), each result carries its `lotNumber`, so they can be told apart. Otherwise `lotNumber` is null. | 2 |
 
 ## Web (WEB)
 
@@ -69,3 +73,4 @@ Reviewed by the user on 2026-11-03: metered hours are shown as metered hours, fa
 | WEB-5 | Results show on a list and on a map, nearest first, with each result's sources and data date. | 1 |
 | WEB-6 | Metered hours are labelled as metered hours with their time limit, never as opening hours. When hours are unknown, the result says so and links to the official page. | 1 |
 | WEB-7 | The map shows the attribution its tile source requires, including credit to OpenStreetMap linked to its copyright and licence page, in a corner of the map. The map style comes from configuration (`VITE_MAP_STYLE_URL`), not code; without it there's no map (ADR-0009). | 1 |
+| WEB-8 | The user can limit results to chosen operator types. Every type is chosen at first. The choice applies to the list and the map, and is kept in memory only. With none chosen, the app asks for at least one and doesn't search. A result with a lot number shows it with its name, on the card and the map. | 2 |

@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { en } from '../i18n/en.ts';
-import { avenueM, delancey, sources } from '../test/facilities.ts';
+import { avenueM, delancey, morristown2, sources } from '../test/facilities.ts';
 import { axeViolations, renderWithProviders } from '../test/render.tsx';
 import { ResultCard } from './ResultCard.tsx';
 
@@ -14,6 +14,14 @@ describe('ResultCard', () => {
     expect(screen.getByRole('heading', { name: 'Avenue M Municipal Parking Field' })).toBeInTheDocument();
     expect(screen.getByText('Parking field · City-run · 340 m away')).toBeInTheDocument();
     expect(screen.getByText('1624 Chestnut Avenue, Brooklyn')).toBeInTheDocument();
+  });
+
+  it('REC-8 shows the lot number with the name, in the heading and the link\'s spoken name', () => {
+    renderWithProviders(<ResultCard facility={morristown2} />);
+
+    expect(screen.getByRole('heading', { name: 'Morristown, lot 2' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Hours and rates on the operator’s page, for Morristown, lot 2' })).toBeInTheDocument();
+    expect(screen.getByText('Morristown Town')).toBeInTheDocument();
   });
 
   it('REC-4 shows distances of a kilometer or more in kilometers', () => {

@@ -54,7 +54,7 @@ paths:
         or echoes them (PRIV-3, ADR-0006). At most 50 results. A facility without hours from any source
         is still returned (REC-6).
       tags: [parking]
-      x-requirements: [REC-1, REC-2, REC-3, REC-4, REC-6, PRIV-3, ATT-2]
+      x-requirements: [REC-1, REC-2, REC-3, REC-4, REC-6, REC-7, REC-8, PRIV-3, ATT-2]
       parameters:
         - name: lat
           in: query
@@ -81,6 +81,20 @@ paths:
             minimum: 100
             maximum: 10000
             default: 2000
+        - name: operatorType
+          in: query
+          required: false
+          description: >
+            Only facilities run by these types of operator (REC-7). Repeat it for more than one, as in
+            `operatorType=municipal&operatorType=state`. Without it, every type is returned.
+          style: form
+          explode: true
+          schema:
+            type: array
+            minItems: 1
+            maxItems: 5
+            items:
+              $ref: '#/components/schemas/OperatorType'
       responses:
         '200':
           description: Facilities within the radius, nearest first.
@@ -179,7 +193,7 @@ components:
       description: One facility (REC-4). Values are data or codes, never display text.
       type: object
       additionalProperties: false
-      required: [id, name, kind, operator, address, location, distanceMeters, openingHours, meteredHours, rates, officialUrl, sources]
+      required: [id, name, lotNumber, kind, operator, address, location, distanceMeters, openingHours, meteredHours, rates, officialUrl, sources]
       properties:
         id:
           type: string
@@ -187,6 +201,12 @@ components:
         name:
           type: string
           description: The facility's name, from its source.
+        lotNumber:
+          type: [string, 'null']
+          description: >
+            Set when the source has several lots with this name, such as an NJ Transit station's lots
+            (REC-8). Just the number or letter, such as "2"; the web app adds the words.
+          example: null
         kind:
           type: string
           enum: [garage, lot, field]
@@ -234,8 +254,11 @@ components:
           type: string
           example: NYC Department of Transportation
         type:
-          type: string
-          enum: [municipal, county, state, transit_agency, public_authority]
+          $ref: '#/components/schemas/OperatorType'
+    OperatorType:
+      type: string
+      description: Who runs a facility (ADR-0007).
+      enum: [municipal, county, state, transit_agency, public_authority]
     Address:
       type: object
       additionalProperties: false
@@ -409,6 +432,11 @@ components:
               - meter_hours_parsed
               - location_from_meters
               - inactive_meters_excluded
+              - location_from_outline
+              - private_or_unowned_excluded
+              - lot_numbers_reformatted
+              - duplicates_removed
+              - municipalities_reformatted
         dataUpdatedAt:
           type: [string, 'null']
           format: date-time

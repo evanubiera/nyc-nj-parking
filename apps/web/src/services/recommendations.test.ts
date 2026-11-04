@@ -19,7 +19,7 @@ describe('fetchRecommendations', () => {
   it('PRIV-3 sends only the point rounded to 3 decimal places', async () => {
     const { client, urls } = clientRecording(async () => Response.json({ results: [avenueM] }));
 
-    const result = await fetchRecommendations({ lat: 40.718946, lng: -73.988287 }, 2000, client);
+    const result = await fetchRecommendations({ lat: 40.718946, lng: -73.988287 }, 2000, { client });
 
     expect(result).toEqual({ status: 'ok', results: [avenueM] });
     expect(urls[0]?.pathname).toBe('/api/parking/recommendations');
@@ -29,7 +29,7 @@ describe('fetchRecommendations', () => {
   it('REC-3 passes on the error code', async () => {
     const { client } = clientRecording(async () => Response.json({ code: 'location.out_of_area' }, { status: 422 }));
 
-    expect(await fetchRecommendations({ lat: 39.29, lng: -76.612 }, 2000, client)).toEqual({ status: 'error', code: 'location.out_of_area' });
+    expect(await fetchRecommendations({ lat: 39.29, lng: -76.612 }, 2000, { client })).toEqual({ status: 'error', code: 'location.out_of_area' });
   });
 
   it('reports a network failure as its own code', async () => {
@@ -37,6 +37,14 @@ describe('fetchRecommendations', () => {
       throw new TypeError('Failed to fetch');
     });
 
-    expect(await fetchRecommendations({ lat: 40.719, lng: -73.988 }, 2000, client)).toEqual({ status: 'error', code: 'network' });
+    expect(await fetchRecommendations({ lat: 40.719, lng: -73.988 }, 2000, { client })).toEqual({ status: 'error', code: 'network' });
+  });
+
+  it('REC-7 sends each chosen operator type as its own parameter', async () => {
+    const { client, urls } = clientRecording(async () => Response.json({ results: [] }));
+
+    await fetchRecommendations({ lat: 40.797, lng: -74.474 }, 2000, { client, operatorTypes: ['municipal', 'transit_agency'] });
+
+    expect(urls[0]!.searchParams.getAll('operatorType')).toEqual(['municipal', 'transit_agency']);
   });
 });

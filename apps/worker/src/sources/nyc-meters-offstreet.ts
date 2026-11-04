@@ -90,6 +90,8 @@ function meterGroupRecord(key: string, meters: Meter[]): SourceRecordInput {
     spaces: null,
     officialUrl: dotFacilitiesUrl(borough),
     meterPeriods: meterPeriods(meters),
+    lotNumber: null,
+    withheldReason: null,
   };
 }
 

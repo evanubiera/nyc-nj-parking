@@ -21,7 +21,7 @@ The `Admitted` table is read by a test (ING-6). Keep its format: one source ID p
 - **Jersey City Open Data**: the portal's [terms and conditions](https://data.jerseycitynj.gov/terms/terms-and-conditions/) grant reuse of public datasets unless a dataset states other terms.
 - **ArcGIS layers (NJ)**: terms are set per layer, in the item's "terms of use" field. They're listed per source below.
 - **Socrata rate limits** ([app tokens](https://dev.socrata.com/docs/app-tokens.html)): without a token, requests share a pool by IP address and may be throttled. With a token, Socrata currently doesn't throttle unless use is abusive. The worker sends `SOCRATA_APP_TOKEN` (ING-5).
-- **ArcGIS rate limits**: none are stated for these hosted layers. Queries return at most 1,000 to 2,000 records per page (`maxRecordCount`), so adapters page through results.
+- **ArcGIS rate limits**: none are stated for these hosted layers. A query returns at most `maxRecordCount` records (1,000 for NJ Transit's layer, which has 511). Each NJ adapter makes one query and fails with `upstream.too_large` if the response says it was cut short (`exceededTransferLimit`), the same as the Socrata row limit.
 
 ## New York City
 
@@ -49,8 +49,8 @@ The `Admitted` table is read by a test (ING-6). Keep its format: one source ID p
 
 | Source ID | Dataset | Publisher | Endpoint | Fields | Updates | Terms | Status |
 |---|---|---|---|---|---|---|---|
-| `njt-parking-lots` | Parking Lot Database View (behind the [NJ Transit Parking Viewer](https://experience.arcgis.com/experience/ff3d812b33bf4bd9b90991a38155fc09)) | NJ Transit, published from a staff account | ArcGIS item [2f311895a644453f8f679479187aa19e](https://www.arcgis.com/home/item.html?id=2f311895a644453f8f679479187aa19e), layer 24 of `ParkingLotDB_20260320_Sync_view`, polygons with lat/long | `name`, `station`, `municipality`, `lotowner`, `totalspaces`, `adaspaces`, the fee fields, the restriction fields, `active`, `dateupdated` | Layer edited 2026-10-08. Every lot's `dateupdated` is 2025-05-30 | None stated | **Verified; can be Admitted, terms pending (ADR-0011) once its adapter exists. Terms asked (SRC-2); PRD-4 still to decide.** 511 lots: 189 municipal, 168 NJ Transit, 28 shared, 32 private, 72 with no owner. Fee text is free text and sometimes cut off with "…". Resolve the layer URL from the item ID, because the layer name contains a date. |
-| `njdot-park-ride` | New_Jersey_DOT_Park_Ride | NJDOT | ArcGIS item [ab33be6e4a51439c9ed179809b4d99cf](https://www.arcgis.com/home/item.html?id=ab33be6e4a51439c9ed179809b4d99cf), points | `pr_Name`, `Municipality`, `County`, coordinates (other fields mostly empty) | Data last edited 2024-02-28 | Liability disclaimer only | **Verified; can be Admitted, terms pending (ADR-0011) once its adapter exists. Terms asked (SRC-3).** 17 lots. The NJGIN hub only re-lists this layer. |
+| `njt-parking-lots` | Parking Lot Database View (behind the [NJ Transit Parking Viewer](https://experience.arcgis.com/experience/ff3d812b33bf4bd9b90991a38155fc09)) | NJ Transit, published from a staff account | ArcGIS item [2f311895a644453f8f679479187aa19e](https://www.arcgis.com/home/item.html?id=2f311895a644453f8f679479187aa19e), layer 24 of `ParkingLotDB_20260320_Sync_view`, polygons with lat/long | `name`, `station`, `municipality`, `lotowner`, `totalspaces`, `adaspaces`, the fee fields, the restriction fields, `active`, `dateupdated` | Layer edited 2026-10-08. Every lot's `dateupdated` is 2025-05-30 | None stated | **Verified, adapter built (S2-4). Becomes Admitted, terms pending (ADR-0011) once the SRC-2 request is sent (S2-10). PRD-4 decided: lots with no owner are left out.** 511 lots: 189 municipal, 168 NJ Transit, 28 shared, 32 private, 72 with no owner. Fee text is free text and sometimes cut off with "…". Resolve the layer URL from the item ID, because the layer name contains a date. |
+| `njdot-park-ride` | New_Jersey_DOT_Park_Ride | NJDOT | ArcGIS item [ab33be6e4a51439c9ed179809b4d99cf](https://www.arcgis.com/home/item.html?id=ab33be6e4a51439c9ed179809b4d99cf), points | `pr_Name`, `Municipality`, `County`, coordinates (other fields mostly empty) | Data last edited 2024-02-28 | Liability disclaimer only | **Verified, adapter built (S2-5). Becomes Admitted, terms pending (ADR-0011) once the SRC-3 request is sent (S2-10).** 17 lots. The NJGIN hub only re-lists this layer. |
 | — | NJ Transit Owned Lots_View | NJ Transit GIS | Item 17230d392de84a2d8cf635f27dab8058 | Tax-parcel fields | 2026-10-20 | Asks for credit | **Rejected.** 2,521 tax parcels, not parking. |
 | — | State Park Service Points of Interest, `FEATURE_TYPE` = Parking (the layer is now titled "Open Space (State Owned) Points of Interest") | NJDEP | Item ac19884cc71741ff91b808da50219ec2, `mapsdep.nj.gov/…/Features/Land/MapServer/62` | Name, source date | Point dates 2012–2018 | Data Distribution Agreement: set credit line, metadata must go with the data | **Later (SRC-4, PRD-3).** 1,041 parking points. On 2026-11-03, none of the other 20 services under `mapsdep.nj.gov/arcgis/rest/services/Features` had a parking layer. |
 | — | Sustainable Business Registry | NJDEP | `mapsdep.nj.gov/arcgis/rest/services/Features/Structures/MapServer/7` | `ORG_NAME`, `ORG_TYPE`, address, lat/long | — | NJDEP's | **Rejected.** A list of registered businesses, not parking. It was suggested as NJDOT park-and-ride data, but it's on NJDEP's server, and the Structures service has no parking layer. |
@@ -58,6 +58,51 @@ The `Admitted` table is read by a test (ING-6). Keep its format: one source ID p
 | — | Municipal Parking Lots | City of Jersey City | [municipal-parking-lots](https://data.jerseycitynj.gov/explore/dataset/municipal-parking-lots/), OpenDataSoft | `lots`, `address`, `zip_code`, `geopoints` | Once, 2020-11-25 (rechecked 2026-11-03: still 7 records, unchanged) | Portal terms | **Rejected for now (SRC-5).** 7 lots, with no hours or rates. Its "2 hours free" note was a 2020 holiday promotion. |
 | — | Jersey City Parking Authority | JCPA | None found | — | — | — | **Blocked (SRC-5).** Only third-party listings, which we can't use. |
 | — | Port Authority facilities | PANYNJ | None found | — | — | — | **Rejected.** There's no parking-facility endpoint. |
+
+## New Jersey adapters (slice 2)
+
+Rules decided with the user on 2026-11-03 (PRD-4, ADR-0007), and counts from the live layers that day, which the saved fixtures reproduce. Neither source runs until S2-10 admits it.
+
+### `njt-parking-lots` (S2-4)
+
+- **Fetch:** the item (2f311895a644453f8f679479187aa19e) gives the service URL, the service gives its one layer (24 today), and the layer's `editingInfo.dataLastEditDate` is the data date (2026-10-08). Then one query: `where=1=1`, `returnGeometry=false`, `returnCentroid=true`, `outSR=4326`, and only the fields below. Contact names and phone numbers (`contacname`, `pubcontact`, `contaccomp`) aren't requested, so they're never stored.
+- **Fields:** `facilityid`, `name`, `lot_number`, `lotuse`, `municipality`, `county`, `location`, `lotowner`, `totalspaces`, `active`, `conwebsite`, plus the centroid.
+- **Record ID:** `{lotuse}/{facilityid}`, such as `rail/Trenton_01`. `facilityid` alone repeats twice (Trenton and Walter Rand each have a rail or bus lot and a light rail lot). Facility IDs are `njt-` plus the `facilityid` words, such as `njt-atlantic-city-01`.
+- **Left out on purpose** (not errors): the row whose `lotuse` is `test`; lots whose `active` isn't "Active" (one "Inactive", one "No Parking for FIFA World Cup"); lots with 0 spaces, which are station entries with no parking (60); and lots with no `lotowner` (17 once the others are out; PRD-4).
+- **Withheld** (ING-11): owners recorded as private, which are "Private", "Avalon Bay", "NJ Transit/Private", and "Municipal/Private" (32). They're stored, but never published, so an NJDOT record for the same lot stays hidden too.
+- **Owner to operator** (ADR-0007):
+
+  | `lotowner` | Operator name | Type | Lots |
+  |---|---|---|---|
+  | Municipality | `municipality`, as published (such as "Montclair Township") | `municipal` | 189 |
+  | NJ Transit, NJ TRANSIT/Municipality, NJ Transit/Kean University | NJ Transit | `transit_agency` | 163, 28, 1 |
+  | PATCO | PATCO | `transit_agency` | 5 |
+  | NJTA, NJ Turnpike | New Jersey Turnpike Authority | `public_authority` | 5, 1 |
+  | PANYNJ | Port Authority of New York and New Jersey | `public_authority` | 1 |
+  | NJDOT | New Jersey Department of Transportation | `state` | 3 |
+  | County | `county` plus "County" (such as "Somerset County") | `county` | 3 |
+
+  An owner not in this table counts as a row that can't be read, so a change in the data trips ING-10 instead of guessing.
+- **Location:** the centroid of the lot's outline. The `lat` and `long` fields are missing on 199 lots and wrong on some: Parsippany (Beverwyck) is placed 5,457 km away, and Pennsauken/Route 73 2.5 km.
+- **Name:** `name` as published. **Lot number** (REC-8): `lot_number`, without leading zeros ("02" becomes "2"), only when the source lists more than one lot with the same `name` and `lotuse` (284 lots).
+- **Kind:** `garage` when the name says "Garage" or "Deck" (Englewood, and the South Mountain Arena deck), otherwise `lot`.
+- **Address and region:** the address line is `location`, which gives cross streets (such as "Station Ave & White Horse Pike"). The locality is `municipality`. The region is NY when `county` names New York ("Rockland, NY" and "Orange (NY)": Suffern, Warwick, and Greenwood Lake), otherwise NJ.
+- **Spaces:** `totalspaces` (unknown on 4 lots).
+- **Official page:** `conwebsite` when it's an http(s) address other than NJ Transit's home page (such as a town's or the parking contractor's site); otherwise NJ Transit's [Parking page](https://www.njtransit.com/parking).
+- **Not used yet:** the fee and restriction fields are free text, for slice 3.
+- **Result on 2026-11-03:** 399 lots published, 32 withheld.
+
+### `njdot-park-ride` (S2-5)
+
+- **Fetch:** the item (ab33be6e4a51439c9ed179809b4d99cf) gives the service URL, then layer 0 and its `editingInfo.dataLastEditDate` (2024-02-28). One query with `outSR=4326` and the fields `OBJECTID`, `pr_Name`, `Municipality`, `County`, and `pr_Capacity`. The contact fields aren't requested.
+- **Record ID:** `OBJECTID`. Facility IDs are `njdot-` plus the name's words.
+- **Operator:** New Jersey Department of Transportation, `state`. The layer has no owner field; it's NJDOT's own park-and-ride inventory (decided 2026-11-03).
+- **Name:** `pr_Name`, trimmed. When two lots have the same name, the lower `OBJECTID` is kept: "Mount Arlington (Howard Boulevard Phase I)" is listed twice, 385 m apart.
+- **Locality:** `Municipality`, title-cased ("MONTVILLE TWP" becomes "Montville Twp"). "Dover Annex" says Dover Town, but its point is in Toms River (formerly Dover Township); we show it as published.
+- **Spaces:** `pr_Capacity` (unknown on 3 lots). **Kind:** `lot`. **Region:** NJ.
+- **Official page:** NJDOT's [Park and Ride Locator](https://dot.nj.gov/transportation/commuter/rideshare/prlocate.shtm). The layer's `URL` field is empty.
+- **Matching** (ING-12): an NJDOT lot within 100 m of an NJ Transit lot is that lot, and NJ Transit's record is the primary. On 2026-11-03 that's Fair Lawn (25 m from "Fairlawn DPW"), Elmwood Park, Mount Arlington, and Parsippany (Beverwyck), which NJ Transit records as private, so it stays hidden.
+- **Result on 2026-11-03:** 16 records, 12 of them new lots.
 
 ## New Jersey municipalities (researched 2026-11-03)
 

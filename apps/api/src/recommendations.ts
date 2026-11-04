@@ -1,6 +1,6 @@
-// S1-7: public facilities near a point, nearest first (REC-1 to REC-6). The request point is rounded
+// S1-7 and S2-7: public facilities near a point, nearest first, optionally of some operator types (REC-1 to REC-8). The request point is rounded
 // to 3 decimal places before use and is never logged, stored, or returned (PRIV-3, ADR-0006).
-import type { MeterPeriod, OpeningHours, Rate, RecommendationList, RecommendedFacility } from '@parking/api-client';
+import type { MeterPeriod, OpeningHours, OperatorType, Rate, RecommendationList, RecommendedFacility } from '@parking/api-client';
 import { maskToDays, textArray, timeOfDay, type Sql } from '@parking/db';
 
 export const MAX_RESULTS = 50;
@@ -12,6 +12,8 @@ export interface RecommendationQuery {
   lat: number;
   lng: number;
   radius: number;
+  /** REC-7: only these types. Absent means every type. */
+  operatorType?: OperatorType[];
 }
 
 /** PRIV-3: about 110 m north–south and 85 m east–west at NYC's latitude. */
@@ -26,6 +28,7 @@ export function inCoverage(lat: number, lng: number): boolean {
 interface FacilityRow {
   id: string;
   name: string;
+  lotNumber: string | null;
   kind: RecommendedFacility['kind'];
   operatorName: string;
   operatorType: RecommendedFacility['operator']['type'];
@@ -45,12 +48,13 @@ export async function findRecommendations(sql: Sql, query: RecommendationQuery):
 
   const facilities = await sql<FacilityRow[]>`
     with origin as (select ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography as point)
-    select f.id, f.name, f.kind, f.operator_name as "operatorName", f.operator_type as "operatorType",
+    select f.id, f.name, f.lot_number as "lotNumber", f.kind, f.operator_name as "operatorName", f.operator_type as "operatorType",
       f.address_line as "addressLine", f.locality, f.region, f.time_zone as "timeZone",
       ST_Y(f.location::geometry) as lat, ST_X(f.location::geometry) as lng, f.official_url as "officialUrl",
       ST_Distance(f.location, origin.point) as distance
     from facility f, origin
     where f.status = 'active' and ST_DWithin(f.location, origin.point, ${query.radius})
+      ${query.operatorType ? sql`and f.operator_type = any(${textArray(sql, query.operatorType)})` : sql``}
     order by distance, f.id
     limit ${MAX_RESULTS}`;
   if (facilities.length === 0) return { results: [] };
@@ -92,6 +96,7 @@ export async function findRecommendations(sql: Sql, query: RecommendationQuery):
       return {
         id: facility.id,
         name: facility.name,
+        lotNumber: facility.lotNumber,
         kind: facility.kind,
         operator: { name: facility.operatorName, type: facility.operatorType },
         address: { line: facility.addressLine, locality: facility.locality, region: facility.region },

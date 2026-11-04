@@ -24,7 +24,13 @@ export interface SourceRecordInput {
   spaces: number | null;
   officialUrl: string;
   meterPeriods: MeterPeriod[];
+  /** REC-8: only when the source has several lots with this name, such as "2". */
+  lotNumber: string | null;
+  /** ING-11: the record is kept for matching, but its facility is never published. */
+  withheldReason: WithheldReason | null;
 }
+
+export type WithheldReason = 'private_owner';
 
 export interface Normalized {
   rowsRead: number;

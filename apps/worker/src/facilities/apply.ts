@@ -1,5 +1,6 @@
 // Writes one source's normalized records and rebuilds the facility tables from every source's records,
-// all inside the run's transaction (ING-3). Facilities no source lists any more are withdrawn (ING-8).
+// all inside the run's transaction (ING-3). Facilities no source lists any more are withdrawn (ING-8), and
+// a facility with a withheld record is never published (ING-11).
 import { textArray, type TransactionSql } from '@parking/db';
 import { IngestionError } from '../errors.ts';
 import type { MeterPeriod } from '../normalize/meter-hours.ts';
@@ -30,19 +31,21 @@ async function replaceSourceRecords(tx: TransactionSql, sourceId: string, record
       insert into source_record (
         source_id, record_id, facility_key, priority, name, match_tokens, kind, operator_name, operator_type,
         address_line, locality, region, time_zone, location, spaces, official_url, meter_periods,
-        first_seen_at, last_seen_at)
+        lot_number, withheld_reason, first_seen_at, last_seen_at)
       values (
         ${sourceId}, ${record.recordId}, ${record.facilityKey}, ${record.priority}, ${record.name},
         ${textArray(tx, record.matchTokens)}, ${record.kind}, ${record.operatorName}, ${record.operatorType},
         ${record.addressLine}, ${record.locality}, ${record.region}, ${record.timeZone},
         ST_SetSRID(ST_MakePoint(${record.lng}, ${record.lat}), 4326)::geography, ${record.spaces},
-        ${record.officialUrl}, ${tx.json(record.meterPeriods as unknown as Parameters<typeof tx.json>[0])}, ${now}, ${now})
+        ${record.officialUrl}, ${tx.json(record.meterPeriods as unknown as Parameters<typeof tx.json>[0])},
+        ${record.lotNumber}, ${record.withheldReason}, ${now}, ${now})
       on conflict (source_id, record_id) do update set
         facility_key = excluded.facility_key, priority = excluded.priority, name = excluded.name,
         match_tokens = excluded.match_tokens, kind = excluded.kind, operator_name = excluded.operator_name,
         operator_type = excluded.operator_type, address_line = excluded.address_line, locality = excluded.locality,
         region = excluded.region, time_zone = excluded.time_zone, location = excluded.location,
         spaces = excluded.spaces, official_url = excluded.official_url, meter_periods = excluded.meter_periods,
+        lot_number = excluded.lot_number, withheld_reason = excluded.withheld_reason,
         last_seen_at = excluded.last_seen_at`;
   }
   const removed = await tx`
@@ -70,6 +73,8 @@ interface StoredRecord {
   spaces: number | null;
   officialUrl: string;
   meterPeriods: MeterPeriod[];
+  lotNumber: string | null;
+  withheldReason: string | null;
 }
 
 export async function rebuildFacilities(tx: TransactionSql, now: Date): Promise<{ active: number; withdrawn: number }> {
@@ -81,9 +86,11 @@ export async function rebuildFacilities(tx: TransactionSql, now: Date): Promise<
       match_tokens as "matchTokens", kind, operator_name as "operatorName", operator_type as "operatorType",
       address_line as "addressLine", locality, region, time_zone as "timeZone",
       ST_Y(location::geometry) as lat, ST_X(location::geometry) as lng, spaces, official_url as "officialUrl",
-      meter_periods as "meterPeriods"
+      meter_periods as "meterPeriods", lot_number as "lotNumber", withheld_reason as "withheldReason"
     from source_record`;
-  const clusters = clusterRecords(records.map((record) => ({ ...record, lat: Number(record.lat), lng: Number(record.lng) })));
+  const clusters = clusterRecords(
+    records.map((record) => ({ ...record, lat: Number(record.lat), lng: Number(record.lng) })),
+  ).filter(({ members }) => members.every((member) => member.withheldReason === null));
 
   await tx`delete from facility_meter_period`;
   await tx`delete from facility_source`;
@@ -92,17 +99,17 @@ export async function rebuildFacilities(tx: TransactionSql, now: Date): Promise<
     await tx`
       insert into facility (
         id, name, kind, operator_name, operator_type, address_line, locality, region, time_zone, location,
-        spaces, official_url, status, first_seen_at, last_seen_at, withdrawn_at)
+        spaces, official_url, lot_number, status, first_seen_at, last_seen_at, withdrawn_at)
       values (
         ${facilityId}, ${primary.name}, ${primary.kind}, ${primary.operatorName}, ${primary.operatorType},
         ${primary.addressLine}, ${primary.locality}, ${primary.region}, ${primary.timeZone},
         ST_SetSRID(ST_MakePoint(${primary.lng}, ${primary.lat}), 4326)::geography, ${primary.spaces},
-        ${primary.officialUrl}, 'active', ${now}, ${now}, null)
+        ${primary.officialUrl}, ${primary.lotNumber}, 'active', ${now}, ${now}, null)
       on conflict (id) do update set
         name = excluded.name, kind = excluded.kind, operator_name = excluded.operator_name,
         operator_type = excluded.operator_type, address_line = excluded.address_line, locality = excluded.locality,
         region = excluded.region, time_zone = excluded.time_zone, location = excluded.location,
-        spaces = excluded.spaces, official_url = excluded.official_url, status = 'active',
+        spaces = excluded.spaces, official_url = excluded.official_url, lot_number = excluded.lot_number, status = 'active',
         last_seen_at = excluded.last_seen_at, withdrawn_at = null`;
 
     for (const member of members) {

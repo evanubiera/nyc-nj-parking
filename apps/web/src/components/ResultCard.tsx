@@ -1,5 +1,6 @@
 import type { RecommendedFacility } from '@parking/api-client';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { facilityName } from '../utils/facilityName.ts';
 import { MeteredHours } from './MeteredHours.tsx';
 import { SourceCredits } from './SourceCredits.tsx';
 
@@ -7,6 +8,7 @@ import { SourceCredits } from './SourceCredits.tsx';
 export function ResultCard({ facility, position }: { facility: RecommendedFacility; position?: number }) {
   const intl = useIntl();
   const hoursKnown = facility.meteredHours !== null || facility.openingHours !== null;
+  const name = facilityName(intl, facility);
 
   return (
     <article id={`card-${facility.id}`} className="result" aria-labelledby={`result-${facility.id}`} tabIndex={-1}>
@@ -16,7 +18,7 @@ export function ResultCard({ facility, position }: { facility: RecommendedFacili
             {position}
           </span>
         )}
-        {facility.name}
+        {name}
       </h3>
       <p className="result__meta">
         <FormattedMessage
@@ -51,7 +53,7 @@ export function ResultCard({ facility, position }: { facility: RecommendedFacili
           href={facility.officialUrl}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label={intl.formatMessage({ id: 'facility.officialLinkLabel' }, { name: facility.name })}
+          aria-label={intl.formatMessage({ id: 'facility.officialLinkLabel' }, { name })}
         >
           <FormattedMessage id="facility.officialLink" />
         </a>

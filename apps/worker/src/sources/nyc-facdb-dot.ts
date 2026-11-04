@@ -75,6 +75,8 @@ function facdbRecord(row: Record<string, unknown>): SourceRecordInput | null {
     spaces: null, // `capacity` is 0 on every DOT row (specs/06), so it isn't used.
     officialUrl: dotFacilitiesUrl(borough),
     meterPeriods: [],
+    lotNumber: null,
+    withheldReason: null,
   };
 }
 

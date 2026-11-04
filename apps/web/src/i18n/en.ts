@@ -11,6 +11,9 @@ export const en = {
   'search.radius.label': 'Search within',
   'search.radius.option': '{km, number} km',
   'search.useLocation': 'Use my location',
+  // WEB-8. The options reuse the operator labels below.
+  'search.operators.legend': 'Run by',
+  'search.operators.none': 'Choose at least one kind of operator to search.',
   'search.mapHint': 'Or tap the map to search there.',
 
   'location.locating': 'Finding your location…',
@@ -38,6 +41,8 @@ export const en = {
   'facility.distance.meters': '{meters, number} m away',
   'facility.distance.kilometers': '{km, number, ::.0} km away',
   'facility.address': '{line}, {locality}',
+  // REC-8: an NJ Transit station's lots share a name, so their number tells them apart.
+  'facility.nameWithLot': '{name}, lot {lot}',
 
   // WEB-6: these are when you pay at the meters, never opening hours.
   'meter.heading': 'Metered hours',
@@ -73,6 +78,12 @@ export const en = {
   'sources.change.meter_hours_parsed': 'We turn the meters’ hours into days, times, and time limits.',
   'sources.change.location_from_meters': 'Where only the meters list a facility, we place it at the average position of its meters.',
   'sources.change.inactive_meters_excluded': 'We leave out meters marked inactive.',
+  'sources.change.location_from_outline': 'We place each lot at the centre of its outline.',
+  'sources.change.private_or_unowned_excluded':
+    'We leave out lots recorded as privately owned (in whole or in part) or with no owner, and entries with no parking spaces.',
+  'sources.change.lot_numbers_reformatted': 'We show lot numbers without leading zeros, and only where a station has more than one lot.',
+  'sources.change.duplicates_removed': 'Where a lot is listed twice under one name, we show it once.',
+  'sources.change.municipalities_reformatted': 'We reformat municipality names written in capitals.',
   'sources.loading': 'Loading the data sources…',
   'sources.error': "The data sources can't be shown right now.",
   'sources.back': 'Back to search',

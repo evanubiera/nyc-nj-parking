@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { clusterRecords, MATCH_DISTANCE_M, metersBetween } from '../src/facilities/cluster.ts';
+import { clusterRecords, MATCH_DISTANCE_M, metersBetween, NEARBY_MATCHES } from '../src/facilities/cluster.ts';
+import { matchTokens } from '../src/normalize/names.ts';
 import { normalizeFacdb } from '../src/sources/nyc-facdb-dot.ts';
 import { normalizeMeters } from '../src/sources/nyc-meters-offstreet.ts';
 import { fixtures } from './fixtures.ts';
@@ -61,5 +62,50 @@ describe('matching facilities across sources (S1-5)', () => {
     const reversed = clusterRecords([...facdb, ...meters].reverse());
 
     expect(reversed.map((cluster) => cluster.facilityId).sort()).toEqual(clusters.map((cluster) => cluster.facilityId).sort());
+  });
+});
+
+describe('matching NJ lots (S2-6)', () => {
+  const record = (sourceId: string, recordId: string, name: string, lat: number, lng: number, region = 'NJ') => ({
+    sourceId,
+    recordId,
+    facilityKey: `${sourceId}-${recordId}`,
+    priority: sourceId === 'njdot-park-ride' ? 2 : 1,
+    matchTokens: matchTokens(name),
+    region,
+    lat,
+    lng,
+  });
+  // About 25 m apart, like "Fairlawn DPW" and "Fair Lawn Commuter Parking Lot" on 2026-11-03.
+  const fairlawn = record('njt-parking-lots', 'rail/Fairlawn DPW_01', 'Fairlawn DPW', 40.94043, -74.13137);
+  const fairLawnDot = record('njdot-park-ride', '1', 'Fair Lawn Commuter Parking Lot', 40.94063, -74.13125);
+
+  it('ING-12 matches NJ Transit and NJDOT lots within 100 m, whatever their names', () => {
+    const [cluster, ...rest] = clusterRecords([fairLawnDot, fairlawn]);
+
+    expect(rest).toHaveLength(0);
+    expect(cluster?.primary.sourceId).toBe('njt-parking-lots');
+    expect(metersBetween(fairlawn, fairLawnDot)).toBeLessThan(NEARBY_MATCHES[0]!.meters);
+  });
+
+  it('ING-12 keeps NJ Transit and NJDOT lots with different names apart beyond 100 m', () => {
+    const farther = { ...fairLawnDot, lat: fairLawnDot.lat + 0.002 }; // about 220 m north
+
+    expect(clusterRecords([fairlawn, farther])).toHaveLength(2);
+  });
+
+  it('ING-12 matches by distance alone only for that pair of sources', () => {
+    const facdb = record('nyc-facdb-dot', 'a', 'Ditmars No. 1', 40.77, -73.91, 'NY');
+    const meters = record('nyc-meters-offstreet', 'b', 'Steinway No. 2', 40.7701, -73.91, 'NY');
+
+    expect(clusterRecords([facdb, meters])).toHaveLength(2);
+  });
+
+  it('ING-12 never matches records in different regions, even with the same name', () => {
+    const statenIsland = record('nyc-facdb-dot', 'a', 'Elizabeth', 40.6371, -74.1951, 'NY');
+    const acrossTheKill = record('njt-parking-lots', 'b', 'Elizabeth', 40.6366, -74.1985);
+
+    expect(metersBetween(statenIsland, acrossTheKill)).toBeLessThan(MATCH_DISTANCE_M);
+    expect(clusterRecords([statenIsland, acrossTheKill])).toHaveLength(2);
   });
 });

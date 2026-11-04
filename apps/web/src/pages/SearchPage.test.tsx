@@ -1,9 +1,9 @@
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import { act } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { en } from '../i18n/en.ts';
 import { fetchRecommendations } from '../services/recommendations.ts';
-import { avenueM, delancey, sources } from '../test/facilities.ts';
+import { avenueM, delancey, morristown2, sources } from '../test/facilities.ts';
 import { maps, resetMaps } from '../test/maplibre.ts';
 import { axeViolations, renderWithProviders } from '../test/render.tsx';
 import { SearchPage } from './SearchPage.tsx';
@@ -132,6 +132,48 @@ describe('SearchPage', () => {
     fireEvent.click(screen.getByRole('button', { name: en['search.useLocation'] }));
 
     expect(await screen.findByText('No public parking found within 2 km. Try a wider search.')).toBeInTheDocument();
+  });
+
+  it('WEB-8 offers every operator type, all chosen, and sends no filter until one is unchosen', async () => {
+    renderWithProviders(<SearchPage geolocation={geolocationAnswering({ lat: 40.797, lng: -74.474 })} />);
+    const group = screen.getByRole('group', { name: en['search.operators.legend'] });
+    const boxes = within(group).getAllByRole('checkbox');
+
+    expect(boxes.map((box) => box.closest('label')?.textContent)).toEqual(['City-run', 'County-run', 'State-run', 'Transit agency', 'Public authority']);
+    expect(boxes.every((box) => (box as HTMLInputElement).checked)).toBe(true);
+    fireEvent.click(screen.getByRole('button', { name: en['search.useLocation'] }));
+    await screen.findByRole('heading', { level: 2 });
+    expect(recommend).toHaveBeenLastCalledWith({ lat: 40.797, lng: -74.474 }, 2000);
+
+    fireEvent.click(within(group).getByRole('checkbox', { name: 'City-run' }));
+
+    await vi.waitFor(() =>
+      expect(recommend).toHaveBeenLastCalledWith({ lat: 40.797, lng: -74.474 }, 2000, {
+        operatorTypes: ['county', 'state', 'transit_agency', 'public_authority'],
+      }),
+    );
+  });
+
+  it('WEB-8 asks for at least one operator type, and doesn\'t search without one', async () => {
+    renderWithProviders(<SearchPage geolocation={geolocationAnswering({ lat: 40.797, lng: -74.474 })} />);
+    const group = screen.getByRole('group', { name: en['search.operators.legend'] });
+    for (const box of within(group).getAllByRole('checkbox')) fireEvent.click(box);
+
+    fireEvent.click(screen.getByRole('button', { name: en['search.useLocation'] }));
+
+    expect(await screen.findByText(en['search.operators.none'])).toBeInTheDocument();
+    expect(recommend).not.toHaveBeenCalled();
+    expect(screen.queryByRole('article')).toBeNull();
+  });
+
+  it('REC-8 names a numbered lot with its number on the map marker', async () => {
+    recommend.mockResolvedValue({ status: 'ok', results: [morristown2] });
+    renderWithProviders(<SearchPage geolocation={geolocationAnswering({ lat: 40.797, lng: -74.474 })} styleUrl="https://tiles.example.test/style" />);
+    await vi.waitFor(() => expect(maps).toHaveLength(1));
+
+    act(() => maps[0]!.tap(40.797, -74.474));
+
+    expect(await screen.findByRole('button', { name: '1. Morristown, lot 2, 180 m away' })).toBeInTheDocument();
   });
 
   it('WEB-2 has no axe violations with results showing', async () => {

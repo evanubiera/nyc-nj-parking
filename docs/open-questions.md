@@ -24,7 +24,7 @@ Prefixes: SRC (a data source's terms or availability), PRD (product), LEG (legal
 | PRD-1 | What does "city-run" include? | **Decided 2026-11-03 by the user:** any public agency, labeled by operator (ADR-0007). |
 | PRD-2 | The wording of the accuracy disclaimer. It needs a lawyer; the app shows a marked placeholder until then. | Open, blocks public launch |
 | PRD-3 | Coverage area: NYC plus NJ only, or all of New York State as well (adding the Thruway lots)? | Open, blocks slice 4 |
-| PRD-4 | NJ Transit lots with no recorded owner (72 of 511): show them as transit-agency lots, or leave them out until the owner is known? | Open, blocks slice 2 |
+| PRD-4 | NJ Transit lots with no recorded owner (72 of 511): show them as transit-agency lots, or leave them out until the owner is known? | **Decided 2026-11-03 by the user:** leave them out (ING-11). 54 of them have 0 spaces (stations such as New York Penn and Newark Airport), and some of the rest look like shopping-centre lots. Lots shared by NJ Transit and a town go under NJ Transit, and lots recorded as part private are left out. |
 | PRD-5 | Search radius: what default and maximum? | **Decided 2026-11-03 by the user:** 2 km default, 100 m to 10 km (REC-2). |
 | PRD-6 | Is the app commercial (advertising, fees, sponsorship, or run by a business)? Several vendors' free plans exclude commercial use, and some data terms may treat it differently. The chosen map options allow either (ADR-0009). | Open, not blocking yet |
 

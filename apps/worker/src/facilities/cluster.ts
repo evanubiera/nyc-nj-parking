@@ -1,10 +1,20 @@
-// S1-5: groups source records that describe the same facility. Two records are the same facility when
-// they come from different sources, their names match (names.ts), and they're within MATCH_DISTANCE_M.
-// Checked against the sources on 2026-11-03: correct matches were up to 497 m apart (the Gowanus field
+// S1-5 and S2-6: groups source records that describe the same facility. Two records are the same facility
+// when they come from different sources in the same region, and either their names match (names.ts) within
+// MATCH_DISTANCE_M, or they come from a pair of sources in NEARBY_MATCHES and are within its distance.
+// Checked against the sources on 2026-11-03: correct name matches were up to 497 m apart (the Gowanus field
 // runs for blocks), so the limit is 750 m and the name has to match.
 import { namesMatch } from '../normalize/names.ts';
 
 export const MATCH_DISTANCE_M = 750;
+
+/**
+ * ING-12: sources that name the same lot differently, so nearness alone is enough. NJ Transit and NJDOT
+ * lots that are the same were 6 to 25 m apart on 2026-11-03 ("Fairlawn DPW" and "Fair Lawn Commuter
+ * Parking Lot"); the nearest different lots were over 380 m apart.
+ */
+export const NEARBY_MATCHES: readonly { sources: readonly [string, string]; meters: number }[] = [
+  { sources: ['njt-parking-lots', 'njdot-park-ride'], meters: 100 },
+];
 
 export interface Clusterable {
   sourceId: string;
@@ -12,6 +22,7 @@ export interface Clusterable {
   facilityKey: string;
   priority: number;
   matchTokens: readonly string[];
+  region: string;
   lat: number;
   lng: number;
 }
@@ -22,7 +33,11 @@ export interface Cluster<T extends Clusterable> {
   members: T[];
 }
 
-export function clusterRecords<T extends Clusterable>(records: readonly T[], maxDistance = MATCH_DISTANCE_M): Cluster<T>[] {
+export function clusterRecords<T extends Clusterable>(
+  records: readonly T[],
+  maxDistance = MATCH_DISTANCE_M,
+  nearby = NEARBY_MATCHES,
+): Cluster<T>[] {
   const ordered = [...records].sort(
     (a, b) => a.priority - b.priority || compare(a.sourceId, b.sourceId) || compare(a.recordId, b.recordId),
   );
@@ -33,9 +48,10 @@ export function clusterRecords<T extends Clusterable>(records: readonly T[], max
     for (const cluster of clusters) {
       if (cluster.members.some((member) => member.sourceId === record.sourceId)) continue;
       for (const member of cluster.members) {
-        if (!namesMatch(member.matchTokens, record.matchTokens)) continue;
+        if (member.region !== record.region) continue;
         const distance = metersBetween(member, record);
-        if (distance <= maxDistance && (!best || distance < best.distance)) {
+        const limit = namesMatch(member.matchTokens, record.matchTokens) ? maxDistance : nearbyLimit(nearby, member, record);
+        if (distance <= limit && (!best || distance < best.distance)) {
           best = { cluster, distance };
         }
       }
@@ -55,6 +71,12 @@ export function clusterRecords<T extends Clusterable>(records: readonly T[], max
     if (count > 1) cluster.facilityId = `${cluster.facilityId}-${count}`;
   }
   return clusters;
+}
+
+/** How near two records with different names must be to match, or −1 when their sources aren't a nearby pair. */
+function nearbyLimit(nearby: typeof NEARBY_MATCHES, a: Clusterable, b: Clusterable): number {
+  const pair = nearby.find(({ sources }) => sources.includes(a.sourceId) && sources.includes(b.sourceId));
+  return pair ? pair.meters : -1;
 }
 
 /** Great-circle distance; accurate to well under a meter at these distances. */

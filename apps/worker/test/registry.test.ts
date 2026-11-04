@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { Cron } from 'croner';
 import { describe, expect, it } from 'vitest';
-import { sources } from '../src/sources/registry.ts';
+import { awaitingAdmission, sources } from '../src/sources/registry.ts';
 
 const SOURCES_SPEC = fileURLToPath(new URL('../../../specs/06-sources.md', import.meta.url));
 
@@ -39,10 +39,21 @@ describe('source registry', () => {
     expect(admittedIds(markdown)).toEqual(['nyc-facdb-dot']);
   });
 
+  it('ING-6 holds back the sources waiting for admission, which specs/06 lists but doesn\'t admit', () => {
+    const markdown = readFileSync(SOURCES_SPEC, 'utf8');
+    const admitted = admittedIds(markdown);
+
+    for (const source of awaitingAdmission) {
+      expect(admitted).not.toContain(source.id);
+      expect(sources.map((entry) => entry.id)).not.toContain(source.id);
+      expect(markdown).toContain(`### \`${source.id}\``);
+    }
+  });
+
   it('ING-6 gives every source a unique ID and a valid schedule', () => {
-    const ids = sources.map((source) => source.id);
+    const ids = [...sources, ...awaitingAdmission].map((source) => source.id);
     expect(new Set(ids).size).toBe(ids.length);
-    for (const source of sources) {
+    for (const source of [...sources, ...awaitingAdmission]) {
       expect(() => new Cron(source.schedule, { paused: true, timezone: 'America/New_York' }).stop()).not.toThrow();
     }
   });

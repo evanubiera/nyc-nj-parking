@@ -22,7 +22,7 @@ export class Handlers {
     return { status: up ? 'ok' : 'unavailable' };
   }
 
-  /** REC-1 to REC-6, PRIV-3. The query has been validated against the contract, with radius defaulted. */
+  /** REC-1 to REC-8, PRIV-3. The query has been validated against the contract, with radius defaulted. */
   async getRecommendations(request: FastifyRequest, reply: FastifyReply): Promise<RecommendationList | ApiError> {
     const query = request.query as RecommendationQuery;
     if (!inCoverage(roundCoordinate(query.lat), roundCoordinate(query.lng))) {

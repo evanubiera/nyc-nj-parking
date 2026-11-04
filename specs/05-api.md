@@ -44,7 +44,7 @@ Parameters:
 | `lat` | number | −90 to 90. Rounded to 3 decimal places by the server |
 | `lng` | number | −180 to 180. Rounded the same way |
 | `radius` | integer, meters | 100 to 10,000. Default 2,000 (PRD-5, decided) |
-| `operatorType` | repeated code | Optional filter (from slice 2) |
+| `operatorType` | repeated code | Optional, from slice 2 (REC-7). One or more of `municipal`, `county`, `state`, `transit_agency`, `public_authority`, repeated: `operatorType=municipal&operatorType=state`. Without it, every type is returned |
 
 Coverage area: latitude 38.9 to 41.4 and longitude −75.6 to −73.6, which covers NYC and NJ. Outside it, the server returns 422 `location.out_of_area`. Inside it, an area with no data gets an empty list. The box is a simplification: it also takes in nearby parts of Pennsylvania (including Philadelphia), New York State, and Connecticut, which get an empty list. Real boundaries can replace it once PRD-3 settles the coverage area.
 
@@ -56,6 +56,7 @@ Response, `200`:
     {
       "id": "nyc-dot-avenue-m",
       "name": "Avenue M Municipal Parking Field",
+      "lotNumber": null,
       "kind": "field",
       "operator": { "name": "NYC Department of Transportation", "type": "municipal" },
       "address": { "line": "1624 Chestnut Avenue", "locality": "Brooklyn", "region": "NY" },
@@ -79,6 +80,7 @@ Response, `200`:
     {
       "id": "nyc-dot-delancey-essex",
       "name": "Delancey and Essex Municipal Parking Garage",
+      "lotNumber": null,
       "kind": "garage",
       "operator": { "name": "NYC Department of Transportation", "type": "municipal" },
       "address": { "line": "105 Essex Street", "locality": "Manhattan", "region": "NY" },
@@ -99,6 +101,7 @@ Distances above are made up. The other values come from the sources as checked o
 - `meteredHours` is when payment is required at the meters, and the time limit, never opening hours (WEB-6). It's null when no meters data matches the facility.
 - `openingHours` is null in slice 1, because no admitted source states opening hours (SRC-1). Its shape will be `{ timeZone, periods: [{ days, opens, closes }] }`.
 - A facility with both null is still returned, with `officialUrl` (REC-6). The attended garages, such as Delancey and Essex, are like this in slice 1.
+- `lotNumber` (from slice 2, REC-8) is a string such as `"2"` when the source has several lots with the same name, such as an NJ Transit station's lots. Otherwise it's null, as for every NYC facility. The web app shows it with the name; the API sends no words such as "Lot".
 
 ### `listSources`: `GET /api/sources`
 

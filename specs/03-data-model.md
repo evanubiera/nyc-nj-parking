@@ -146,3 +146,22 @@ Each successful run of a source, inside its transaction (ING-3):
    - 750 m because correct matches in the sources on 2026-11-03 were up to 497 m apart (the Gowanus field runs for blocks under the expressway), and the name has to match too.
    - A facility's ID, name, address, and location come from its primary record, the first in priority order. When a facility's primary changes (for example, the Facilities Database arrives after the meters), its ID can change; the old ID is withdrawn.
    - Facilities that no record supports any more are marked withdrawn, with the time (ING-8). A withdrawn facility that comes back is active again under the same ID.
+   - From slice 2: records match only within the same region (NY or NJ), so a Staten Island field can't merge with a lot across the Arthur Kill. An NJ Transit record and an NJDOT record within 100 m of each other match whatever their names (ING-12), because the two sources name the same lot differently ("Fairlawn DPW" and "Fair Lawn Commuter Parking Lot", 25 m apart).
+   - From slice 2: a facility with a withheld record (ING-11) isn't written at all. Its records stay in `source_record`, and a facility that was published under that ID is withdrawn.
+
+## Slice 2
+
+Added by packages/db/migrations/0003_nj_lots.sql (S2-2).
+
+### `source_record`, new columns
+
+| Column | Type | Notes |
+|---|---|---|
+| lot_number | text, nullable | Set only when the source has several lots with the same name (REC-8), such as "2" for Mountain View (Wayne)'s second rail lot |
+| withheld_reason | text, nullable | `private_owner` when the source records the owner as private (ING-11). The record still takes part in matching, so the same lot from another source isn't published |
+
+### `facility`, new column
+
+| Column | Type | Notes |
+|---|---|---|
+| lot_number | text, nullable | From the primary record |

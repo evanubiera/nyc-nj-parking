@@ -1,4 +1,6 @@
 // The sources' real responses, saved on 2026-11-03 with the adapters' own queries (specs/06-sources.md).
+// For the ArcGIS layers, the item, service, and layer responses are trimmed to the fields the adapters
+// read; the query responses, which are what a run stores, are as received.
 import { readFileSync } from 'node:fs';
 import { UpstreamHttp } from '../src/http.ts';
 
@@ -9,14 +11,38 @@ export const fixtures = {
   facdbView: read('ji82-xba5.view.json'),
   metersRows: read('nyc-meters-offstreet.rows.json'),
   metersView: read('693u-uax6.view.json'),
+  njtItem: read('njt.item.json'),
+  njtService: read('njt.service.json'),
+  njtLayer: read('njt.layer.json'),
+  njtQuery: read('njt.query.json'),
+  njdotItem: read('njdot.item.json'),
+  njdotService: read('njdot.service.json'),
+  njdotLayer: read('njdot.layer.json'),
+  njdotQuery: read('njdot.query.json'),
 };
+
+export const NJT_SERVICE_PATH = '/M0t0HPE53pFK525U/arcgis/rest/services/ParkingLotDB_20260320_Sync_view/FeatureServer';
+export const NJDOT_SERVICE_PATH = '/HggmsDF7UJsNN1FK/arcgis/rest/services/New_Jersey_DOT_Park_Ride/FeatureServer';
+
+/** An ArcGIS query response with each feature's attributes changed by `edit`, or the feature dropped when it returns null. */
+export function featuresEdited(
+  body: Uint8Array,
+  edit: (attributes: Record<string, unknown>) => Record<string, unknown> | null,
+): Uint8Array {
+  const parsed = JSON.parse(new TextDecoder().decode(body)) as { features: { attributes: Record<string, unknown> }[] };
+  parsed.features = parsed.features.flatMap((feature) => {
+    const attributes = edit({ ...feature.attributes });
+    return attributes ? [{ ...feature, attributes }] : [];
+  });
+  return new TextEncoder().encode(JSON.stringify(parsed));
+}
 
 export function rowsWithout(body: Uint8Array, keep: (row: Record<string, unknown>) => boolean): Uint8Array {
   const rows = JSON.parse(new TextDecoder().decode(body)) as Record<string, unknown>[];
   return new TextEncoder().encode(JSON.stringify(rows.filter(keep)));
 }
 
-/** An UpstreamHttp that answers the two NYC datasets from fixtures, and records each request. */
+/** An UpstreamHttp that answers the NYC datasets and the NJ layers from fixtures, and records each request. */
 export function fixtureHttp(overrides: Partial<Record<keyof typeof fixtures, Uint8Array>> = {}) {
   const bodies = { ...fixtures, ...overrides };
   const requests: Request[] = [];
@@ -25,6 +51,14 @@ export function fixtureHttp(overrides: Partial<Record<keyof typeof fixtures, Uin
     '/api/views/ji82-xba5.json': bodies.facdbView,
     '/resource/693u-uax6.json': bodies.metersRows,
     '/api/views/693u-uax6.json': bodies.metersView,
+    '/sharing/rest/content/items/2f311895a644453f8f679479187aa19e': bodies.njtItem,
+    [NJT_SERVICE_PATH]: bodies.njtService,
+    [`${NJT_SERVICE_PATH}/24`]: bodies.njtLayer,
+    [`${NJT_SERVICE_PATH}/24/query`]: bodies.njtQuery,
+    '/sharing/rest/content/items/ab33be6e4a51439c9ed179809b4d99cf': bodies.njdotItem,
+    [NJDOT_SERVICE_PATH]: bodies.njdotService,
+    [`${NJDOT_SERVICE_PATH}/0`]: bodies.njdotLayer,
+    [`${NJDOT_SERVICE_PATH}/0/query`]: bodies.njdotQuery,
   };
   const http = new UpstreamHttp({
     socrataAppToken: 'fixture-token',

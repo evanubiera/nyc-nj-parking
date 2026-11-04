@@ -3,6 +3,7 @@ import type { RecommendedFacility, Source } from '@parking/api-client';
 export const avenueM: RecommendedFacility = {
   id: 'nyc-dot-avenue-m',
   name: 'Avenue M Municipal Parking Field',
+  lotNumber: null,
   kind: 'field',
   operator: { name: 'NYC Department of Transportation', type: 'municipal' },
   address: { line: '1624 Chestnut Avenue', locality: 'Brooklyn', region: 'NY' },
@@ -28,6 +29,7 @@ export const avenueM: RecommendedFacility = {
 export const delancey: RecommendedFacility = {
   id: 'nyc-dot-delancey-essex',
   name: 'Delancey - Essex Municipal Parking Garage',
+  lotNumber: null,
   kind: 'garage',
   operator: { name: 'NYC Department of Transportation', type: 'municipal' },
   address: { line: '105 Essex Street', locality: 'Manhattan', region: 'NY' },
@@ -38,6 +40,23 @@ export const delancey: RecommendedFacility = {
   rates: [],
   officialUrl: 'https://www.nyc.gov/html/dot/html/motorist/parkinglist.shtml#manhattan',
   sources: [{ id: 'nyc-facdb-dot', dataUpdatedAt: '2026-07-16T13:33:28.000Z' }],
+};
+
+/** One of an NJ Transit station's lots (REC-8), from the saved fixture of 2026-11-03. */
+export const morristown2: RecommendedFacility = {
+  id: 'njt-morristown-02',
+  name: 'Morristown',
+  lotNumber: '2',
+  kind: 'lot',
+  operator: { name: 'Morristown Town', type: 'municipal' },
+  address: { line: null, locality: 'Morristown Town', region: 'NJ' },
+  location: { lat: 40.79761, lng: -74.47384 },
+  distanceMeters: 180,
+  openingHours: null,
+  meteredHours: null,
+  rates: [],
+  officialUrl: 'https://www.morristown-nj.org/',
+  sources: [{ id: 'njt-parking-lots', dataUpdatedAt: '2026-10-08T17:27:08.341Z' }],
 };
 
 export const sources: Source[] = [

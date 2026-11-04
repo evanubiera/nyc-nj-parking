@@ -4,6 +4,7 @@ import { createRequire } from 'node:module';
 import { expect, test, type Page } from '@playwright/test';
 
 const AVENUE_M = { latitude: 40.61834, longitude: -73.95921 };
+const MORRISTOWN_STATION = { latitude: 40.79739, longitude: -74.47448 };
 
 async function recommendationsRequest(page: Page, action: () => Promise<void>): Promise<URL> {
   const [request] = await Promise.all([page.waitForRequest((request) => request.url().includes('/api/parking/recommendations')), action()]);
@@ -45,6 +46,30 @@ test.describe('with location sharing on', () => {
     await page.getByRole('button', { name: 'Use my location' }).click();
     await expect(page.getByRole('heading', { name: '1 place within 2 km' })).toBeVisible();
 
+    expect(await axeViolations(page)).toEqual([]);
+  });
+});
+
+test.describe('at an NJ Transit station', () => {
+  test.use({ geolocation: MORRISTOWN_STATION, permissions: ['geolocation'] });
+
+  test('S2-9 shows the station\'s lots by number, and filters them by operator type', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Use my location' }).click();
+
+    const transitLot = page.getByRole('article', { name: 'Morristown, lot 1' });
+    const townLot = page.getByRole('article', { name: 'Morristown, lot 2' });
+    await expect(transitLot.getByText(/^Lot · Transit agency · \d+ m away$/)).toBeVisible();
+    await expect(townLot.getByText(/^Lot · City-run · \d+ m away$/)).toBeVisible();
+    await expect(townLot.getByRole('link', { name: /^Data: Parking Lot Database View, as of Oct 8, 2026$/ })).toBeVisible();
+    // Lot 3 is recorded as part private, so it's never shown (ING-11).
+    await expect(page.getByRole('article', { name: 'Morristown, lot 3' })).toHaveCount(0);
+
+    const url = await recommendationsRequest(page, () => page.getByRole('checkbox', { name: 'Transit agency' }).uncheck());
+
+    expect(url.searchParams.getAll('operatorType')).toEqual(['municipal', 'county', 'state', 'public_authority']);
+    await expect(townLot).toBeVisible();
+    await expect(transitLot).toHaveCount(0);
     expect(await axeViolations(page)).toEqual([]);
   });
 });

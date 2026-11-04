@@ -125,6 +125,7 @@ describe('GET /api/parking/recommendations', () => {
     expect(body.results[0]).toEqual({
       id: 'nyc-dot-avenue-m',
       name: 'Avenue M Municipal Parking Field',
+      lotNumber: null,
       kind: 'field',
       operator: { name: 'NYC Department of Transportation', type: 'municipal' },
       address: { line: '1624 Chestnut Avenue', locality: 'Brooklyn', region: 'NY' },
@@ -161,6 +162,46 @@ describe('GET /api/parking/recommendations', () => {
       distanceMeters: 0,
       officialUrl: 'https://www.nyc.gov/html/dot/html/motorist/parkinglist.shtml#kings',
     });
+  });
+
+  it('REC-7 returns only the operator types asked for, one or several', async () => {
+    await seedFacility(sql, { id: 'city', lat: north(100), lng: ORIGIN.lng, operatorType: 'municipal' });
+    await seedFacility(sql, { id: 'transit', lat: north(200), lng: ORIGIN.lng, operatorType: 'transit_agency' });
+    await seedFacility(sql, { id: 'state', lat: north(300), lng: ORIGIN.lng, operatorType: 'state' });
+    const at = `lat=${ORIGIN.lat}&lng=${ORIGIN.lng}`;
+
+    const all = await recommend(at);
+    const one = await recommend(`${at}&operatorType=transit_agency`);
+    const two = await recommend(`${at}&operatorType=municipal&operatorType=state`);
+
+    expect(all.body.results.map((result) => result.id)).toEqual(['city', 'transit', 'state']);
+    expect(one.body.results.map((result) => result.id)).toEqual(['transit']);
+    expect(two.body.results.map((result) => [result.id, result.operator.type])).toEqual([
+      ['city', 'municipal'],
+      ['state', 'state'],
+    ]);
+  });
+
+  it.each(['operatorType=private', 'operatorType=municipal&operatorType=airline', 'operatorType='])(
+    'REC-7 rejects %s with request.invalid_parameter',
+    async (bad) => {
+      const { status, body } = await recommend(`lat=${ORIGIN.lat}&lng=${ORIGIN.lng}&${bad}`);
+
+      expect(status).toBe(400);
+      expect(body).toEqual({ code: 'request.invalid_parameter', parameter: 'operatorType' });
+    },
+  );
+
+  it('REC-8 returns a lot number where the source has one, and null elsewhere', async () => {
+    await seedFacility(sql, { id: 'njt-morristown-02', name: 'Morristown', lotNumber: '2', lat: north(100), lng: ORIGIN.lng, operatorType: 'municipal' });
+    await seedFacility(sql, { id: 'nyc-dot-delancey-essex', lat: north(200), lng: ORIGIN.lng });
+
+    const { body } = await recommend(`lat=${ORIGIN.lat}&lng=${ORIGIN.lng}`);
+
+    expect(body.results.map((result) => [result.id, result.name, result.lotNumber])).toEqual([
+      ['njt-morristown-02', 'Morristown', '2'],
+      ['nyc-dot-delancey-essex', 'Facility nyc-dot-delancey-essex', null],
+    ]);
   });
 
   it('PRIV-3 rounds the point to 3 decimal places before using it', async () => {
