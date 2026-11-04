@@ -155,6 +155,7 @@ The statewide parcel layer (above) carries each parcel's tax record: its propert
   - Descriptions are free text, entered by each town's assessor.
   - There are no hours, rates, spaces, or rules on who may park. With owner names redacted, it doesn't say which public body holds a 15C parcel.
 - **Use:** finding candidate public lots near a place, to confirm with each operator before anything is admitted (slice 4, SRC-5, SRC-8). It isn't a source of facility details.
+- **Jersey City candidates (2026-11-04):** the 139 parcels make 73 sites, in [docs/requests/jersey-city-parking-candidates.csv](../docs/requests/jersey-city-parking-candidates.csv) for the Parking Division to confirm. All 7 city lots and NJ Transit's 2 Jersey City lots are among them (8 sites); 25 have no obvious use, 35 are next to a school, public building, park, or church, and 5 are railroad or right of way. How it was built is in [docs/requests/README.md](../docs/requests/README.md).
 
 ## Claims from the original notes that didn't hold up
 
