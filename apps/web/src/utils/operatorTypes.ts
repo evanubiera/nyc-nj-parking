@@ -8,6 +8,7 @@ const ALL: Record<OperatorType, true> = {
   state: true,
   transit_agency: true,
   public_authority: true,
+  unknown: true,
 };
 
 export const OPERATOR_TYPES = Object.keys(ALL) as readonly OperatorType[];

@@ -165,3 +165,18 @@ Added by packages/db/migrations/0003_nj_lots.sql (S2-2).
 | Column | Type | Notes |
 |---|---|---|
 | lot_number | text, nullable | From the primary record |
+
+## Slice 4
+
+Added by packages/db/migrations/0004_unconfirmed_sites.sql (S4-1), for ADR-0012.
+
+### `source_record` and `facility`, changes
+
+| Column | Change | Notes |
+|---|---|---|
+| confirmed | new, boolean, not null, default true | False for a candidate site from tax records (REC-9). A facility is confirmed when any of its records is |
+| operator_type | also allows `unknown` | Only when `confirmed` is false |
+| operator_name | now nullable | Null only when `operator_type` is `unknown` |
+| official_url | now nullable | Null only when `confirmed` is false |
+
+The State's parcel layer is fetched with two queries, so its snapshot body is a JSON object holding both responses exactly as received, as strings: `{"candidates": "…", "neighbours": "…"}` (ADR-0012).

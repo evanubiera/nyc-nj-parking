@@ -5,6 +5,8 @@ import { expect, test, type Page } from '@playwright/test';
 
 const AVENUE_M = { latitude: 40.61834, longitude: -73.95921 };
 const MORRISTOWN_STATION = { latitude: 40.79739, longitude: -74.47448 };
+const LOT_52 = { latitude: 40.72158, longitude: -74.04504 };
+const MONTGOMERY_SITE = { latitude: 40.71703, longitude: -74.04278 };
 
 async function recommendationsRequest(page: Page, action: () => Promise<void>): Promise<URL> {
   const [request] = await Promise.all([page.waitForRequest((request) => request.url().includes('/api/parking/recommendations')), action()]);
@@ -67,10 +69,46 @@ test.describe('at an NJ Transit station', () => {
 
     const url = await recommendationsRequest(page, () => page.getByRole('checkbox', { name: 'Transit agency' }).uncheck());
 
-    expect(url.searchParams.getAll('operatorType')).toEqual(['municipal', 'county', 'state', 'public_authority']);
+    expect(url.searchParams.getAll('operatorType')).toEqual(['municipal', 'county', 'state', 'public_authority', 'unknown']);
     await expect(townLot).toBeVisible();
     await expect(transitLot).toHaveCount(0);
     expect(await axeViolations(page)).toEqual([]);
+  });
+});
+
+test.describe('in Jersey City', () => {
+  test.describe('at Lot 52', () => {
+    test.use({ geolocation: LOT_52, permissions: ['geolocation'] });
+
+    test('S4-7 shows a city lot, and says its hours, rates, and spaces aren\'t shown', async ({ page }) => {
+      await page.goto('/');
+      await page.getByRole('button', { name: 'Use my location' }).click();
+
+      const lot = page.getByRole('article', { name: 'Lot 52' });
+      await expect(lot.getByText(/^Lot · City-run · \d+ m away$/)).toBeVisible();
+      await expect(lot.getByText("Hours, rates, and number of spaces aren't shown here. Check with the operator before you park.")).toBeVisible();
+      await expect(lot.getByRole('link', { name: 'Hours and rates on the operator’s page, for Lot 52' })).toHaveAttribute('href', /jerseycitynj\.gov/);
+      await expect(lot.getByRole('link', { name: /^Data: Municipal Parking Lots, as of Nov 25, 2020/ })).toBeVisible();
+    });
+  });
+
+  test.describe('at an unconfirmed site', () => {
+    test.use({ geolocation: MONTGOMERY_SITE, permissions: ['geolocation'] });
+
+    test('S4-7 marks a site from tax records as unconfirmed, with no operator link', async ({ page }) => {
+      await page.goto('/');
+      await page.getByRole('button', { name: 'Use my location' }).click();
+
+      const site = page.getByRole('article', { name: '179 Montgomery St.' });
+      await expect(site.getByText('Unconfirmed: tax records list this as public land used for parking.', { exact: false })).toBeVisible();
+      await expect(site.getByText(/^Lot · Owner not recorded · \d+ m away$/)).toBeVisible();
+      await expect(site.getByRole('link', { name: /operator’s page/ })).toHaveCount(0);
+      await expect(page.getByRole('button', { name: /^1\. 179 Montgomery St\., \d+ m away, unconfirmed$/ })).toBeVisible();
+      expect(await axeViolations(page)).toEqual([]);
+
+      await page.getByRole('checkbox', { name: 'Owner not recorded' }).uncheck();
+      await expect(site).toHaveCount(0);
+    });
   });
 });
 
@@ -87,6 +125,8 @@ test('S1-10 searches where the map is tapped, and a marker leads to its card', a
   await page.getByLabel('Search within').selectOption('5000');
   const map = page.locator('.results-map__canvas');
   await expect(map.locator('canvas')).toBeVisible();
+  // On a phone the map starts below the search controls, so scroll to it as a person would.
+  await map.scrollIntoViewIfNeeded();
   const box = (await map.boundingBox())!;
 
   const url = await recommendationsRequest(page, () => page.mouse.click(box.x + box.width / 2, box.y + box.height / 2));

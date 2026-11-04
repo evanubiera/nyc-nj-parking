@@ -7,7 +7,7 @@ export const en = {
 
   'search.heading': 'Find public parking near you',
   'search.intro':
-    'Garages, lots, and fields run by cities, counties, the state, and transit agencies. This release covers NYC Department of Transportation garages and fields.',
+    "Garages, lots, and fields run by cities, counties, the state, and transit agencies. This release covers NYC Department of Transportation garages and fields, and Jersey City's municipal lots.",
   'search.radius.label': 'Search within',
   'search.radius.option': '{km, number} km',
   'search.useLocation': 'Use my location',
@@ -38,6 +38,10 @@ export const en = {
   'facility.operatorType.state': 'State-run',
   'facility.operatorType.transit_agency': 'Transit agency',
   'facility.operatorType.public_authority': 'Public authority',
+  // REC-9, WEB-9: an unconfirmed site from tax records, whose owner isn't recorded (ADR-0012).
+  'facility.operatorType.unknown': 'Owner not recorded',
+  'facility.unconfirmed':
+    'Unconfirmed: tax records list this as public land used for parking. It may be for staff or permit holders only.',
   'facility.distance.meters': '{meters, number} m away',
   'facility.distance.kilometers': '{km, number, ::.0} km away',
   'facility.address': '{line}, {locality}',
@@ -58,6 +62,8 @@ export const en = {
   'details.missing.ratesSpaces': "Rates and number of spaces aren't shown here. Check with the operator before you park.",
   'details.missing.hoursSpaces': "Hours and number of spaces aren't shown here. Check with the operator before you park.",
   'details.missing.spaces': "The number of spaces isn't shown here.",
+  // An unconfirmed site has no known operator to check with (ADR-0012).
+  'details.missing.unconfirmed': "Hours, rates, and number of spaces aren't shown here. Check the signs on site before you park.",
   'facility.officialLink': 'Hours and rates on the operator’s page',
   // Starts with the link's visible text, so voice control finds it (WCAG 2.5.3).
   'facility.officialLinkLabel': 'Hours and rates on the operator’s page, for {name}',
@@ -88,6 +94,10 @@ export const en = {
   'sources.change.lot_numbers_reformatted': 'We show lot numbers without leading zeros, and only where a station has more than one lot.',
   'sources.change.duplicates_removed': 'Where a lot is listed twice under one name, we show it once.',
   'sources.change.municipalities_reformatted': 'We reformat municipality names written in capitals.',
+  'sources.change.sites_from_parcels':
+    'We combine touching parcels into one site, and keep only public land described as parking with no school, public building, park, or church on the same block.',
+  'sources.change.unconfirmed_public_use':
+    "We show these sites as unconfirmed: the records don't say who owns them or whether the public may park there.",
   'sources.loading': 'Loading the data sources…',
   'sources.error': "The data sources can't be shown right now.",
   'sources.back': 'Back to search',
@@ -98,6 +108,7 @@ export const en = {
   'map.label': 'Map of public parking. Tap a point to search there.',
   'map.searchPoint': 'Search point',
   'map.facility': '{position}. {name}, {distance}',
+  'map.facilityUnconfirmed': '{position}. {name}, {distance}, unconfirmed',
   'map.zoomIn': 'Zoom in',
   'map.zoomOut': 'Zoom out',
   'map.resetBearing': 'Point the map north',

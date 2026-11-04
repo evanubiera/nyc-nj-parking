@@ -25,7 +25,7 @@ A public web app, usable on phones, that suggests public parking near the user a
 3. **Only Admitted sources** in `specs/06-sources.md` are ingested. A source with unstated terms can be Admitted, terms pending while we ask its publisher; a source with stated restrictions can't. (ING-6, ADR-0011)
 4. **A failed ingestion run changes no facility data.** Normalizing and writing happen in one transaction. (ING-3)
 5. **Every facility shown carries its source and data date**, and every page shows the disclaimer. (ADR-0008, ATT-1, ATT-2)
-6. **Private facilities** (owner recorded as private) aren't shown. Every facility has an operator name and type. (ADR-0007)
+6. **Private facilities** (owner recorded as private) aren't shown. Every facility has an operator name and type, except an unconfirmed site from tax records, which is marked `confirmed: false` with operator type `unknown` and no name. (ADR-0007, ADR-0012)
 7. **The API returns no display text.** Errors carry a `code`. The web app has no literal strings in JSX; text comes from the message catalog. (ADR-0004, FND-4, WEB-1)
 8. **Front-end layers:** components → hooks → services → `packages/api-client`. Only services call the network; MapLibre loading map tiles is the one exception, and it never calls our API. (WEB-3, ADR-0009)
 9. **apps/api and apps/worker never import each other.** Shared code goes in `packages/`. (FND-6)

@@ -29,8 +29,9 @@ interface FacilityRow {
   id: string;
   name: string;
   lotNumber: string | null;
+  confirmed: boolean;
   kind: RecommendedFacility['kind'];
-  operatorName: string;
+  operatorName: string | null;
   operatorType: RecommendedFacility['operator']['type'];
   addressLine: string | null;
   locality: string;
@@ -38,7 +39,7 @@ interface FacilityRow {
   timeZone: string;
   lat: number;
   lng: number;
-  officialUrl: string;
+  officialUrl: string | null;
   distance: number;
 }
 
@@ -48,7 +49,7 @@ export async function findRecommendations(sql: Sql, query: RecommendationQuery):
 
   const facilities = await sql<FacilityRow[]>`
     with origin as (select ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography as point)
-    select f.id, f.name, f.lot_number as "lotNumber", f.kind, f.operator_name as "operatorName", f.operator_type as "operatorType",
+    select f.id, f.name, f.lot_number as "lotNumber", f.confirmed, f.kind, f.operator_name as "operatorName", f.operator_type as "operatorType",
       f.address_line as "addressLine", f.locality, f.region, f.time_zone as "timeZone",
       ST_Y(f.location::geometry) as lat, ST_X(f.location::geometry) as lng, f.official_url as "officialUrl",
       ST_Distance(f.location, origin.point) as distance
@@ -97,6 +98,7 @@ export async function findRecommendations(sql: Sql, query: RecommendationQuery):
         id: facility.id,
         name: facility.name,
         lotNumber: facility.lotNumber,
+        confirmed: facility.confirmed,
         kind: facility.kind,
         operator: { name: facility.operatorName, type: facility.operatorType },
         address: { line: facility.addressLine, locality: facility.locality, region: facility.region },

@@ -14,6 +14,9 @@ export const MATCH_DISTANCE_M = 750;
  */
 export const NEARBY_MATCHES: readonly { sources: readonly [string, string]; meters: number }[] = [
   { sources: ['njt-parking-lots', 'njdot-park-ride'], meters: 100 },
+  // ING-14: a Jersey City candidate site from tax records is named by its address, never like the lot it may be.
+  { sources: ['jc-municipal-lots', 'nj-parcels-jc-parking'], meters: 90 },
+  { sources: ['njt-parking-lots', 'nj-parcels-jc-parking'], meters: 90 },
 ];
 
 export interface Clusterable {

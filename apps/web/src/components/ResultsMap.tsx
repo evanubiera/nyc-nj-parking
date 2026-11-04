@@ -74,11 +74,13 @@ export default function ResultsMap({ styleUrl, point, results, onSelectPoint, on
       markers.push(new Marker({ element: markerElement('search', intl.formatMessage({ id: 'map.searchPoint' })) }).setLngLat([point.lng, point.lat]).addTo(instance));
     }
     results.forEach((facility, index) => {
+      // WEB-9: an unconfirmed site says so in its label, and its marker is outlined rather than filled.
       const label = intl.formatMessage(
-        { id: 'map.facility' },
+        { id: facility.confirmed ? 'map.facility' : 'map.facilityUnconfirmed' },
         { position: index + 1, name: facilityName(intl, facility), distance: distanceText(intl, facility.distanceMeters) },
       );
       const element = markerElement('facility', label, String(index + 1));
+      if (!facility.confirmed) element.classList.add('map-marker--unconfirmed');
       element.addEventListener('click', (event) => {
         event.stopPropagation();
         select.current.onSelectFacility(facility.id);

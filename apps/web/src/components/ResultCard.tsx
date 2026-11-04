@@ -10,16 +10,18 @@ export function ResultCard({ facility, position }: { facility: RecommendedFacili
   const hoursKnown = facility.meteredHours !== null || facility.openingHours !== null;
   const ratesKnown = facility.rates.length > 0;
   // WEB-6: the API doesn't send the number of spaces, so it's always among what's missing.
-  const missing = hoursKnown
-    ? ratesKnown ? 'details.missing.spaces' : 'details.missing.ratesSpaces'
-    : ratesKnown ? 'details.missing.hoursSpaces' : 'details.missing.hoursRatesSpaces';
+  const missing = !facility.confirmed
+    ? 'details.missing.unconfirmed'
+    : hoursKnown
+      ? ratesKnown ? 'details.missing.spaces' : 'details.missing.ratesSpaces'
+      : ratesKnown ? 'details.missing.hoursSpaces' : 'details.missing.hoursRatesSpaces';
   const name = facilityName(intl, facility);
 
   return (
     <article id={`card-${facility.id}`} className="result" aria-labelledby={`result-${facility.id}`} tabIndex={-1}>
       <h3 id={`result-${facility.id}`} className="result__name">
         {position !== undefined && (
-          <span className="result__number" aria-hidden="true">
+          <span className={facility.confirmed ? 'result__number' : 'result__number result__number--unconfirmed'} aria-hidden="true">
             {position}
           </span>
         )}
@@ -38,6 +40,11 @@ export function ResultCard({ facility, position }: { facility: RecommendedFacili
           }}
         />
       </p>
+      {!facility.confirmed && (
+        <p className="result__warning">
+          <FormattedMessage id="facility.unconfirmed" />
+        </p>
+      )}
       <p className="result__address">
         {facility.address.line ? (
           <FormattedMessage id="facility.address" values={{ line: facility.address.line, locality: facility.address.locality }} />
@@ -51,16 +58,18 @@ export function ResultCard({ facility, position }: { facility: RecommendedFacili
         <FormattedMessage id={missing} />
       </p>
 
-      <p className="result__link">
-        <a
-          href={facility.officialUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={intl.formatMessage({ id: 'facility.officialLinkLabel' }, { name })}
-        >
-          <FormattedMessage id="facility.officialLink" />
-        </a>
-      </p>
+      {facility.officialUrl && (
+        <p className="result__link">
+          <a
+            href={facility.officialUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={intl.formatMessage({ id: 'facility.officialLinkLabel' }, { name })}
+          >
+            <FormattedMessage id="facility.officialLink" />
+          </a>
+        </p>
+      )}
       <SourceCredits sources={facility.sources} />
     </article>
   );

@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { en } from '../i18n/en.ts';
-import { avenueM, delancey, morristown2, sources } from '../test/facilities.ts';
+import { avenueM, delancey, montgomerySite, morristown2, sources } from '../test/facilities.ts';
 import { axeViolations, renderWithProviders } from '../test/render.tsx';
 import { ResultCard } from './ResultCard.tsx';
 
@@ -39,6 +39,24 @@ describe('ResultCard', () => {
     renderWithProviders(<ResultCard facility={withRates} />);
 
     expect(screen.getByText(en['details.missing.spaces'])).toBeInTheDocument();
+  });
+
+  it('WEB-9 marks an unconfirmed site, says its owner isn\'t recorded, and offers no official link', async () => {
+    const { container } = renderWithProviders(<ResultCard facility={montgomerySite} position={1} />);
+
+    expect(screen.getByText(en['facility.unconfirmed'])).toBeInTheDocument();
+    expect(screen.getByText(en['details.missing.unconfirmed'])).toBeInTheDocument();
+    expect(screen.getByText('Lot · Owner not recorded · 60 m away')).toBeInTheDocument();
+    expect(screen.getByText('Jersey City')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /operator’s page/ })).not.toBeInTheDocument();
+    expect(container.querySelector('.result__number--unconfirmed')).not.toBeNull();
+    expect(await axeViolations(container)).toEqual([]);
+  });
+
+  it('WEB-9 shows no unconfirmed label on a confirmed result', () => {
+    renderWithProviders(<ResultCard facility={avenueM} />);
+
+    expect(screen.queryByText(en['facility.unconfirmed'])).not.toBeInTheDocument();
   });
 
   it('REC-4 shows distances of a kilometer or more in kilometers', () => {

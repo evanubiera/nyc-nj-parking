@@ -1,6 +1,6 @@
 # ADR-0007: Scope is public-agency parking, labeled by operator
 
-- Status: Accepted (2026-11-03, by the user)
+- Status: Accepted (2026-11-03, by the user); amended by ADR-0012 for unconfirmed sites
 - Date: 2026-11-03
 
 ## Context

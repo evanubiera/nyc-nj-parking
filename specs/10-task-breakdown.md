@@ -86,3 +86,25 @@ Built and checked, except S2-10, which waits for the user to send the SRC-2 and 
 - From the saved fixtures: NJ Transit's 511 rows give 399 published lots and 32 withheld; NJDOT's 17 give 16 records, 4 of them merged into NJ Transit lots (Beverwyck stays hidden), so 411 NJ facilities.
 - In the browser at phone width, against the smoke-test stack: near Morristown station, "Morristown, lot 1" (transit agency) and "lot 2" (city-run) showed, and lot 3, recorded as part private, didn't. At 10 km, 20 lots; with City-run and Transit agency unchosen, only NJDOT's Route 46 and Waterview Boulevard lot, on the list and the map. Checked in dark mode too. The stack's request logs had no coordinates.
 - `pnpm dev` applied `0003_nj_lots` on restart and still serves the 38 NYC facilities. NJ data isn't in it until S2-10.
+
+## Slice 4: Jersey City first (ADR-0012)
+
+Decided with the user on 2026-11-04: show Jersey City's 7 city lots now, without hours or rates, plus the 25 candidate sites from the State's parcel layer with no other obvious use, marked unconfirmed. The request to the Parking Division (SRC-5) is drafted but not sent; its answer can confirm or drop sites later.
+
+| Task | What | Requirements | Status |
+|---|---|---|---|
+| S4-1 | Specs, ADR-0012, and migration `0004_unconfirmed_sites.sql`: `confirmed`, operator type `unknown`, nullable operator name and official page | REC-9 | Done |
+| S4-2 | Adapter `jc-municipal-lots` (OpenDataSoft), with a saved fixture | ING-6, ATT-2 | Done |
+| S4-3 | Adapter `nj-parcels-jc-parking`: two queries, sites from touching parcels, the kept-site rule, unconfirmed records, with saved fixtures | ING-2, ING-13 | Done |
+| S4-4 | Matching: Jersey City candidate sites within 90 m of a city or NJ Transit lot | ING-14 | Done |
+| S4-5 | API: `confirmed`, nullable operator name and official page, operator type `unknown` | REC-7, REC-9 | Done |
+| S4-6 | Web: the unconfirmed label on cards and map labels, no link, "Owner not recorded" in the filter | WEB-8, WEB-9 | Done |
+| S4-7 | Smoke test and a browser check in Jersey City | All slice 4 | Done |
+
+### Slice 4 status, Jersey City (2026-11-04)
+
+- `pnpm lint`, `pnpm typecheck`, `pnpm test` (229 tests: web 79, worker 94, api 49, db 5, api-client 2, on the PGlite fallback), `pnpm build`, and `pnpm test:e2e` (8 smoke tests) all passed.
+- From the live sources and the saved fixtures alike: the city's 7 lots, and 26 candidate sites kept from 139 parcels. Three sites merge into city lots 33, 44, and 49, so 30 Jersey City facilities: 7 confirmed, 23 unconfirmed.
+- In the browser at phone width, near Lot 52 downtown: 9 places within 2 km, Lot 52 first (city-run, with the city's Parking page link and its 2020 data date), then 8 unconfirmed sites, each with the unconfirmed label, "Owner not recorded", no link, a dashed map marker, and "Check the signs on site before you park". The Sources page lists both new sources and what we change.
+- `pnpm dev` applied `0004_unconfirmed_sites` on restart. The two sources were loaded into its database with `pnpm ingest`, because `pnpm dev` loads data only into an empty database.
+- On a phone, the search controls now push the map below the first screen; the smoke test scrolls to it.

@@ -1,11 +1,13 @@
 // The sources the worker runs. Exactly the Admitted table in specs/06-sources.md; a test checks that (ING-6).
+import { jcMunicipalLots } from './jc-municipal-lots.ts';
+import { njParcelsJcParking } from './nj-parcels-jc-parking.ts';
 import { njdotParkRide } from './njdot-park-ride.ts';
 import { njtParkingLots } from './njt-parking-lots.ts';
 import { nycFacdbDot } from './nyc-facdb-dot.ts';
 import { nycMetersOffstreet } from './nyc-meters-offstreet.ts';
 import type { SourceDefinition } from './types.ts';
 
-export const sources: readonly SourceDefinition[] = [nycFacdbDot, nycMetersOffstreet];
+export const sources: readonly SourceDefinition[] = [nycFacdbDot, nycMetersOffstreet, jcMunicipalLots, njParcelsJcParking];
 
 /**
  * Built and tested, but not run: ADR-0011 admits a source with unstated terms only once its publisher has

@@ -11,6 +11,7 @@ const OPERATOR_TYPES: Record<RecommendedFacility['operator']['type'], true> = {
   state: true,
   transit_agency: true,
   public_authority: true,
+  unknown: true,
 };
 const MODIFICATIONS: Record<Source['modifications'][number], true> = {
   names_reformatted: true,
@@ -24,6 +25,8 @@ const MODIFICATIONS: Record<Source['modifications'][number], true> = {
   lot_numbers_reformatted: true,
   duplicates_removed: true,
   municipalities_reformatted: true,
+  sites_from_parcels: true,
+  unconfirmed_public_use: true,
 };
 
 describe('message catalog', () => {

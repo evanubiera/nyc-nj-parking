@@ -3,7 +3,7 @@ import { act } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { en } from '../i18n/en.ts';
 import { fetchRecommendations } from '../services/recommendations.ts';
-import { avenueM, delancey, morristown2, sources } from '../test/facilities.ts';
+import { avenueM, delancey, montgomerySite, morristown2, sources } from '../test/facilities.ts';
 import { maps, resetMaps } from '../test/maplibre.ts';
 import { axeViolations, renderWithProviders } from '../test/render.tsx';
 import { SearchPage } from './SearchPage.tsx';
@@ -139,7 +139,7 @@ describe('SearchPage', () => {
     const group = screen.getByRole('group', { name: en['search.operators.legend'] });
     const boxes = within(group).getAllByRole('checkbox');
 
-    expect(boxes.map((box) => box.closest('label')?.textContent)).toEqual(['City-run', 'County-run', 'State-run', 'Transit agency', 'Public authority']);
+    expect(boxes.map((box) => box.closest('label')?.textContent)).toEqual(['City-run', 'County-run', 'State-run', 'Transit agency', 'Public authority', 'Owner not recorded']);
     expect(boxes.every((box) => (box as HTMLInputElement).checked)).toBe(true);
     fireEvent.click(screen.getByRole('button', { name: en['search.useLocation'] }));
     await screen.findByRole('heading', { level: 2 });
@@ -149,7 +149,7 @@ describe('SearchPage', () => {
 
     await vi.waitFor(() =>
       expect(recommend).toHaveBeenLastCalledWith({ lat: 40.797, lng: -74.474 }, 2000, {
-        operatorTypes: ['county', 'state', 'transit_agency', 'public_authority'],
+        operatorTypes: ['county', 'state', 'transit_agency', 'public_authority', 'unknown'],
       }),
     );
   });
@@ -174,6 +174,17 @@ describe('SearchPage', () => {
     act(() => maps[0]!.tap(40.797, -74.474));
 
     expect(await screen.findByRole('button', { name: '1. Morristown, lot 2, 180 m away' })).toBeInTheDocument();
+  });
+
+  it('WEB-9 labels an unconfirmed site\'s map marker as unconfirmed', async () => {
+    recommend.mockResolvedValue({ status: 'ok', results: [montgomerySite] });
+    renderWithProviders(<SearchPage geolocation={geolocationAnswering({ lat: 40.718, lng: -74.072 })} styleUrl="https://tiles.example.test/style" />);
+    await vi.waitFor(() => expect(maps).toHaveLength(1));
+
+    act(() => maps[0]!.tap(40.718, -74.072));
+
+    const marker = await screen.findByRole('button', { name: '1. 179 Montgomery St., 60 m away, unconfirmed' });
+    expect(marker).toHaveClass('map-marker--unconfirmed');
   });
 
   it('WEB-2 has no axe violations with results showing', async () => {

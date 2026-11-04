@@ -4,6 +4,7 @@ export const avenueM: RecommendedFacility = {
   id: 'nyc-dot-avenue-m',
   name: 'Avenue M Municipal Parking Field',
   lotNumber: null,
+  confirmed: true,
   kind: 'field',
   operator: { name: 'NYC Department of Transportation', type: 'municipal' },
   address: { line: '1624 Chestnut Avenue', locality: 'Brooklyn', region: 'NY' },
@@ -30,6 +31,7 @@ export const delancey: RecommendedFacility = {
   id: 'nyc-dot-delancey-essex',
   name: 'Delancey - Essex Municipal Parking Garage',
   lotNumber: null,
+  confirmed: true,
   kind: 'garage',
   operator: { name: 'NYC Department of Transportation', type: 'municipal' },
   address: { line: '105 Essex Street', locality: 'Manhattan', region: 'NY' },
@@ -47,6 +49,7 @@ export const morristown2: RecommendedFacility = {
   id: 'njt-morristown-02',
   name: 'Morristown',
   lotNumber: '2',
+  confirmed: true,
   kind: 'lot',
   operator: { name: 'Morristown Town', type: 'municipal' },
   address: { line: null, locality: 'Morristown Town', region: 'NJ' },
@@ -57,6 +60,24 @@ export const morristown2: RecommendedFacility = {
   rates: [],
   officialUrl: 'https://www.morristown-nj.org/',
   sources: [{ id: 'njt-parking-lots', dataUpdatedAt: '2026-10-08T17:27:08.341Z' }],
+};
+
+/** An unconfirmed site from tax records (REC-9, ADR-0012), from the saved fixture of 2026-11-04. */
+export const montgomerySite: RecommendedFacility = {
+  id: 'jc-site-14102-12',
+  name: '179 Montgomery St.',
+  lotNumber: null,
+  confirmed: false,
+  kind: 'lot',
+  operator: { name: null, type: 'unknown' },
+  address: { line: null, locality: 'Jersey City', region: 'NJ' },
+  location: { lat: 40.71703, lng: -74.04278 },
+  distanceMeters: 60,
+  openingHours: null,
+  meteredHours: null,
+  rates: [],
+  officialUrl: null,
+  sources: [{ id: 'nj-parcels-jc-parking', dataUpdatedAt: '2026-08-18T09:32:38.134Z' }],
 };
 
 export const sources: Source[] = [

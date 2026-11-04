@@ -1,7 +1,7 @@
 import type { MeterPeriod } from '../normalize/meter-hours.ts';
 
 export type FacilityKind = 'garage' | 'lot' | 'field';
-export type OperatorType = 'municipal' | 'county' | 'state' | 'transit_agency' | 'public_authority';
+export type OperatorType = 'municipal' | 'county' | 'state' | 'transit_agency' | 'public_authority' | 'unknown';
 
 /** One facility as one source describes it, after normalizing (a `source_record` row). */
 export interface SourceRecordInput {
@@ -13,7 +13,8 @@ export interface SourceRecordInput {
   name: string;
   matchTokens: string[];
   kind: FacilityKind;
-  operatorName: string;
+  /** Null only for an unconfirmed site, whose owner isn't recorded (ADR-0012). */
+  operatorName: string | null;
   operatorType: OperatorType;
   addressLine: string | null;
   locality: string;
@@ -22,8 +23,11 @@ export interface SourceRecordInput {
   lat: number;
   lng: number;
   spaces: number | null;
-  officialUrl: string;
+  /** Null only for an unconfirmed site (ADR-0012). */
+  officialUrl: string | null;
   meterPeriods: MeterPeriod[];
+  /** REC-9: false for a candidate site from tax records, which may not be open to the public (ADR-0012). */
+  confirmed: boolean;
   /** REC-8: only when the source has several lots with this name, such as "2". */
   lotNumber: string | null;
   /** ING-11: the record is kept for matching, but its facility is never published. */

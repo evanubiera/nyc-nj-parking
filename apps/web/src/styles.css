@@ -295,6 +295,15 @@ a {
   color: var(--color-text-muted);
 }
 
+/* WEB-9: an unconfirmed site from tax records. */
+.result__warning {
+  margin: var(--space-2) 0;
+  padding: var(--space-2) var(--space-3);
+  border-left: 4px solid var(--color-warn);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
 .source {
   margin-bottom: var(--space-4);
   padding: var(--space-3);
@@ -398,6 +407,12 @@ a {
   cursor: pointer;
 }
 
+.map-marker--unconfirmed {
+  border: 2px dashed var(--color-accent-strong);
+  background: var(--color-surface);
+  color: var(--color-accent-strong);
+}
+
 .map-marker--search {
   width: 1rem;
   height: 1rem;
@@ -421,4 +436,10 @@ a {
   color: var(--color-on-accent);
   font-size: 0.8125rem;
   vertical-align: 0.1em;
+}
+
+.result__number--unconfirmed {
+  border: 2px dashed var(--color-accent-strong);
+  background: var(--color-surface);
+  color: var(--color-accent-strong);
 }

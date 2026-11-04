@@ -76,6 +76,7 @@ export function normalizeNjdot(body: Uint8Array): Normalized {
       spaces: spaces !== null && spaces >= 0 ? spaces : null,
       officialUrl: NJDOT_PARK_RIDE_PAGE,
       meterPeriods: [],
+      confirmed: true,
       lotNumber: null,
       withheldReason: null,
     });

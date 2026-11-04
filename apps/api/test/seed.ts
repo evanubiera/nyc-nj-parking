@@ -18,8 +18,10 @@ export interface SeedFacility {
   kind?: 'garage' | 'lot' | 'field';
   status?: 'active' | 'withdrawn';
   addressLine?: string | null;
-  operatorType?: 'municipal' | 'county' | 'state' | 'transit_agency' | 'public_authority';
+  operatorType?: 'municipal' | 'county' | 'state' | 'transit_agency' | 'public_authority' | 'unknown';
   lotNumber?: string | null;
+  /** REC-9: an unconfirmed site has operator type `unknown`, no operator name, and no official page. */
+  unconfirmed?: boolean;
   sourceIds?: string[];
   meterPeriods?: { days: number; startsAt: string; endsAt: string; maxStayMinutes: number | null; vehicleClass: string | null; sourceText: string }[];
 }
@@ -27,13 +29,16 @@ export interface SeedFacility {
 export async function seedFacility(sql: Sql, facility: SeedFacility): Promise<void> {
   const now = new Date('2026-11-03T12:00:00Z');
   const status = facility.status ?? 'active';
+  const unconfirmed = facility.unconfirmed ?? false;
   await sql`
     insert into facility (id, name, kind, operator_name, operator_type, address_line, locality, region, time_zone,
-      location, official_url, lot_number, status, first_seen_at, last_seen_at, withdrawn_at)
+      location, official_url, lot_number, confirmed, status, first_seen_at, last_seen_at, withdrawn_at)
     values (${facility.id}, ${facility.name ?? `Facility ${facility.id}`}, ${facility.kind ?? 'field'},
-      'NYC Department of Transportation', ${facility.operatorType ?? 'municipal'}, ${facility.addressLine === undefined ? '1 Test Street' : facility.addressLine},
+      ${unconfirmed ? null : 'NYC Department of Transportation'}, ${unconfirmed ? 'unknown' : (facility.operatorType ?? 'municipal')},
+      ${facility.addressLine === undefined ? '1 Test Street' : facility.addressLine},
       'Brooklyn', 'NY', 'America/New_York', ST_SetSRID(ST_MakePoint(${facility.lng}, ${facility.lat}), 4326)::geography,
-      'https://www.nyc.gov/html/dot/html/motorist/parkinglist.shtml#kings', ${facility.lotNumber ?? null}, ${status}, ${now}, ${now},
+      ${unconfirmed ? null : 'https://www.nyc.gov/html/dot/html/motorist/parkinglist.shtml#kings'}, ${facility.lotNumber ?? null}, ${!unconfirmed},
+      ${status}, ${now}, ${now},
       ${status === 'withdrawn' ? now : null})`;
   for (const sourceId of facility.sourceIds ?? ['test-source']) {
     await seedSource(sql, sourceId);

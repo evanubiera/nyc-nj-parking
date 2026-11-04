@@ -22,43 +22,51 @@ export interface ArcgisLayerQuery {
 }
 
 export async function fetchArcgisLayer(http: UpstreamHttp, query: ArcgisLayerQuery): Promise<FetchedData> {
-  const item = await getJson(http, `${ARCGIS_ITEMS}/${query.itemId}?f=json`);
+  const { layerUrl, editedAt } = await resolveArcgisLayer(http, query.itemId);
+  const rows = await queryArcgisLayer(http, layerUrl, {
+    where: '1=1',
+    outFields: query.outFields.join(','),
+    orderByFields: query.orderBy,
+    returnGeometry: String(query.geometry === 'point'),
+    ...(query.geometry === 'centroid' ? { returnCentroid: 'true' } : {}),
+  });
+  return { body: rows.body, contentType: rows.contentType, upstreamUpdatedAt: editedAt };
+}
+
+/** The item's feature service, which must have exactly one layer, and that layer's "data last edited" time. */
+export async function resolveArcgisLayer(http: UpstreamHttp, itemId: string): Promise<{ layerUrl: string; editedAt: Date | null }> {
+  const item = await getJson(http, `${ARCGIS_ITEMS}/${itemId}?f=json`);
   const serviceUrl = item.url;
   if (typeof serviceUrl !== 'string' || !/^https:\/\/[^/]+\/.+\/FeatureServer$/.test(serviceUrl)) {
-    throw new IngestionError('normalize.unexpected_format', `item ${query.itemId} has no feature service URL`);
+    throw new IngestionError('normalize.unexpected_format', `item ${itemId} has no feature service URL`);
   }
-
   const service = await getJson(http, `${serviceUrl}?f=json`);
   const layers = service.layers;
   if (!Array.isArray(layers) || layers.length !== 1 || typeof (layers[0] as { id?: unknown }).id !== 'number') {
-    throw new IngestionError('normalize.unexpected_format', `item ${query.itemId}'s service doesn't have exactly one layer`);
+    throw new IngestionError('normalize.unexpected_format', `item ${itemId}'s service doesn't have exactly one layer`);
   }
   const layerUrl = `${serviceUrl}/${(layers[0] as { id: number }).id}`;
   const layer = await getJson(http, `${layerUrl}?f=json`);
   const editedAt = (layer.editingInfo as { dataLastEditDate?: unknown } | undefined)?.dataLastEditDate;
+  return { layerUrl, editedAt: typeof editedAt === 'number' && Number.isFinite(editedAt) ? new Date(editedAt) : null };
+}
 
+/**
+ * One query, in WGS 84 and JSON, returned exactly as received. Fails on an error answer, and on a response
+ * cut short at the layer's record limit rather than keep part of it.
+ */
+export async function queryArcgisLayer(http: UpstreamHttp, layerUrl: string, params: Record<string, string>) {
   const url = new URL(`${layerUrl}/query`);
-  url.searchParams.set('where', '1=1');
-  url.searchParams.set('outFields', query.outFields.join(','));
-  url.searchParams.set('orderByFields', query.orderBy);
-  url.searchParams.set('returnGeometry', String(query.geometry === 'point'));
-  if (query.geometry === 'centroid') url.searchParams.set('returnCentroid', 'true');
-  url.searchParams.set('outSR', '4326');
-  url.searchParams.set('f', 'json');
+  for (const [name, value] of Object.entries({ ...params, outSR: '4326', f: 'json' })) url.searchParams.set(name, value);
   const rows = await http.get(url.toString());
-
   const parsed = parseJson(rows.body);
   if ('error' in parsed) {
     throw new IngestionError('upstream.http_status', `${new URL(layerUrl).host} answered the query with an error`);
   }
   if (parsed.exceededTransferLimit === true) {
-    throw new IngestionError('upstream.too_large', `item ${query.itemId} has more records than one query returns`);
+    throw new IngestionError('upstream.too_large', `${new URL(layerUrl).host} has more records than one query returns`);
   }
-  return {
-    body: rows.body,
-    contentType: rows.contentType,
-    upstreamUpdatedAt: typeof editedAt === 'number' && Number.isFinite(editedAt) ? new Date(editedAt) : null,
-  };
+  return rows;
 }
 
 export interface Feature {
@@ -68,7 +76,7 @@ export interface Feature {
 }
 
 /** The features of a query response, each with its centroid or point. */
-export function parseFeatures(body: Uint8Array | StoredSnapshot['body']): Feature[] {
+export function parseFeatures(body: Uint8Array | StoredSnapshot['body'] | string): Feature[] {
   const features = parseJson(body).features;
   if (!Array.isArray(features)) {
     throw new IngestionError('normalize.unexpected_format', 'response has no features');
@@ -108,10 +116,10 @@ async function getJson(http: UpstreamHttp, url: string): Promise<Record<string, 
   return parsed;
 }
 
-function parseJson(body: Uint8Array): Record<string, unknown> {
+export function parseJson(body: Uint8Array | string): Record<string, unknown> {
   let parsed: unknown;
   try {
-    parsed = JSON.parse(new TextDecoder().decode(body));
+    parsed = JSON.parse(typeof body === 'string' ? body : new TextDecoder().decode(body));
   } catch {
     throw new IngestionError('normalize.unexpected_format', 'response is not JSON');
   }

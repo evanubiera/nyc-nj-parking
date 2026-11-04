@@ -126,6 +126,7 @@ describe('GET /api/parking/recommendations', () => {
       id: 'nyc-dot-avenue-m',
       name: 'Avenue M Municipal Parking Field',
       lotNumber: null,
+      confirmed: true,
       kind: 'field',
       operator: { name: 'NYC Department of Transportation', type: 'municipal' },
       address: { line: '1624 Chestnut Avenue', locality: 'Brooklyn', region: 'NY' },
@@ -191,6 +192,35 @@ describe('GET /api/parking/recommendations', () => {
       expect(body).toEqual({ code: 'request.invalid_parameter', parameter: 'operatorType' });
     },
   );
+
+  it('REC-9 returns an unconfirmed site with no operator name and no official page', async () => {
+    await seedFacility(sql, { id: 'jc-site-14102-12', name: '179 Montgomery St.', addressLine: null, lat: north(100), lng: ORIGIN.lng, unconfirmed: true });
+    await seedFacility(sql, { id: 'jc-lot-52', name: 'Lot 52', lat: north(200), lng: ORIGIN.lng });
+
+    const { body } = await recommend(`lat=${ORIGIN.lat}&lng=${ORIGIN.lng}`);
+
+    expect(body.results[0]).toMatchObject({
+      id: 'jc-site-14102-12',
+      name: '179 Montgomery St.',
+      confirmed: false,
+      operator: { name: null, type: 'unknown' },
+      officialUrl: null,
+      address: { line: null },
+    });
+    expect(body.results[1]).toMatchObject({ id: 'jc-lot-52', confirmed: true, operator: { type: 'municipal' } });
+  });
+
+  it('REC-7 can leave out unconfirmed sites by leaving out the unknown operator type', async () => {
+    await seedFacility(sql, { id: 'site', lat: north(100), lng: ORIGIN.lng, unconfirmed: true });
+    await seedFacility(sql, { id: 'lot', lat: north(200), lng: ORIGIN.lng });
+    const at = `lat=${ORIGIN.lat}&lng=${ORIGIN.lng}`;
+
+    const withoutUnknown = await recommend(`${at}&operatorType=municipal&operatorType=transit_agency`);
+    const onlyUnknown = await recommend(`${at}&operatorType=unknown`);
+
+    expect(withoutUnknown.body.results.map((result) => result.id)).toEqual(['lot']);
+    expect(onlyUnknown.body.results.map((result) => result.id)).toEqual(['site']);
+  });
 
   it('REC-8 returns a lot number where the source has one, and null elsewhere', async () => {
     await seedFacility(sql, { id: 'njt-morristown-02', name: 'Morristown', lotNumber: '2', lat: north(100), lng: ORIGIN.lng, operatorType: 'municipal' });

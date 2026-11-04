@@ -54,7 +54,7 @@ paths:
         or echoes them (PRIV-3, ADR-0006). At most 50 results. A facility without hours from any source
         is still returned (REC-6).
       tags: [parking]
-      x-requirements: [REC-1, REC-2, REC-3, REC-4, REC-6, REC-7, REC-8, PRIV-3, ATT-2]
+      x-requirements: [REC-1, REC-2, REC-3, REC-4, REC-6, REC-7, REC-8, REC-9, PRIV-3, ATT-2]
       parameters:
         - name: lat
           in: query
@@ -193,7 +193,7 @@ components:
       description: One facility (REC-4). Values are data or codes, never display text.
       type: object
       additionalProperties: false
-      required: [id, name, lotNumber, kind, operator, address, location, distanceMeters, openingHours, meteredHours, rates, officialUrl, sources]
+      required: [id, name, lotNumber, confirmed, kind, operator, address, location, distanceMeters, openingHours, meteredHours, rates, officialUrl, sources]
       properties:
         id:
           type: string
@@ -207,6 +207,12 @@ components:
             Set when the source has several lots with this name, such as an NJ Transit station's lots
             (REC-8). Just the number or letter, such as "2"; the web app adds the words.
           example: null
+        confirmed:
+          type: boolean
+          description: >
+            False for a candidate site from tax records (REC-9, ADR-0012): public land recorded as parking,
+            which may be for staff or permit holders only. Such a site's operator type is `unknown`, with no
+            name, and it has no official page. Its name is its address from the tax record.
         kind:
           type: string
           enum: [garage, lot, field]
@@ -236,9 +242,9 @@ components:
           items:
             $ref: '#/components/schemas/Rate'
         officialUrl:
-          type: string
+          type: [string, 'null']
           format: uri
-          description: The operator's page for this facility.
+          description: The operator's page for this facility. Null only for an unconfirmed site (REC-9).
         sources:
           type: array
           minItems: 1
@@ -251,14 +257,15 @@ components:
       required: [name, type]
       properties:
         name:
-          type: string
+          type: [string, 'null']
+          description: Null only when the type is `unknown` (REC-9).
           example: NYC Department of Transportation
         type:
           $ref: '#/components/schemas/OperatorType'
     OperatorType:
       type: string
-      description: Who runs a facility (ADR-0007).
-      enum: [municipal, county, state, transit_agency, public_authority]
+      description: Who runs a facility (ADR-0007). `unknown` only for an unconfirmed site, whose owner isn't recorded (ADR-0012).
+      enum: [municipal, county, state, transit_agency, public_authority, unknown]
     Address:
       type: object
       additionalProperties: false
@@ -437,6 +444,8 @@ components:
               - lot_numbers_reformatted
               - duplicates_removed
               - municipalities_reformatted
+              - sites_from_parcels
+              - unconfirmed_public_use
         dataUpdatedAt:
           type: [string, 'null']
           format: date-time
