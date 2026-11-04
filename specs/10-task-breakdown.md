@@ -101,6 +101,7 @@ Decided with the user on 2026-11-04: show Jersey City's 7 city lots now, without
 | S4-6 | Web: the unconfirmed label on cards and map labels, no link, "Owner not recorded" in the filter | WEB-8, WEB-9 | Done |
 | S4-7 | Smoke test and a browser check in Jersey City | All slice 4 | Done |
 | S4-8 | Web: directions links on every result, in Google Maps, Apple Maps, and Waze (asked for by the user on 2026-11-04, for drivers) | WEB-10, PRIV-1 | Done |
+| S4-9 | Web: unconfirmed sites get a checkbox of their own, "Show unconfirmed sites (from tax records)", instead of a "Run by" option (asked for by the user on 2026-11-04) | WEB-9 | Done |
 
 ### Slice 4 status, Jersey City (2026-11-04)
 

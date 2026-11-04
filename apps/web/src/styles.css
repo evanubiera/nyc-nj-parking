@@ -186,6 +186,10 @@ a {
   cursor: pointer;
 }
 
+.operators__unconfirmed {
+  margin-top: var(--space-2);
+}
+
 .operators__option input {
   width: 1.125rem;
   height: 1.125rem;

@@ -14,6 +14,8 @@ export const en = {
   // WEB-8. The options reuse the operator labels below.
   'search.operators.legend': 'Run by',
   'search.operators.none': 'Choose at least one kind of operator to search.',
+  // WEB-9: sites from tax records that no operator has confirmed (ADR-0012).
+  'search.unconfirmed.toggle': 'Show unconfirmed sites (from tax records)',
   'search.mapHint': 'Or tap the map to search there.',
 
   'location.locating': 'Finding your location…',

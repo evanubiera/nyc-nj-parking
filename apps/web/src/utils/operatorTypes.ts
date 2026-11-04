@@ -12,3 +12,6 @@ const ALL: Record<OperatorType, true> = {
 };
 
 export const OPERATOR_TYPES = Object.keys(ALL) as readonly OperatorType[];
+
+/** The "Run by" choices. Unconfirmed sites (`unknown`) have a checkbox of their own (WEB-9). */
+export const RUN_BY_TYPES = OPERATOR_TYPES.filter((type) => type !== 'unknown');

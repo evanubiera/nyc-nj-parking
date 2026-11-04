@@ -111,7 +111,7 @@ test.describe('in Jersey City', () => {
       await expect(page.getByRole('button', { name: /^1\. 179 Montgomery St\., \d+ m away, unconfirmed$/ })).toBeVisible();
       expect(await axeViolations(page)).toEqual([]);
 
-      await page.getByRole('checkbox', { name: 'Owner not recorded' }).uncheck();
+      await page.getByRole('checkbox', { name: 'Show unconfirmed sites (from tax records)' }).uncheck();
       await expect(site).toHaveCount(0);
     });
   });

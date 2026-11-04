@@ -139,7 +139,8 @@ describe('SearchPage', () => {
     const group = screen.getByRole('group', { name: en['search.operators.legend'] });
     const boxes = within(group).getAllByRole('checkbox');
 
-    expect(boxes.map((box) => box.closest('label')?.textContent)).toEqual(['City-run', 'County-run', 'State-run', 'Transit agency', 'Public authority', 'Owner not recorded']);
+    expect(boxes.map((box) => box.closest('label')?.textContent)).toEqual(['City-run', 'County-run', 'State-run', 'Transit agency', 'Public authority']);
+    expect(screen.getByRole('checkbox', { name: en['search.unconfirmed.toggle'] })).toBeChecked();
     expect(boxes.every((box) => (box as HTMLInputElement).checked)).toBe(true);
     fireEvent.click(screen.getByRole('button', { name: en['search.useLocation'] }));
     await screen.findByRole('heading', { level: 2 });
@@ -154,10 +155,25 @@ describe('SearchPage', () => {
     );
   });
 
+  it('WEB-9 leaves out unconfirmed sites when their checkbox is cleared', async () => {
+    renderWithProviders(<SearchPage geolocation={geolocationAnswering({ lat: 40.721, lng: -74.044 })} />);
+    fireEvent.click(screen.getByRole('button', { name: en['search.useLocation'] }));
+    await screen.findByRole('heading', { level: 2 });
+
+    fireEvent.click(screen.getByRole('checkbox', { name: en['search.unconfirmed.toggle'] }));
+
+    await vi.waitFor(() =>
+      expect(recommend).toHaveBeenLastCalledWith({ lat: 40.721, lng: -74.044 }, 2000, {
+        operatorTypes: ['municipal', 'county', 'state', 'transit_agency', 'public_authority'],
+      }),
+    );
+  });
+
   it('WEB-8 asks for at least one operator type, and doesn\'t search without one', async () => {
     renderWithProviders(<SearchPage geolocation={geolocationAnswering({ lat: 40.797, lng: -74.474 })} />);
     const group = screen.getByRole('group', { name: en['search.operators.legend'] });
     for (const box of within(group).getAllByRole('checkbox')) fireEvent.click(box);
+    fireEvent.click(screen.getByRole('checkbox', { name: en['search.unconfirmed.toggle'] }));
 
     fireEvent.click(screen.getByRole('button', { name: en['search.useLocation'] }));
 
