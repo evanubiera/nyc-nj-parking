@@ -1,5 +1,6 @@
 import type { RecommendedFacility } from '@parking/api-client';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { DIRECTIONS_APPS, directionsUrl } from '../utils/directions.ts';
 import { facilityName } from '../utils/facilityName.ts';
 import { MeteredHours } from './MeteredHours.tsx';
 import { SourceCredits } from './SourceCredits.tsx';
@@ -58,6 +59,23 @@ export function ResultCard({ facility, position }: { facility: RecommendedFacili
         <FormattedMessage id={missing} />
       </p>
 
+      <p className="result__directions">
+        <span className="result__directions-label">
+          <FormattedMessage id="directions.label" />
+        </span>
+        {DIRECTIONS_APPS.map((app) => (
+          <a
+            key={app}
+            className="result__directions-link"
+            href={directionsUrl(app, facility.location)}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={intl.formatMessage({ id: 'directions.linkLabel' }, { app: intl.formatMessage({ id: `directions.app.${app}` }), name })}
+          >
+            <FormattedMessage id={`directions.app.${app}`} />
+          </a>
+        ))}
+      </p>
       {facility.officialUrl && (
         <p className="result__link">
           <a

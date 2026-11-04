@@ -59,6 +59,30 @@ describe('ResultCard', () => {
     expect(screen.queryByText(en['facility.unconfirmed'])).not.toBeInTheDocument();
   });
 
+  it('WEB-10 links to driving directions in Google Maps, Apple Maps, and Waze, with only the facility\'s location', async () => {
+    const { container } = renderWithProviders(<ResultCard facility={morristown2} />);
+
+    const google = screen.getByRole('link', { name: 'Google Maps directions to Morristown, lot 2' });
+    const apple = screen.getByRole('link', { name: 'Apple Maps directions to Morristown, lot 2' });
+    const waze = screen.getByRole('link', { name: 'Waze directions to Morristown, lot 2' });
+    expect(google).toHaveAttribute('href', 'https://www.google.com/maps/dir/?api=1&destination=40.79761%2C-74.47384&travelmode=driving');
+    expect(apple).toHaveAttribute('href', 'https://maps.apple.com/directions?destination=40.79761%2C-74.47384&mode=driving');
+    expect(waze).toHaveAttribute('href', 'https://www.waze.com/ul?ll=40.79761%2C-74.47384&navigate=yes');
+    for (const link of [google, apple, waze]) {
+      expect(link).toHaveAttribute('target', '_blank');
+      expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+      // PRIV-1: the facility's point only; the map app starts from the person's own location.
+      expect(new URL(link.getAttribute('href')!).search).not.toMatch(/origin|source|saddr/);
+    }
+    expect(await axeViolations(container)).toEqual([]);
+  });
+
+  it('WEB-10 gives an unconfirmed site directions too, so people can go and check it', () => {
+    renderWithProviders(<ResultCard facility={montgomerySite} />);
+
+    expect(screen.getByRole('link', { name: 'Waze directions to 179 Montgomery St.' })).toHaveAttribute('href', 'https://www.waze.com/ul?ll=40.71703%2C-74.04278&navigate=yes');
+  });
+
   it('REC-4 shows distances of a kilometer or more in kilometers', () => {
     renderWithProviders(<ResultCard facility={delancey} />);
 

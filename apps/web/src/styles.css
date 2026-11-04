@@ -295,6 +295,36 @@ a {
   color: var(--color-text-muted);
 }
 
+/* WEB-10: directions links, sized for a thumb in a parked car. */
+.result__directions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
+}
+
+.result__directions-label {
+  color: var(--color-text-muted);
+}
+
+.result__directions-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.result__directions-link:hover {
+  text-decoration: underline;
+}
+
 /* WEB-9: an unconfirmed site from tax records. */
 .result__warning {
   margin: var(--space-2) 0;

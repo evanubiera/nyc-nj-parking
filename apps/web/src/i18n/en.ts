@@ -68,6 +68,14 @@ export const en = {
   // Starts with the link's visible text, so voice control finds it (WCAG 2.5.3).
   'facility.officialLinkLabel': 'Hours and rates on the operator’s page, for {name}',
 
+  // WEB-10: driving directions in the person's own map app. The app names are proper names.
+  'directions.label': 'Directions:',
+  'directions.app.google': 'Google Maps',
+  'directions.app.apple': 'Apple Maps',
+  'directions.app.waze': 'Waze',
+  // Starts with the link's visible text, so voice control finds it (WCAG 2.5.3).
+  'directions.linkLabel': '{app} directions to {name}',
+
   'credits.line': 'Data: {sources}',
   'credits.source': '{title}, as of {date}',
   'credits.sourceNoDate': '{title}',

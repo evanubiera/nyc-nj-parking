@@ -89,6 +89,11 @@ test.describe('in Jersey City', () => {
       await expect(lot.getByText("Hours, rates, and number of spaces aren't shown here. Check with the operator before you park.")).toBeVisible();
       await expect(lot.getByRole('link', { name: 'Hours and rates on the operator’s page, for Lot 52' })).toHaveAttribute('href', /jerseycitynj\.gov/);
       await expect(lot.getByRole('link', { name: /^Data: Municipal Parking Lots, as of Nov 25, 2020/ })).toBeVisible();
+      // WEB-10: directions to the lot, with only its location.
+      await expect(lot.getByRole('link', { name: 'Google Maps directions to Lot 52' })).toHaveAttribute(
+        'href', 'https://www.google.com/maps/dir/?api=1&destination=40.72158%2C-74.04504&travelmode=driving');
+      await expect(lot.getByRole('link', { name: 'Apple Maps directions to Lot 52' })).toBeVisible();
+      await expect(lot.getByRole('link', { name: 'Waze directions to Lot 52' })).toBeVisible();
     });
   });
 
