@@ -2,6 +2,9 @@
 
 Material to send with requests to publishers and operators. Each file says where it came from, so it can be rebuilt or questioned.
 
+- [jersey-city-parking-division.md](jersey-city-parking-division.md): the draft request to Jersey City (SRC-5), how to send it, and an OPRA fallback. Not sent.
+- [jersey-city-parking-candidates.csv](jersey-city-parking-candidates.csv): the site list that goes with it (below).
+
 ## jersey-city-parking-candidates.csv
 
 For the Jersey City Parking Division (SRC-5): sites on public land that the State's tax records describe as parking, for the Division to confirm. Built on 2026-11-04.
