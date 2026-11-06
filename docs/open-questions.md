@@ -16,6 +16,7 @@ Prefixes: SRC (a data source's terms or availability), PRD (product), LEG (legal
 | SRC-6 | Which map tile provider, and do its terms allow a public app at our expected traffic? | — | **Decided 2026-11-03 by the user (ADR-0009):** self-hosted Protomaps PMTiles in production; OpenFreeMap's public instance for development and previews until then. |
 | SRC-7 | Hoboken: may we list the Parking Utility's garages and lots from hobokennj.gov (names, addresses, capacities, hours) and link to it, and is its garage availability table meant to be reused? The page states no terms. | Hoboken garages, slice 4 | Open, not yet asked |
 | SRC-8 | Other NJ parking authorities (Newark, Paterson, New Brunswick, Morristown, Montclair, Princeton, Elizabeth, Trenton, Camden, Atlantic City, Asbury Park, Red Bank, Hackensack) publish lots only on their websites, or not at all. For each: ask for a list and its terms, or rely on NJ Transit's database for their station lots. | Slice 4 | Open |
+| SRC-9 | OpenStreetMap is under the Open Database License, whose share-alike condition covers results that alter or build on its data. If we merged its names or hours into our facility data, what would we have to share, and how? Needs a lawyer's view (LEG-1). | Using OpenStreetMap data, later | Open (2026-11-06) |
 
 ## Product
 
