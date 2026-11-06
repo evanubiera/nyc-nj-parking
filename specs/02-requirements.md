@@ -40,6 +40,7 @@ Each requirement has an ID. Tasks, tests, and contract operations (`x-requiremen
 | PRIV-2 | Request logs record the method, route pattern, status code, and duration, never the URL, the query string, or the request body. | 0 |
 | PRIV-3 | The web app rounds coordinates to 3 decimal places before sending them. The API rounds again before using them, and doesn't echo them in responses. | 1 |
 | PRIV-4 | The public app's map tiles come from our own hosting, whose logs drop tile paths as well as query strings. A third-party tile host (OpenFreeMap) is used only for development and previews (ADR-0009). | Deployment |
+| PRIV-5 | Text typed into address search is sent only to the geocoders in ADR-0013, from the browser, after a pause in typing and at least three characters. It never reaches our API, storage, logs, or URLs, and suggestions are cached in memory only. | 4 |
 
 ## Attribution and accuracy (ATT)
 
@@ -79,3 +80,4 @@ Reviewed by the user on 2026-11-03: metered hours are shown as metered hours, fa
 | WEB-8 | The user can limit results to chosen operator types. Every type is chosen at first. The choice applies to the list and the map, and is kept in memory only. With none chosen, the app asks for at least one and doesn't search. A result with a lot number shows it with its name, on the card and the map. | 2 |
 | WEB-9 | An unconfirmed site says so on its card and in its map label: public land recorded as parking, which may be for staff or permit holders only. It has no official page link, and its operator shows as "Owner not recorded". A checkbox of its own, "Show unconfirmed sites (from tax records)", checked at first, includes or leaves them out; it replaced the "Run by" option ADR-0012 described, at the user's request on 2026-11-04, so the choice is easy to find. | 4 |
 | WEB-10 | Each result links to driving directions to it in Google Maps, Apple Maps, and Waze, in each vendor's documented link format. The links carry only the facility's location, never the person's: their map app starts from their own location (PRIV-1). | 4 |
+| WEB-11 | People can type a town ("Hoboken, NJ") or an address ("174 Newark Ave, Jersey City, NJ") and choose from suggestions as they type, by keyboard or touch; choosing one searches there. Towns and neighbourhoods come from a list in the app; addresses from the state's geocoder (ADR-0013). Device location and tapping the map still work. | 4 |

@@ -1,6 +1,7 @@
 import type { OperatorType } from '@parking/api-client';
 import { lazy, Suspense, useCallback, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { AddressSearch } from '../components/AddressSearch.tsx';
 import { OperatorFilter } from '../components/OperatorFilter.tsx';
 import { DEFAULT_RADIUS, RadiusPicker } from '../components/RadiusPicker.tsx';
 import { ResultCard } from '../components/ResultCard.tsx';
@@ -13,7 +14,7 @@ import { OPERATOR_TYPES } from '../utils/operatorTypes.ts';
 // MapLibre is large, so the map loads only when it's configured (ADR-0009) and the page has rendered.
 const ResultsMap = lazy(() => import('../components/ResultsMap.tsx'));
 
-/** WEB-4, WEB-5, WEB-8. Search from the device's location or a tapped point; the list works without the map. */
+/** WEB-4, WEB-5, WEB-8, WEB-11. Search from the device's location, a tapped point, or a town or address. */
 export function SearchPage({ geolocation, styleUrl = mapStyleUrl }: { geolocation?: Geolocation; styleUrl?: string | null }) {
   const intl = useIntl();
   const [radius, setRadius] = useState(DEFAULT_RADIUS);
@@ -27,9 +28,20 @@ export function SearchPage({ geolocation, styleUrl = mapStyleUrl }: { geolocatio
   const distance = intl.formatMessage({ id: 'search.radius.option' }, { km: radius / 1000 });
   const results = !noOperators && recommendations.data?.status === 'ok' ? recommendations.data.results : [];
 
+  // WEB-11: the chosen town or address, shown while its point is the search point. Memory only (PRIV-5).
+  const [placeLabel, setPlaceLabel] = useState<string | null>(null);
+  const searchNear = useCallback(
+    (chosen: Point, label: string) => {
+      reset();
+      setPlaceLabel(label);
+      setPoint(chosen);
+    },
+    [reset],
+  );
   const searchAt = useCallback(
     (tapped: Point) => {
       reset();
+      setPlaceLabel(null);
       setPoint(tapped);
     },
     [reset],
@@ -49,9 +61,18 @@ export function SearchPage({ geolocation, styleUrl = mapStyleUrl }: { geolocatio
         <FormattedMessage id="search.intro" />
       </p>
 
+      <AddressSearch onSelect={searchNear} />
       <div className="search__controls">
         <RadiusPicker value={radius} onChange={setRadius} />
-        <button type="button" className="button" onClick={locate} disabled={state.status === 'locating'}>
+        <button
+          type="button"
+          className="button"
+          onClick={() => {
+            setPlaceLabel(null);
+            locate();
+          }}
+          disabled={state.status === 'locating'}
+        >
           <FormattedMessage id="search.useLocation" />
         </button>
       </div>
@@ -63,6 +84,11 @@ export function SearchPage({ geolocation, styleUrl = mapStyleUrl }: { geolocatio
       )}
 
       <div className="search__status" role="status" aria-live="polite">
+        {placeLabel && point && (
+          <span className="search__status-line">
+            <FormattedMessage id="search.near" values={{ label: placeLabel }} />
+          </span>
+        )}
         {state.status === 'locating' && <FormattedMessage id="location.locating" />}
         {state.status === 'denied' && <FormattedMessage id={styleUrl ? 'location.denied' : 'location.deniedNoMap'} />}
         {state.status === 'unavailable' && <FormattedMessage id="location.unavailable" />}

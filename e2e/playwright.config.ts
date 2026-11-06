@@ -31,7 +31,13 @@ export default defineConfig({
     {
       command: `pnpm --filter @parking/web exec vite --port ${WEB_PORT} --strictPort`,
       url: `http://localhost:${WEB_PORT}`,
-      env: { API_ORIGIN: `http://127.0.0.1:${API_PORT}`, VITE_MAP_STYLE_URL: `http://127.0.0.1:${STYLE_PORT}/style.json` },
+      env: {
+        API_ORIGIN: `http://127.0.0.1:${API_PORT}`,
+        VITE_MAP_STYLE_URL: `http://127.0.0.1:${STYLE_PORT}/style.json`,
+        // ADR-0013: the stack's stand-in geocoders.
+        VITE_NYC_GEOSEARCH_URL: `http://127.0.0.1:${STYLE_PORT}/nyc`,
+        VITE_NJ_GEOCODER_URL: `http://127.0.0.1:${STYLE_PORT}/nj`,
+      },
       timeout: 60_000,
       reuseExistingServer: false,
     },

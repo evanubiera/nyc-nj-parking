@@ -21,7 +21,7 @@ upstream portals ──(scheduled HTTPS)──▶ apps/worker ──(SQL)──�
 Rules:
 - apps/api and apps/worker never import each other (FND-6). ESLint blocks it.
 - apps/api can't use `fetch` or HTTP client modules (ING-1). ESLint blocks it.
-- In apps/web: components → hooks → services → packages/api-client. Only services call the network (WEB-3). ESLint blocks `fetch` and api-client imports outside services. The one exception is MapLibre fetching map tiles, glyphs, and sprites from the configured style (ADR-0009); it never calls our API.
+- In apps/web: components → hooks → services → packages/api-client. Only services call the network (WEB-3). ESLint blocks `fetch` and api-client imports outside services. The one exception is MapLibre fetching map tiles, glyphs, and sprites from the configured style (ADR-0009); it never calls our API. Address search's service (src/services/geocoding.ts) calls the NYC and NJ geocoders directly from the browser, never through our API, so typed text never reaches our servers (ADR-0013, PRIV-5).
 
 ## Request flow (slice 1)
 

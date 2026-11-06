@@ -11,6 +11,13 @@ import { SearchPage } from './SearchPage.tsx';
 vi.mock('../services/recommendations.ts', () => ({ fetchRecommendations: vi.fn() }));
 vi.mock('../services/sources.ts', () => ({ fetchSources: vi.fn(async () => sources) }));
 vi.mock('maplibre-gl', () => import('../test/maplibre.ts'));
+vi.mock('../services/geocoding.ts', () => ({
+  MIN_ADDRESS_LENGTH: 3,
+  suggest: vi.fn(async () => [
+    { id: 'place:NJ:Hudson County:Hoboken City', label: 'Hoboken City', kind: 'place', area: 'Hudson County', state: 'NJ', point: { lat: 40.74534, lng: -74.03209 } },
+  ]),
+  pointFor: vi.fn(async () => ({ lat: 40.745, lng: -74.032 })),
+}));
 const recommend = vi.mocked(fetchRecommendations);
 
 function geolocationAnswering(answer: { lat: number; lng: number } | { error: number }): Geolocation {
@@ -201,6 +208,20 @@ describe('SearchPage', () => {
 
     const marker = await screen.findByRole('button', { name: '1. 179 Montgomery St., 60 m away, unconfirmed' });
     expect(marker).toHaveClass('map-marker--unconfirmed');
+  });
+
+  it('WEB-11 searches near a chosen town, without asking for the device\'s location', async () => {
+    const geolocation = geolocationAnswering({ lat: 40.6, lng: -73.9 });
+    renderWithProviders(<SearchPage geolocation={geolocation} />);
+    const input = screen.getByRole('combobox', { name: en['address.label'] });
+
+    fireEvent.focus(input);
+    fireEvent.change(input, { target: { value: 'Hoboken, NJ' } });
+    fireEvent.mouseDown(await screen.findByRole('option', { name: /Hoboken City/ }));
+
+    await vi.waitFor(() => expect(recommend).toHaveBeenCalledWith({ lat: 40.745, lng: -74.032 }, 2000));
+    expect(await screen.findByText('Searching near Hoboken City')).toBeInTheDocument();
+    expect(geolocation.getCurrentPosition).not.toHaveBeenCalled();
   });
 
   it('WEB-2 has no axe violations with results showing', async () => {

@@ -102,6 +102,8 @@ Decided with the user on 2026-11-04: show Jersey City's 7 city lots now, without
 | S4-7 | Smoke test and a browser check in Jersey City | All slice 4 | Done |
 | S4-8 | Web: directions links on every result, in Google Maps, Apple Maps, and Waze (asked for by the user on 2026-11-04, for drivers) | WEB-10, PRIV-1 | Done |
 | S4-9 | Web: unconfirmed sites get a checkbox of their own, "Show unconfirmed sites (from tax records)", instead of a "Run by" option (asked for by the user on 2026-11-04) | WEB-9 | Done |
+| S4-10 | Address search with suggestions: a built-in list of 564 NJ towns and 296 NYC boroughs and neighbourhoods (scripts/build-places.ts), NYC GeoSearch and NJ_Geocode for addresses, called from the browser; ADR-0013 (asked for by the user on 2026-11-06) | WEB-11, PRIV-5, PRIV-3 | Done |
+| S4-11 | Tests: each Vitest run gets its own database on TEST_DATABASE_URL, because `pnpm test` runs packages at once and they emptied each other's tables in CI (run 42313251786, 2026-11-06) | FND-5 | Done |
 
 ### Slice 4 status, Jersey City (2026-11-04)
 

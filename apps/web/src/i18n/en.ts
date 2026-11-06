@@ -11,6 +11,16 @@ export const en = {
   'search.radius.label': 'Search within',
   'search.radius.option': '{km, number} km',
   'search.useLocation': 'Use my location',
+  // WEB-11, ADR-0013: address search.
+  'address.label': 'Search near a town or address',
+  'address.placeholder': 'Hoboken, NJ or 174 Newark Ave, Jersey City, NJ',
+  'address.suggestions': 'Suggestions',
+  'address.area': '{area}, {state}',
+  'address.count': '{count, plural, one {# suggestion} other {# suggestions}}. Use the up and down arrows to choose.',
+  'address.none': 'No matching town or address. Try adding the town and state, such as Hoboken, NJ.',
+  'address.notFound': "That address couldn't be found. Try another, or tap the map.",
+  'address.credit': 'Addresses from NYC GeoSearch and the NJ Office of GIS.',
+  'search.near': 'Searching near {label}',
   // WEB-8. The options reuse the operator labels below.
   'search.operators.legend': 'Run by',
   'search.operators.none': 'Choose at least one kind of operator to search.',

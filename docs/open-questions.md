@@ -40,4 +40,4 @@ Prefixes: SRC (a data source's terms or availability), PRD (product), LEG (legal
 | ID | Question | Status |
 |---|---|---|
 | HOST-1 | Where to host the API, the worker, PostGIS, and the map's PMTiles file (served with HTTP range requests, ADR-0009). The host's load balancer and CDN logs have to drop query strings (ADR-0006) and tile paths (ADR-0009). | Open, blocks deployment |
-| VEN-1 | A geocoder for address search ("parking near this address"), and its terms on caching and display. Slice 1 uses the device's location or a tap on the map instead. | Open, later slice |
+| VEN-1 | A geocoder for address search ("parking near this address"), and its terms on caching and display. Slice 1 uses the device's location or a tap on the map instead. | **Decided 2026-11-06 by the user (ADR-0013):** NYC GeoSearch and the State's NJ_Geocode for addresses, called from the browser, and a built-in list of towns and neighbourhoods. |

@@ -38,9 +38,26 @@ for (const source of [nycFacdbDot, nycMetersOffstreet, njtParkingLots, njdotPark
 const app = await buildApp({ sql, logger: { level: 'info' } });
 await app.listen({ port: API_PORT, host: '127.0.0.1' });
 
-createServer((_request, response) => {
+// Stand-ins for the geocoders address search calls (ADR-0013), so the smoke test calls nothing outside.
+const GEOCODERS: Record<string, unknown> = {
+  '/nyc/autocomplete': { features: [] },
+  '/nj/suggest': { suggestions: [{ text: '174 Newark Avenue, Jersey City, NJ, 07302', magicKey: 'smoke-174' }] },
+  '/nj/findAddressCandidates': { candidates: [{ location: { x: -74.045042, y: 40.721587 } }] },
+};
+
+createServer((request, response) => {
+  const path = new URL(request.url ?? '/', 'http://localhost').pathname;
   response.writeHead(200, { 'content-type': 'application/json', 'access-control-allow-origin': '*' });
-  response.end(JSON.stringify(STYLE));
+  response.end(JSON.stringify(GEOCODERS[path] ?? STYLE));
 }).listen(STYLE_PORT, '127.0.0.1');
 
 console.log(`Smoke-test stack ready: API on ${API_PORT} (${database.kind}), map style on ${STYLE_PORT}`);
+
+// With TEST_DATABASE_URL, the stack has a database of its own on that server; drop it when Playwright stops us.
+for (const signal of ['SIGINT', 'SIGTERM'] as const) {
+  process.once(signal, () => {
+    void Promise.allSettled([app.close(), sql.end()])
+      .then(() => database.stop())
+      .finally(() => process.exit(0));
+  });
+}

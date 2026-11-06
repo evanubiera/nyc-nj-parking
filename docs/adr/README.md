@@ -16,3 +16,4 @@ Each ADR records one decision: the context, the options, the choice, and what fo
 | [0010](0010-local-dev-without-docker.md) | `pnpm dev` works without Docker, and loads data on its first start | Accepted |
 | [0011](0011-sources-with-unstated-terms.md) | Sources with unstated terms can be used while we ask | Accepted |
 | [0012](0012-unconfirmed-sites-from-tax-records.md) | Jersey City's lots without hours or rates, and unconfirmed sites from tax records | Accepted |
+| [0013](0013-address-search.md) | Address search with the NYC and NJ government geocoders | Accepted |

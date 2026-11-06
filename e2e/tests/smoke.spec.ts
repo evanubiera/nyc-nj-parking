@@ -117,6 +117,30 @@ test.describe('in Jersey City', () => {
   });
 });
 
+test('S4-10 searches near a typed address, chosen from suggestions', async ({ page }) => {
+  await page.goto('/');
+  const box = page.getByRole('combobox', { name: 'Search near a town or address' });
+
+  await box.fill('174 Newark Ave, Jersey City');
+  await page.getByRole('option', { name: /174 Newark Avenue, Jersey City/ }).click();
+
+  await expect(page.getByText('Searching near 174 Newark Avenue, Jersey City, NJ, 07302')).toBeVisible();
+  await expect(page.getByRole('article', { name: 'Lot 52' })).toBeVisible();
+  expect(await axeViolations(page)).toEqual([]);
+});
+
+test('S4-10 suggests a town from the built-in list', async ({ page }) => {
+  await page.goto('/');
+  const box = page.getByRole('combobox', { name: 'Search near a town or address' });
+
+  await box.fill('Hoboken, NJ');
+  await expect(page.getByRole('option', { name: /Hoboken City/ })).toBeVisible();
+  await box.press('ArrowDown');
+  await box.press('Enter');
+
+  await expect(page.getByText('Searching near Hoboken City')).toBeVisible();
+});
+
 test('S1-10 points to the map when location sharing is off', async ({ page }) => {
   await page.goto('/');
 
