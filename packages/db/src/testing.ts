@@ -25,8 +25,32 @@ declare module 'vitest' {
 export async function startTestDatabase(env: NodeJS.ProcessEnv = process.env): Promise<TestDatabase> {
   const external = env.TEST_DATABASE_URL;
   if (external) {
-    await migrateDatabase(external);
-    return { url: external, max: 4, kind: 'postgres', stop: async () => {} };
+    // Each Vitest run gets a database of its own on that server, dropped when it ends. `pnpm test` runs the
+    // packages at the same time, and each test truncates every table, so sharing one database let one
+    // package's tests empty another's mid-test (CI, 2026-11-06).
+    const admin = connect(external, { max: 1, applicationName: 'nyc-nj-parking-test-admin' });
+    const name = `${new URL(external).pathname.slice(1) || 'parking_test'}_${process.pid}_${Date.now()}`.replace(/[^a-z0-9_]/gi, '_').toLowerCase();
+    try {
+      await admin.unsafe(`create database "${name}"`);
+    } finally {
+      await admin.end();
+    }
+    const url = new URL(external);
+    url.pathname = `/${name}`;
+    await migrateDatabase(url.href);
+    return {
+      url: url.href,
+      max: 4,
+      kind: 'postgres',
+      stop: async () => {
+        const dropper = connect(external, { max: 1, applicationName: 'nyc-nj-parking-test-admin' });
+        try {
+          await dropper.unsafe(`drop database if exists "${name}" with (force)`);
+        } finally {
+          await dropper.end();
+        }
+      },
+    };
   }
 
   const [{ PGlite }, { postgis }, { PGLiteSocketServer }] = await Promise.all([
