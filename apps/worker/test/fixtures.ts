@@ -3,7 +3,8 @@
 // read; the query responses, which are what a run stores, are as received. Two exceptions, saved on 2026-11-06:
 // the Hudson parcel layer's neighbours are one response holding every neighbour, which the fake upstream filters
 // to each query's blocks; and Hoboken's page is saved as a run stores it, with its email addresses removed.
-// Bayonne's ordinance (a PDF) was saved on 2026-11-07, as received; Union City's and Harrison's pages on 2026-11-07, as a
+// Essex's parcel responses were saved on 2026-11-07, the same way as Hudson's. Bayonne's ordinance (a PDF) was saved on
+// 2026-11-07, as received; Union City's and Harrison's pages on 2026-11-07, as a
 // run stores them (no email addresses).
 import { readFileSync } from 'node:fs';
 import { UpstreamHttp } from '../src/http.ts';
@@ -30,11 +31,15 @@ export const fixtures = {
   parcelsLayer: read('nj-parcels.layer.json'),
   parcelsCandidates: read('nj-parcels-hudson.candidates.json'),
   parcelsNeighbours: read('nj-parcels-hudson.neighbours.json'),
+  essexCandidates: read('nj-parcels-essex.candidates.json'),
+  essexNeighbours: read('nj-parcels-essex.neighbours.json'),
   wnyFacilities: read('wny.facilities.html'),
   hobokenGarages: read('hoboken.garages.html'),
   bayonneOrdinance: read('bayonne.o-16-64.pdf'),
   ucpaParking: read('ucpa.parking.html'),
   harrisonParking: read('harrison.parking-permits.html'),
+  bloomfieldMeters: read('bloomfield.pay-display-go.html'),
+  southOrangeMeters: read('south-orange.meters.html'),
 };
 
 export const NJT_SERVICE_PATH = '/M0t0HPE53pFK525U/arcgis/rest/services/ParkingLotDB_20260320_Sync_view/FeatureServer';
@@ -48,6 +53,8 @@ const PAGE_HEADERS: Record<string, Record<string, string>> = {
   // Neither page sends a Last-Modified header (checked 2026-11-07).
   '/Parking': { 'content-type': 'text/html; charset=utf-8' },
   '/223/Parking-Permits': { 'content-type': 'text/html; charset=utf-8' },
+  '/pay-display-go/': { 'content-type': 'text/html; charset=UTF-8', 'last-modified': 'Thu, 05 Nov 2026 17:20:43 GMT' },
+  '/189/Meters-Pay-Stations': { 'content-type': 'text/html; charset=utf-8' },
 };
 
 /** The neighbours response for one query: the saved neighbours on the blocks its `where` names, such as
@@ -107,11 +114,15 @@ export function fixtureHttp(overrides: Partial<Record<keyof typeof fixtures, Uin
     '/_Content/pdf/ordinances/O-16-64.pdf': bodies.bayonneOrdinance,
     '/Parking': bodies.ucpaParking,
     '/223/Parking-Permits': bodies.harrisonParking,
+    '/pay-display-go/': bodies.bloomfieldMeters,
+    '/189/Meters-Pay-Stations': bodies.southOrangeMeters,
   };
   // The parcel layer's queries share a path; the candidates ask for class 15C, the neighbours for all of 15.
   const parcelsQuery = (url: URL) => {
     const where = url.searchParams.get('where') ?? '';
-    return where.includes("PROP_CLASS='15C'") ? bodies.parcelsCandidates : neighboursFor(bodies.parcelsNeighbours, where);
+    const essex = where.includes("COUNTY='ESSEX'") || where.includes("PCL_MUN='07");
+    if (where.includes("PROP_CLASS='15C'")) return essex ? bodies.essexCandidates : bodies.parcelsCandidates;
+    return neighboursFor(essex ? bodies.essexNeighbours : bodies.parcelsNeighbours, where);
   };
   const http = new UpstreamHttp({
     socrataAppToken: 'fixture-token',

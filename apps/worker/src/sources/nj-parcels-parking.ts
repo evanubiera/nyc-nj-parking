@@ -1,5 +1,5 @@
-// S4-3 and S4-14: unconfirmed parking sites in Hudson County's 12 towns, from the State's parcel and tax-record
-// layer (ADR-0012, ADR-0015, specs/06 "State parcels and tax records"). A site is public land (class 15C) that the
+// S4-3, S4-14, and S4-25: unconfirmed parking sites in a county's towns, from the State's parcel and tax-record layer
+// (ADR-0012, ADR-0015, ADR-0018, specs/06 "State parcels and tax records"). One source per county: Hudson and Essex. A site is public land (class 15C) that the
 // assessor describes as parking. The layer doesn't say who owns it (owner names are redacted) or whether the public
 // may park there, so every site is marked unconfirmed, with operator type `unknown` and no official page (REC-9).
 import type { TransactionSql } from '@parking/db';
@@ -15,8 +15,11 @@ import type { FetchedData, SourceDefinition, StoredSnapshot } from './types.ts';
 
 export const NJ_PARCELS_ITEM_ID = '533599bbfbaa4748bf39faf1375a8a9c';
 
-/** Hudson County's towns by municipality code, and how their facility IDs start (Jersey City's as before). */
-export const TOWNS: Record<string, { name: string; key: string }> = {
+/** A county's towns by municipality code, and how their facility IDs start. */
+export type Towns = Readonly<Record<string, { name: string; key: string }>>;
+
+/** Hudson County's towns (Jersey City's and West New York's IDs as before). */
+export const HUDSON_TOWNS: Towns = {
   '0901': { name: 'Bayonne', key: 'bayonne' },
   '0902': { name: 'East Newark', key: 'east-newark' },
   '0903': { name: 'Guttenberg', key: 'guttenberg' },
@@ -31,6 +34,45 @@ export const TOWNS: Record<string, { name: string; key: string }> = {
   '0912': { name: 'West New York', key: 'wny' },
 };
 
+/** Essex County's towns. */
+export const ESSEX_TOWNS: Towns = {
+  '0701': { name: 'Belleville', key: 'belleville' },
+  '0702': { name: 'Bloomfield', key: 'bloomfield' },
+  '0703': { name: 'Caldwell', key: 'caldwell' },
+  '0704': { name: 'Cedar Grove', key: 'cedar-grove' },
+  '0705': { name: 'East Orange', key: 'east-orange' },
+  '0706': { name: 'Essex Fells', key: 'essex-fells' },
+  '0707': { name: 'Fairfield', key: 'fairfield' },
+  '0708': { name: 'Glen Ridge', key: 'glen-ridge' },
+  '0709': { name: 'Irvington', key: 'irvington' },
+  '0710': { name: 'Livingston', key: 'livingston' },
+  '0711': { name: 'Maplewood', key: 'maplewood' },
+  '0712': { name: 'Millburn', key: 'millburn' },
+  '0713': { name: 'Montclair', key: 'montclair' },
+  '0714': { name: 'Newark', key: 'newark' },
+  '0715': { name: 'North Caldwell', key: 'north-caldwell' },
+  '0716': { name: 'Nutley', key: 'nutley' },
+  '0717': { name: 'Orange', key: 'orange' },
+  '0718': { name: 'Roseland', key: 'roseland' },
+  '0719': { name: 'South Orange', key: 'south-orange' },
+  '0720': { name: 'Verona', key: 'verona' },
+  '0721': { name: 'West Caldwell', key: 'west-caldwell' },
+  '0722': { name: 'West Orange', key: 'west-orange' },
+};
+
+/** One county's source: its ID, the layer's COUNTY value, and its towns. */
+export interface ParcelCounty {
+  sourceId: string;
+  county: 'HUDSON' | 'ESSEX';
+  towns: Towns;
+  schedule: string;
+  revision: number;
+}
+
+// 2: sites not for visitors left out (ADR-0017).
+export const HUDSON: ParcelCounty = { sourceId: 'nj-parcels-hudson-parking', county: 'HUDSON', towns: HUDSON_TOWNS, schedule: '55 5 * * 3', revision: 2 };
+export const ESSEX: ParcelCounty = { sourceId: 'nj-parcels-essex-parking', county: 'ESSEX', towns: ESSEX_TOWNS, schedule: '58 5 * * 3', revision: 1 };
+
 /**
  * ING-13: how Hudson's assessors write parking: "PARKING AREA", "PRKNG LOT 23PS", "MUNICIPAL PKG.", "PARK'G",
  * "GARAGE#B-810 PS" (spaces), "MUNI PARK LOT", "PAVED LOT". A bare "GARAGE" is usually a public works garage.
@@ -39,39 +81,44 @@ export const SAYS_PARKING = /PARKING|PRKNG|\bPKG\b|PARK'?G|GARAGE ?#|\d+ ?P\.?S\
 
 /** The layer is filtered by LIKE, which can't say all of SAYS_PARKING; this is wider, and SAYS_PARKING sorts after. */
 const LIKE_PARKING = ['%PARKING%', '%PRKNG%', '%PKG%', "%PARK''G%", '%PARKG%', '%PARK LOT%', '%GARAGE#%', '%GARAGE #%', '%PS%', '%P.S%', '%MUNI%LOT%', '%PAVED%'];
-export const CANDIDATES_WHERE = `COUNTY='HUDSON' AND PROP_CLASS='15C' AND (${LIKE_PARKING.flatMap((pattern) => [`BLDG_DESC LIKE '${pattern}'`, `FAC_NAME LIKE '${pattern}'`]).join(' OR ')})`;
+export const candidatesWhere = (county: ParcelCounty['county']) =>
+  `COUNTY='${county}' AND PROP_CLASS='15C' AND (${LIKE_PARKING.flatMap((pattern) => [`BLDG_DESC LIKE '${pattern}'`, `FAC_NAME LIKE '${pattern}'`]).join(' OR ')})`;
 const CANDIDATE_FIELDS = 'PAMS_PIN,PCL_MUN,PCLBLOCK,PCLLOT,PROP_LOC,BLDG_DESC,FAC_NAME';
 const NEIGHBOUR_FIELDS = 'PAMS_PIN,PCL_MUN,PCLBLOCK,PROP_CLASS,BLDG_DESC,FAC_NAME';
 /** The layer answers 404 to a query URL much over 2,000 characters, so the neighbours are asked for in parts. */
 const MAX_QUERY_URL = 1_800;
 const BLOCKS_PER_CLAUSE = 40;
 
-export const njParcelsHudsonParking: SourceDefinition = {
-  id: 'nj-parcels-hudson-parking',
-  publisher: 'NJ Office of Information Technology, Office of GIS (NJOGIS)',
-  title: 'Parcels and MOD-IV Composite of NJ',
-  datasetUrl: arcgisItemPage(NJ_PARCELS_ITEM_ID),
-  // The item's terms: a disclaimer, not survey data, credit to NJOGIS requested, and the State's Conditions of Use.
-  termsUrl: arcgisItemPage(NJ_PARCELS_ITEM_ID),
-  creditText: null,
-  modificationCodes: ['sites_from_parcels', 'unconfirmed_public_use', 'sites_not_for_visitors_excluded', 'merged_across_sources'],
-  // Published every few months. A weekly check is plenty, and unchanged data is skipped (ING-7).
-  schedule: '55 5 * * 3',
-  // 2: sites not for visitors left out (ADR-0017).
-  revision: 2,
-  fetch: fetchCandidates,
-  apply: (tx: TransactionSql, snapshot: StoredSnapshot) =>
-    applyNormalized(tx, 'nj-parcels-hudson-parking', normalizeCandidates(snapshot.body), snapshot.fetchedAt),
-};
+export function parcelSitesSource(config: ParcelCounty): SourceDefinition {
+  return {
+    id: config.sourceId,
+    publisher: 'NJ Office of Information Technology, Office of GIS (NJOGIS)',
+    title: 'Parcels and MOD-IV Composite of NJ',
+    datasetUrl: arcgisItemPage(NJ_PARCELS_ITEM_ID),
+    // The item's terms: a disclaimer, not survey data, credit to NJOGIS requested, and the State's Conditions of Use.
+    termsUrl: arcgisItemPage(NJ_PARCELS_ITEM_ID),
+    creditText: null,
+    modificationCodes: ['sites_from_parcels', 'unconfirmed_public_use', 'sites_not_for_visitors_excluded', 'merged_across_sources'],
+    // Published every few months. A weekly check is plenty, and unchanged data is skipped (ING-7).
+    schedule: config.schedule,
+    revision: config.revision,
+    fetch: (http) => fetchCandidates(http, config),
+    apply: (tx: TransactionSql, snapshot: StoredSnapshot) =>
+      applyNormalized(tx, config.sourceId, normalizeCandidates(snapshot.body, config), snapshot.fetchedAt),
+  };
+}
+
+export const njParcelsHudsonParking = parcelSitesSource(HUDSON);
+export const njParcelsEssexParking = parcelSitesSource(ESSEX);
 
 /**
  * The candidate parcels, then the other public parcels on their blocks, in as many queries as the URL length allows.
  * Stored together, each response exactly as received (specs/03).
  */
-async function fetchCandidates(http: UpstreamHttp): Promise<FetchedData> {
+async function fetchCandidates(http: UpstreamHttp, config: ParcelCounty): Promise<FetchedData> {
   const { layerUrl, editedAt } = await resolveArcgisLayer(http, NJ_PARCELS_ITEM_ID);
   const candidates = await queryArcgisLayer(http, layerUrl, {
-    where: CANDIDATES_WHERE,
+    where: candidatesWhere(config.county),
     outFields: CANDIDATE_FIELDS,
     orderByFields: 'PAMS_PIN',
     returnGeometry: 'true',
@@ -81,7 +128,7 @@ async function fetchCandidates(http: UpstreamHttp): Promise<FetchedData> {
   for (const { attributes } of features(candidates.body)) {
     const town = text(attributes, 'PCL_MUN');
     const block = text(attributes, 'PCLBLOCK').replace(/'/g, '');
-    if (town in TOWNS && block && SAYS_PARKING.test(describe(attributes))) blocks.set(town, (blocks.get(town) ?? new Set()).add(block));
+    if (town in config.towns && block && SAYS_PARKING.test(describe(attributes))) blocks.set(town, (blocks.get(town) ?? new Set()).add(block));
   }
   if (blocks.size === 0) throw new IngestionError('normalize.empty', 'no candidate parcels');
 
@@ -127,6 +174,8 @@ interface Parcel {
 
 /** Railroad or right-of-way land isn't a parking lot (ING-13). */
 const RIGHT_OF_WAY = /R\.?O\.?W|RAILROAD|RIGHT OF WAY/i;
+/** Land a town took for unpaid taxes ("PARKING TAX LIEN FORECLOSURE" in Newark) was a private lot, not a public one (ADR-0018). */
+const TAKEN_FOR_TAXES = /TAX LIEN|FORECLOS/i;
 /** Another public use on the block that the parking most likely serves (ING-13). */
 const SERVES =
   /SCHOOL|COLLEGE|POLICE|FIRE|HOUSING|POST|COURT|LIBRARY|HOSPITAL|ADMIN|OFFICE|COMMUNITY|\bDEPT\b|DEPARTMENT|\bDPW\b|PUBLIC WORKS|MAINTENANCE|\bGARAGES?\b|\bPARKS?\b|PLAYGROUND|RECREATION|CHURCH|CEMET/i;
@@ -145,7 +194,7 @@ export const NOT_FOR_VISITORS: Readonly<Record<string, string>> = {
 /** Wording for the parking itself, which isn't another use: "PARKING GARAGE", "GARAGE#B-810", "PARK LOT". */
 const PARKING_ITSELF = /PARKING GARAGES?|GARAGE ?#\S*|\bPARK LOT\b|PARK'G/gi;
 
-export function normalizeCandidates(body: Uint8Array): Normalized {
+export function normalizeCandidates(body: Uint8Array, config: ParcelCounty): Normalized {
   const envelope = parseJson(body);
   if (typeof envelope.candidates !== 'string' || !Array.isArray(envelope.neighbours) || envelope.neighbours.some((part) => typeof part !== 'string')) {
     throw new IngestionError('normalize.unexpected_format', 'snapshot is missing a query response');
@@ -155,7 +204,7 @@ export function normalizeCandidates(body: Uint8Array): Normalized {
   let invalidRows = 0;
   for (const feature of candidateFeatures) {
     if (!SAYS_PARKING.test(describe(feature.attributes))) continue;
-    const parcel = readParcel(feature);
+    const parcel = readParcel(feature, config.towns);
     if (parcel) parcels.push(parcel);
     else invalidRows += 1;
   }
@@ -172,11 +221,11 @@ export function normalizeCandidates(body: Uint8Array): Normalized {
 
   const records: SourceRecordInput[] = [];
   for (const site of sitesOf(parcels)) {
-    if (site.some((parcel) => RIGHT_OF_WAY.test(parcel.description))) continue;
+    if (site.some((parcel) => RIGHT_OF_WAY.test(parcel.description) || TAKEN_FOR_TAXES.test(parcel.description))) continue;
     const uses = [...(blockUses.get(blockKey(site[0]!.town, site[0]!.block)) ?? []), ...site.map((parcel) => parcel.description.replace(PARKING_ITSELF, ''))];
     if (uses.some((use) => SERVES.test(use))) continue;
     if (site[0]!.pin in NOT_FOR_VISITORS) continue; // modification `sites_not_for_visitors_excluded`
-    records.push(toRecord(site));
+    records.push(toRecord(site, config.towns));
   }
   return { rowsRead: candidateFeatures.length, records, invalidRows };
 }
@@ -213,9 +262,9 @@ function sitesOf(parcels: Parcel[]): Parcel[][] {
   return sites;
 }
 
-function toRecord(site: Parcel[]): SourceRecordInput {
+function toRecord(site: Parcel[], towns: Towns): SourceRecordInput {
   const first = site[0]!; // the lowest PAMS_PIN
-  const town = TOWNS[first.town]!;
+  const town = towns[first.town]!;
   return {
     recordId: first.pin,
     facilityKey: `${town.key}-site-${`${first.block}-${first.lot}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`,
@@ -223,7 +272,7 @@ function toRecord(site: Parcel[]): SourceRecordInput {
     name: titleCase(first.location),
     // Never matched by name: an address isn't a lot's name. Only by distance (ING-14).
     matchTokens: [],
-    kind: site.some((parcel) => /GARAGE/i.test(parcel.description)) ? 'garage' : 'lot',
+    kind: site.some((parcel) => /GARAGE|\bDECK\b/i.test(parcel.description)) ? 'garage' : 'lot',
     operatorName: null,
     operatorType: 'unknown',
     addressLine: null,
@@ -242,13 +291,13 @@ function toRecord(site: Parcel[]): SourceRecordInput {
   };
 }
 
-function readParcel({ attributes, centroid, geometry }: RawFeature): Parcel | null {
+function readParcel({ attributes, centroid, geometry }: RawFeature, towns: Towns): Parcel | null {
   const pin = text(attributes, 'PAMS_PIN');
   const town = text(attributes, 'PCL_MUN');
   const block = text(attributes, 'PCLBLOCK');
   const location = text(attributes, 'PROP_LOC');
   const { x, y } = (centroid ?? {}) as { x?: unknown; y?: unknown };
-  if (!pin || !(town in TOWNS) || !block || !location || typeof x !== 'number' || typeof y !== 'number') return null;
+  if (!pin || !(town in towns) || !block || !location || typeof x !== 'number' || typeof y !== 'number') return null;
   const rings = ((geometry ?? {}) as { rings?: unknown }).rings;
   const corners = Array.isArray(rings)
     ? rings.flatMap((ring) => (Array.isArray(ring) ? ring : [])).flatMap((point) =>

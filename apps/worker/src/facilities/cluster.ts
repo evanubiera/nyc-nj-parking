@@ -26,6 +26,9 @@ export const NEARBY_MATCHES: readonly { sources: readonly [string, string]; mete
   // Union City's lots and Harrison's garage, placed the same way (S4-19, S4-20).
   { sources: ['union-city-parking-lots', 'nj-parcels-hudson-parking'], meters: 60 },
   { sources: ['harrison-parking-center', 'nj-parcels-hudson-parking'], meters: 60 },
+  // Essex (S4-26, S4-27): towns' lots placed on their own tax parcels.
+  { sources: ['bloomfield-parking-lots', 'nj-parcels-essex-parking'], meters: 60 },
+  { sources: ['south-orange-parking-lots', 'nj-parcels-essex-parking'], meters: 60 },
 ];
 
 export interface Clusterable {

@@ -117,6 +117,10 @@ Decided with the user on 2026-11-04: show Jersey City's 7 city lots now, without
 | S4-22 | Opening hours from source to card: `source_record.opening_hours` (migration 0007), written to `facility_hours`; the card says "Open 24 hours, every day" or "Open Mon–Fri, 8:00 AM to 6:00 PM"; Harrison's garage is the first ("Open 24/7"). Proposed as a follow-up, and the user asked to continue (2026-11-07) | REC-4, REC-6, WEB-6 | Done |
 | S4-23 | Unconfirmed sites a town says aren't for visitors left out: 5 in East Newark, Guttenberg, and North Bergen; change code `sites_not_for_visitors_excluded`; ADR-0017 | ING-13 | Done |
 | S4-24 | ING-7 fix: a run records its adapter's revision (migration 0008), and unchanged bytes are normalized again under a new revision, so changed rules reach the facilities without waiting for the source to change. Found when today's changes didn't apply in `pnpm dev` | ING-7 | Done |
+| S4-25 | Essex County (asked for by the user on 2026-11-07, "Yes, start Essex"): unconfirmed sites in all 22 towns as `nj-parcels-essex-parking`, from a shared per-county adapter; land taken for unpaid taxes left out; parking decks as garages; ADR-0018 | ING-13 | Done |
+| S4-26 | Bloomfield's 2 metered lots with meter hours, limits, and rates, from the Parking Utility's page (`bloomfield-parking-lots`) | REC-10, ING-3, ING-14 | Done |
+| S4-27 | South Orange's 5 metered lots, two kinds of meter merged into one lot, from the Village's Meters & Pay Stations page (`south-orange-parking-lots`) | REC-10, ING-10, ING-14 | Done |
+| S4-28 | The rest of Essex's towns' own pages (East Orange, Orange, West Orange, Maplewood, Millburn, Irvington, Belleville, Nutley, Livingston, the Caldwells, Glen Ridge, Verona, Cedar Grove, Fairfield, Roseland, Essex Fells); Montclair (SRC-15) and Newark checked | — | To do |
 
 ### Slice 4 status, Hudson County (2026-11-06)
 

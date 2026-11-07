@@ -7,14 +7,16 @@ import { connectTest, startTestDatabase } from '@parking/db/testing';
 import { buildApp } from '../apps/api/src/app.ts';
 import { runSource } from '../apps/worker/src/run.ts';
 import { bayonneParkingLots } from '../apps/worker/src/sources/bayonne-parking-lots.ts';
+import { bloomfieldParkingLots } from '../apps/worker/src/sources/bloomfield-parking-lots.ts';
 import { harrisonParkingCenter } from '../apps/worker/src/sources/harrison-parking-center.ts';
 import { hobokenGarages } from '../apps/worker/src/sources/hoboken-garages.ts';
 import { jcMunicipalLots } from '../apps/worker/src/sources/jc-municipal-lots.ts';
-import { njParcelsHudsonParking } from '../apps/worker/src/sources/nj-parcels-hudson-parking.ts';
+import { njParcelsEssexParking, njParcelsHudsonParking } from '../apps/worker/src/sources/nj-parcels-parking.ts';
 import { njdotParkRide } from '../apps/worker/src/sources/njdot-park-ride.ts';
 import { njtParkingLots } from '../apps/worker/src/sources/njt-parking-lots.ts';
 import { nycFacdbDot } from '../apps/worker/src/sources/nyc-facdb-dot.ts';
 import { nycMetersOffstreet } from '../apps/worker/src/sources/nyc-meters-offstreet.ts';
+import { southOrangeParkingLots } from '../apps/worker/src/sources/south-orange-parking-lots.ts';
 import { unionCityParkingLots } from '../apps/worker/src/sources/union-city-parking-lots.ts';
 import { wnyParkingLots } from '../apps/worker/src/sources/wny-parking-lots.ts';
 import { fixtureHttp } from '../apps/worker/test/fixtures.ts';
@@ -36,7 +38,7 @@ const sql = connectTest(database);
 const { http } = fixtureHttp();
 const { logger } = testLogger();
 for (const source of [nycFacdbDot, nycMetersOffstreet, njtParkingLots, njdotParkRide, jcMunicipalLots, njParcelsHudsonParking, wnyParkingLots, hobokenGarages, bayonneParkingLots,
-  unionCityParkingLots, harrisonParkingCenter]) {
+  unionCityParkingLots, harrisonParkingCenter, njParcelsEssexParking, bloomfieldParkingLots, southOrangeParkingLots]) {
   const outcome = await runSource(source, { sql, http, logger });
   if (outcome.status !== 'succeeded') throw new Error(`Seeding ${source.id} ended ${outcome.status} (${outcome.errorCode})`);
 }

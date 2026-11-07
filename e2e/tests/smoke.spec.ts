@@ -12,6 +12,7 @@ const HOBOKEN_GARAGE_B = { latitude: 40.73804, longitude: -74.02905 };
 const BAYONNE_E24TH = { latitude: 40.66463, longitude: -74.11656 };
 const UNION_CITY_DECK = { latitude: 40.77581, longitude: -74.02721 };
 const HARRISON_GARAGE = { latitude: 40.7394, longitude: -74.15685 };
+const SOUTH_ORANGE_LIBRARY_LOT = { latitude: 40.74712, longitude: -74.25772 };
 
 async function recommendationsRequest(page: Page, action: () => Promise<void>): Promise<URL> {
   const [request] = await Promise.all([page.waitForRequest((request) => request.url().includes('/api/parking/recommendations')), action()]);
@@ -226,6 +227,22 @@ test.describe('in Harrison', () => {
     const garage = page.getByRole('article', { name: 'Harrison Parking Center' });
     await expect(garage.getByText('Open 24 hours, every day')).toBeVisible();
     await expect(garage.getByText('Not shown here: rates and number of spaces. Check with the operator before you park.')).toBeVisible();
+    expect(await axeViolations(page)).toEqual([]);
+  });
+});
+
+test.describe('in South Orange', () => {
+  test.use({ geolocation: SOUTH_ORANGE_LIBRARY_LOT, permissions: ['geolocation'] });
+
+  test('S4-27 shows a lot\'s two kinds of meter, with their limits and rates', async ({ page }) => {
+    await page.goto('/');
+    await shareLocation(page);
+
+    const lot = page.getByRole('article', { name: 'Village Hall Lot 4' });
+    await expect(lot.getByText(/^Lot · City-run · \d+ m away$/)).toBeVisible();
+    await expect(lot.getByText('Pay at the meter Mon–Sat, 8:00 AM to 6:00 PM')).toBeVisible();
+    await expect(lot.getByText('$1.00 per hour, Mon–Sat, 8:00 AM to 6:00 PM')).toBeVisible();
+    await expect(lot.getByText('$0.25 per hour, Mon–Sat, 8:00 AM to 6:00 PM')).toBeVisible();
     expect(await axeViolations(page)).toEqual([]);
   });
 });

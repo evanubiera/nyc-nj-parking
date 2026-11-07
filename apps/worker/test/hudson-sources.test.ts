@@ -7,7 +7,7 @@ import { applyNormalized } from '../src/facilities/apply.ts';
 import { runSource } from '../src/run.ts';
 import { hobokenGarages } from '../src/sources/hoboken-garages.ts';
 import { JC_PARKING_PAGE, jcMunicipalLots, normalizeJcLots } from '../src/sources/jc-municipal-lots.ts';
-import { njParcelsHudsonParking, normalizeCandidates, SAYS_PARKING } from '../src/sources/nj-parcels-hudson-parking.ts';
+import { HUDSON, njParcelsHudsonParking, normalizeCandidates, SAYS_PARKING } from '../src/sources/nj-parcels-parking.ts';
 import type { StoredSnapshot } from '../src/sources/types.ts';
 import { wnyParkingLots } from '../src/sources/wny-parking-lots.ts';
 import { fixtureHttp, fixtures, neighboursFor, PARCELS_SERVICE_PATH } from './fixtures.ts';
@@ -103,7 +103,7 @@ describe('Hudson County candidate sites from tax records (S4-3, S4-14)', () => {
   });
 
   it('ING-13 keeps sites with no other public use on the block, in every Hudson County town', async () => {
-    const { rowsRead, records, invalidRows } = normalizeCandidates((await snapshotOf()).body);
+    const { rowsRead, records, invalidRows } = normalizeCandidates((await snapshotOf()).body, HUDSON);
     const names = records.map((record) => record.name);
     const towns: Record<string, number> = {};
     for (const record of records) towns[record.locality] = (towns[record.locality] ?? 0) + 1;
@@ -130,7 +130,7 @@ describe('Hudson County candidate sites from tax records (S4-3, S4-14)', () => {
   });
 
   it('REC-9 marks every site unconfirmed, with no owner, operator name, or official page; IDs start with the town', async () => {
-    const { records } = normalizeCandidates((await snapshotOf()).body);
+    const { records } = normalizeCandidates((await snapshotOf()).body, HUDSON);
 
     for (const record of records) {
       expect(record).toMatchObject({ confirmed: false, operatorType: 'unknown', operatorName: null, officialUrl: null, matchTokens: [], priority: 3 });
@@ -143,8 +143,8 @@ describe('Hudson County candidate sites from tax records (S4-3, S4-14)', () => {
   });
 
   it('ING-10 fails a snapshot that is missing its responses', async () => {
-    expect(() => normalizeCandidates(encode(JSON.stringify({ candidates: '{"features":[]}' })))).toThrow(/missing a query response/);
-    expect(() => normalizeCandidates(encode(JSON.stringify({ candidates: '{"features":[]}', neighbours: '{"features":[]}' })))).toThrow(/missing a query response/);
+    expect(() => normalizeCandidates(encode(JSON.stringify({ candidates: '{"features":[]}' })), HUDSON)).toThrow(/missing a query response/);
+    expect(() => normalizeCandidates(encode(JSON.stringify({ candidates: '{"features":[]}', neighbours: '{"features":[]}' })), HUDSON)).toThrow(/missing a query response/);
   });
 });
 
@@ -176,7 +176,7 @@ describe("Hudson County's sources together (S4-4, S4-14)", () => {
       ...njParcelsHudsonParking,
       id: 'nj-parcels-jc-parking',
       apply: (tx: TransactionSql, snapshot: StoredSnapshot) =>
-        applyNormalized(tx, 'nj-parcels-jc-parking', normalizeCandidates(snapshot.body), snapshot.fetchedAt),
+        applyNormalized(tx, 'nj-parcels-jc-parking', normalizeCandidates(snapshot.body, HUDSON), snapshot.fetchedAt),
     };
     await runSource(jcMunicipalLots, context);
     await runSource(oldSource, context);

@@ -2,7 +2,7 @@ import { connectTest, resetData } from '@parking/db/testing';
 import { afterAll, beforeEach, describe, expect, inject, it } from 'vitest';
 import { runSource } from '../src/run.ts';
 import { HARRISON_PARKING_PAGE, harrisonParkingCenter, normalizeHarrison } from '../src/sources/harrison-parking-center.ts';
-import { njParcelsHudsonParking } from '../src/sources/nj-parcels-hudson-parking.ts';
+import { njParcelsHudsonParking } from '../src/sources/nj-parcels-parking.ts';
 import { fixOrdinals, normalizeUnionCity, UCPA_PARKING_PAGE, unionCityParkingLots } from '../src/sources/union-city-parking-lots.ts';
 import { fixtureHttp, fixtures } from './fixtures.ts';
 import { testLogger } from './support.ts';

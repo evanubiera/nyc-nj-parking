@@ -2,7 +2,7 @@ import { connectTest, resetData } from '@parking/db/testing';
 import { afterAll, beforeEach, describe, expect, inject, it } from 'vitest';
 import { runSource } from '../src/run.ts';
 import { BAYONNE_ORDINANCE, BAYONNE_PARKING_PAGE, bayonneParkingLots, LEFT_OUT, normalizeBayonne } from '../src/sources/bayonne-parking-lots.ts';
-import { njParcelsHudsonParking } from '../src/sources/nj-parcels-hudson-parking.ts';
+import { njParcelsHudsonParking } from '../src/sources/nj-parcels-parking.ts';
 import { fixtureHttp, fixtures } from './fixtures.ts';
 import { testLogger } from './support.ts';
 
