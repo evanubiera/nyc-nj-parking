@@ -58,6 +58,7 @@ Response, `200`:
       "name": "Avenue M Municipal Parking Field",
       "lotNumber": null,
       "confirmed": true,
+      "spaces": null,
       "kind": "field",
       "operator": { "name": "NYC Department of Transportation", "type": "municipal" },
       "address": { "line": "1624 Chestnut Avenue", "locality": "Brooklyn", "region": "NY" },
@@ -83,6 +84,7 @@ Response, `200`:
       "name": "Delancey and Essex Municipal Parking Garage",
       "lotNumber": null,
       "confirmed": true,
+      "spaces": null,
       "kind": "garage",
       "operator": { "name": "NYC Department of Transportation", "type": "municipal" },
       "address": { "line": "105 Essex Street", "locality": "Manhattan", "region": "NY" },
@@ -103,6 +105,7 @@ Distances above are made up. The other values come from the sources as checked o
 - `meteredHours` is when payment is required at the meters, and the time limit, never opening hours (WEB-6). It's null when no meters data matches the facility.
 - `openingHours` is null in slice 1, because no admitted source states opening hours (SRC-1). Its shape will be `{ timeZone, periods: [{ days, opens, closes }] }`.
 - A facility with both null is still returned, with `officialUrl` (REC-6). The attended garages, such as Delancey and Essex, are like this in slice 1.
+- `spaces` (from slice 4, REC-10) is the number of spaces when a source states it, otherwise null. `rates` holds the rates a source states; `kind` is `per_hour`, `up_to_duration`, `daily_max`, `monthly_permit`, or `overnight_pass`.
 - `confirmed` (from slice 4, REC-9) is false for a candidate site from tax records (ADR-0012). Such a site has `operator: { "name": null, "type": "unknown" }` and `officialUrl: null`, and its `name` is its address from the tax record. Every other result is confirmed.
 - `lotNumber` (from slice 2, REC-8) is a string such as `"2"` when the source has several lots with the same name, such as an NJ Transit station's lots. Otherwise it's null, as for every NYC facility. The web app shows it with the name; the API sends no words such as "Lot".
 

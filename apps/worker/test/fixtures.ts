@@ -26,6 +26,7 @@ export const fixtures = {
   parcelsLayer: read('nj-parcels.layer.json'),
   parcelsCandidates: read('nj-parcels.candidates.json'),
   parcelsNeighbours: read('nj-parcels.neighbours.json'),
+  wnyFacilities: read('wny.facilities.html'),
 };
 
 export const NJT_SERVICE_PATH = '/M0t0HPE53pFK525U/arcgis/rest/services/ParkingLotDB_20260320_Sync_view/FeatureServer';
@@ -72,6 +73,7 @@ export function fixtureHttp(overrides: Partial<Record<keyof typeof fixtures, Uin
     '/sharing/rest/content/items/533599bbfbaa4748bf39faf1375a8a9c': bodies.parcelsItem,
     [PARCELS_SERVICE_PATH]: bodies.parcelsService,
     [`${PARCELS_SERVICE_PATH}/0`]: bodies.parcelsLayer,
+    '/pages/parking-services/facilities/': bodies.wnyFacilities,
   };
   // The parcel layer's two queries share a path; the candidates ask for class 15C, the neighbours for all of 15.
   const parcelsQuery = (url: URL) => (url.searchParams.get('where')?.includes("PROP_CLASS='15C'") ? bodies.parcelsCandidates : bodies.parcelsNeighbours);
@@ -83,7 +85,11 @@ export function fixtureHttp(overrides: Partial<Record<keyof typeof fixtures, Uin
       const url = new URL(request.url);
       const body = url.pathname === `${PARCELS_SERVICE_PATH}/0/query` ? parcelsQuery(url) : routes[url.pathname];
       return body
-        ? new Response(new Uint8Array(body), { headers: { 'content-type': 'application/json;charset=utf-8' } })
+        ? new Response(new Uint8Array(body), {
+            headers: url.pathname.endsWith('/facilities/')
+              ? { 'content-type': 'text/html; charset=UTF-8', 'last-modified': 'Fri, 06 Nov 2026 23:10:53 GMT' }
+              : { 'content-type': 'application/json;charset=utf-8' },
+          })
         : new Response('{}', { status: 404 });
     },
   });

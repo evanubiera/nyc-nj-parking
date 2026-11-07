@@ -26,6 +26,8 @@ export interface SourceRecordInput {
   /** Null only for an unconfirmed site (ADR-0012). */
   officialUrl: string | null;
   meterPeriods: MeterPeriod[];
+  /** Rates as the source states them (S4-12). Empty when it gives none. */
+  rates: RateInput[];
   /** REC-9: false for a candidate site from tax records, which may not be open to the public (ADR-0012). */
   confirmed: boolean;
   /** REC-8: only when the source has several lots with this name, such as "2". */
@@ -35,6 +37,20 @@ export interface SourceRecordInput {
 }
 
 export type WithheldReason = 'private_owner';
+
+/** One rate, as stored in `source_record.rates` and then `facility_rate` (specs/03). */
+export interface RateInput {
+  /** Bit mask, Monday = 1 through Sunday = 64. */
+  days: number;
+  /** Local wall-clock times, "HH:MM". */
+  startsAt: string;
+  endsAt: string;
+  kind: 'per_hour' | 'up_to_duration' | 'daily_max' | 'monthly_permit' | 'overnight_pass';
+  upToMinutes: number | null;
+  /** Minor units (cents), never a float (CLAUDE.md rule 11). */
+  amountMinor: number;
+  currency: 'USD';
+}
 
 export interface Normalized {
   rowsRead: number;

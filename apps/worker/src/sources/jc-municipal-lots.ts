@@ -79,6 +79,7 @@ export function normalizeJcLots(body: Uint8Array): Normalized {
       spaces: null,
       officialUrl: JC_PARKING_PAGE,
       meterPeriods: [],
+      rates: [],
       confirmed: true,
       lotNumber: null,
       withheldReason: null,

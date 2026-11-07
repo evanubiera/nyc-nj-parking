@@ -4,6 +4,7 @@ Material to send with requests to publishers and operators. Each file says where
 
 - [jersey-city-parking-division.md](jersey-city-parking-division.md): the draft request to Jersey City (SRC-5), how to send it, and an OPRA fallback. Not sent.
 - [jersey-city-parking-candidates.csv](jersey-city-parking-candidates.csv): the site list that goes with it (below).
+- [west-new-york-parking-utility.md](west-new-york-parking-utility.md): an optional request to West New York (SRC-10), asking for each lot's time limit and where the Dewey Triangle lot is. Its 9 metered lots are live without it (ADR-0014). Not sent.
 
 ## jersey-city-parking-candidates.csv
 

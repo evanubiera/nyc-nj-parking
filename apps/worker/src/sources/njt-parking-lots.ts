@@ -148,6 +148,7 @@ function toRecord(row: Row, numbered: boolean): SourceRecordInput | null {
     spaces: spaces !== null && spaces >= 0 ? spaces : null,
     officialUrl: officialUrl(attributeText(row.attributes, 'conwebsite')),
     meterPeriods: [],
+    rates: [],
     confirmed: true,
     lotNumber: numbered && row.lotNumber ? row.lotNumber.replace(/^0+(?=\d)/, '') : null,
     withheldReason,

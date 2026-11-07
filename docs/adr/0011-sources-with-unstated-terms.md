@@ -1,6 +1,6 @@
 # ADR-0011: Sources with unstated terms can be used while we ask
 
-- Status: Accepted (2026-11-03, by the user)
+- Status: Accepted (2026-11-03, by the user); the condition that the publisher has been asked is superseded by ADR-0014
 - Date: 2026-11-03
 - Supersedes: one admission condition in ADR-0005 ("no open terms question for that source"), for sources whose terms are unstated
 

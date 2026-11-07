@@ -40,6 +40,7 @@ interface FacilityRow {
   lat: number;
   lng: number;
   officialUrl: string | null;
+  spaces: number | null;
   distance: number;
 }
 
@@ -51,7 +52,7 @@ export async function findRecommendations(sql: Sql, query: RecommendationQuery):
     with origin as (select ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography as point)
     select f.id, f.name, f.lot_number as "lotNumber", f.confirmed, f.kind, f.operator_name as "operatorName", f.operator_type as "operatorType",
       f.address_line as "addressLine", f.locality, f.region, f.time_zone as "timeZone",
-      ST_Y(f.location::geometry) as lat, ST_X(f.location::geometry) as lng, f.official_url as "officialUrl",
+      ST_Y(f.location::geometry) as lat, ST_X(f.location::geometry) as lng, f.official_url as "officialUrl", f.spaces,
       ST_Distance(f.location, origin.point) as distance
     from facility f, origin
     where f.status = 'active' and ST_DWithin(f.location, origin.point, ${query.radius})
@@ -104,6 +105,7 @@ export async function findRecommendations(sql: Sql, query: RecommendationQuery):
         address: { line: facility.addressLine, locality: facility.locality, region: facility.region },
         location: { lat: round(Number(facility.lat), 5), lng: round(Number(facility.lng), 5) },
         distanceMeters: Math.round(Number(facility.distance) / 10) * 10,
+        spaces: facility.spaces,
         openingHours: hours.length === 0 ? null : openingHours(facility.timeZone, hours),
         meteredHours:
           meters.length === 0

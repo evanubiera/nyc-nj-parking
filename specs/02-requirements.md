@@ -22,7 +22,7 @@ Each requirement has an ID. Tasks, tests, and contract operations (`x-requiremen
 | ING-3 | A run that fails at any step leaves facility data unchanged, and is recorded as `failed` with an error code. | 0 |
 | ING-4 | Every run is recorded: source, start and end time, status, rows read, rows written, and rows withdrawn. | 0 |
 | ING-5 | Upstream requests send a User-Agent that names the app and, when `CONTACT_URL` is set (required in deployment), a contact URL. They send the Socrata app token in the `X-App-Token` header for Socrata sources, and time out after 30 seconds. Tokens are never logged. | 0 |
-| ING-6 | The worker runs only sources marked Admitted (including Admitted, terms pending under ADR-0011) in specs/06-sources.md. The worker's source registry is checked against that table by a test. | 0 |
+| ING-6 | The worker runs only sources marked Admitted (including Admitted, terms pending under ADR-0011, and Admitted, terms unstated under ADR-0014) in specs/06-sources.md. The worker's source registry is checked against that table by a test. | 0 |
 | ING-7 | When a snapshot's hash matches the last successful run's snapshot, normalizing is skipped and the run is recorded as `unchanged`. | 0 |
 | ING-8 | Facilities that are no longer in a source are marked withdrawn, with the time, and aren't returned by the API. | 1 |
 | ING-9 | Snapshots older than the newest 10 per source are deleted. | 1 |
@@ -65,6 +65,7 @@ Reviewed by the user on 2026-11-03: metered hours are shown as metered hours, fa
 | REC-7 | `operatorType` limits results to one or more operator types (`municipal`, `county`, `state`, `transit_agency`, `public_authority`, and from slice 4 `unknown`). Without it, every type is returned. An unknown code returns 400 `request.invalid_parameter`. | 2 |
 | REC-8 | When a source numbers several lots with the same name (such as an NJ Transit station's lots), each result carries its `lotNumber`, so they can be told apart. Otherwise `lotNumber` is null. | 2 |
 | REC-9 | Each result carries `confirmed`. An unconfirmed site (ADR-0012) has operator type `unknown`, no operator name, and no official page. Every confirmed result has all three. | 4 |
+| REC-10 | Each result carries `spaces`, the number of spaces when a source states it, and otherwise null. Rates a source states are returned as stated, in minor units, including an overnight pass (`overnight_pass`). | 4 |
 
 ## Web (WEB)
 
@@ -75,9 +76,10 @@ Reviewed by the user on 2026-11-03: metered hours are shown as metered hours, fa
 | WEB-3 | Layers: components → hooks → services → packages/api-client. Only services call the network. Lint enforces this. | 0 |
 | WEB-4 | The user can share their device location, or tap a point on the map, to search. If they decline location sharing, the app explains how to search by tapping the map. | 1 |
 | WEB-5 | Results show on a list and on a map, nearest first, with each result's sources and data date. | 1 |
-| WEB-6 | Metered hours are labelled as metered hours with their time limit, never as opening hours. Each result says which of its hours, rates, and number of spaces aren't shown, suggests checking with the operator, and links to the official page (the wording decided by the user on 2026-11-04, so a missing rate isn't taken as free). | 1 |
+| WEB-6 | Metered hours are labelled as metered hours with their time limit, never as opening hours. Each result says which of its hours, rates, and number of spaces aren't shown ("Not shown here: …"), suggests checking with the operator, and links to the official page (the wording decided by the user on 2026-11-04, so a missing rate isn't taken as free). | 1 |
 | WEB-7 | The map shows the attribution its tile source requires, including credit to OpenStreetMap linked to its copyright and licence page, in a corner of the map. The map style comes from configuration (`VITE_MAP_STYLE_URL`), not code; without it there's no map (ADR-0009). | 1 |
 | WEB-8 | The user can limit results to chosen operator types. Every type is chosen at first. The choice applies to the list and the map, and is kept in memory only. With none chosen, the app asks for at least one and doesn't search. A result with a lot number shows it with its name, on the card and the map. | 2 |
 | WEB-9 | An unconfirmed site says so on its card and in its map label: public land recorded as parking, which may be for staff or permit holders only. It has no official page link, and its operator shows as "Owner not recorded". A checkbox of its own, "Show unconfirmed sites (from tax records)", checked at first, includes or leaves them out; it replaced the "Run by" option ADR-0012 described, at the user's request on 2026-11-04, so the choice is easy to find. | 4 |
 | WEB-10 | Each result links to driving directions to it in Google Maps, Apple Maps, and Waze, in each vendor's documented link format. The links carry only the facility's location, never the person's: their map app starts from their own location (PRIV-1). | 4 |
 | WEB-11 | People can type a town ("Hoboken, NJ") or an address ("174 Newark Ave, Jersey City, NJ") and choose from suggestions as they type, by keyboard or touch; choosing one searches there. Towns and neighbourhoods come from a list in the app; addresses from the state's geocoder (ADR-0013). Device location and tapping the map still work. | 4 |
+| WEB-12 | A result shows its rates (per hour, up to a duration, a daily maximum, a monthly permit, or an overnight pass) with their days and times, formatted as money in the locale, and its number of spaces when known. The missing-details note (WEB-6) lists only what isn't shown. | 4 |

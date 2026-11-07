@@ -7,6 +7,7 @@ const AVENUE_M = { latitude: 40.61834, longitude: -73.95921 };
 const MORRISTOWN_STATION = { latitude: 40.79739, longitude: -74.47448 };
 const LOT_52 = { latitude: 40.72158, longitude: -74.04504 };
 const MONTGOMERY_SITE = { latitude: 40.71703, longitude: -74.04278 };
+const WNY_66TH = { latitude: 40.79023, longitude: -74.00471 };
 
 async function recommendationsRequest(page: Page, action: () => Promise<void>): Promise<URL> {
   const [request] = await Promise.all([page.waitForRequest((request) => request.url().includes('/api/parking/recommendations')), action()]);
@@ -86,7 +87,7 @@ test.describe('in Jersey City', () => {
 
       const lot = page.getByRole('article', { name: 'Lot 52' });
       await expect(lot.getByText(/^Lot · City-run · \d+ m away$/)).toBeVisible();
-      await expect(lot.getByText("Hours, rates, and number of spaces aren't shown here. Check with the operator before you park.")).toBeVisible();
+      await expect(lot.getByText('Not shown here: hours, rates, and number of spaces. Check with the operator before you park.')).toBeVisible();
       await expect(lot.getByRole('link', { name: 'Hours and rates on the operator’s page, for Lot 52' })).toHaveAttribute('href', /jerseycitynj\.gov/);
       await expect(lot.getByRole('link', { name: /^Data: Municipal Parking Lots, as of Nov 25, 2020/ })).toBeVisible();
       // WEB-10: directions to the lot, with only its location.
@@ -114,6 +115,23 @@ test.describe('in Jersey City', () => {
       await page.getByRole('checkbox', { name: 'Show unconfirmed sites (from tax records)' }).uncheck();
       await expect(site).toHaveCount(0);
     });
+  });
+});
+
+test.describe('in West New York', () => {
+  test.use({ geolocation: WNY_66TH, permissions: ['geolocation'] });
+
+  test('S4-12 shows a lot\'s spaces, metered hours, and rates, with nothing listed as missing', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Use my location' }).click();
+
+    const lot = page.getByRole('article', { name: '66th Street Parking Lot' });
+    await expect(lot.getByText('73 spaces')).toBeVisible();
+    await expect(lot.getByText('Pay at the meter Mon–Sat, 9:00 AM to 9:00 PM')).toBeVisible();
+    await expect(lot.getByText('$0.75 per hour, Mon–Sat, 9:00 AM to 9:00 PM')).toBeVisible();
+    await expect(lot.getByText('Overnight pass: $10.00, every day, 9:01 PM to 9:00 AM')).toBeVisible();
+    await expect(lot.getByText(/^Not shown here/)).toHaveCount(0);
+    expect(await axeViolations(page)).toEqual([]);
   });
 });
 

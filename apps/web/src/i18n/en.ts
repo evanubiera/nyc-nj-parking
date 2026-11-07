@@ -7,7 +7,7 @@ export const en = {
 
   'search.heading': 'Find public parking near you',
   'search.intro':
-    "Garages, lots, and fields run by cities, counties, the state, and transit agencies. This release covers NYC Department of Transportation garages and fields, and Jersey City's municipal lots.",
+    "Garages, lots, and fields run by cities, counties, the state, and transit agencies. This release covers NYC Department of Transportation garages and fields, and the municipal lots of Jersey City and West New York.",
   'search.radius.label': 'Search within',
   'search.radius.option': '{km, number} km',
   'search.useLocation': 'Use my location',
@@ -57,6 +57,14 @@ export const en = {
   'facility.distance.meters': '{meters, number} m away',
   'facility.distance.kilometers': '{km, number, ::.0} km away',
   'facility.address': '{line}, {locality}',
+  'facility.spaces': '{count, plural, one {# space} other {# spaces}}',
+  // WEB-12: rates as the source states them. {hours} is "12 hours" for up-to rates.
+  'rate.heading': 'Rates',
+  'rate.per_hour': '{price} per hour, {days}, {from} to {to}',
+  'rate.up_to_duration': 'Up to {hours}: {price}, {days}, {from} to {to}',
+  'rate.daily_max': '{price} a day at most, {days}',
+  'rate.monthly_permit': '{price} a month with a permit',
+  'rate.overnight_pass': 'Overnight pass: {price}, {days}, {from} to {to}',
   // REC-8: an NJ Transit station's lots share a name, so their number tells them apart.
   'facility.nameWithLot': '{name}, lot {lot}',
 
@@ -70,12 +78,12 @@ export const en = {
   'meter.dayRange': '{first}–{last}',
   'meter.everyDay': 'every day',
   // WEB-6: says what the result doesn't show, so nobody takes a missing rate as free (decided 2026-11-04).
-  'details.missing.hoursRatesSpaces': "Hours, rates, and number of spaces aren't shown here. Check with the operator before you park.",
-  'details.missing.ratesSpaces': "Rates and number of spaces aren't shown here. Check with the operator before you park.",
-  'details.missing.hoursSpaces': "Hours and number of spaces aren't shown here. Check with the operator before you park.",
-  'details.missing.spaces': "The number of spaces isn't shown here.",
+  'details.missing': 'Not shown here: {items}. Check with the operator before you park.',
   // An unconfirmed site has no known operator to check with (ADR-0012).
-  'details.missing.unconfirmed': "Hours, rates, and number of spaces aren't shown here. Check the signs on site before you park.",
+  'details.missing.unconfirmed': 'Not shown here: {items}. Check the signs on site before you park.',
+  'details.item.hours': 'hours',
+  'details.item.rates': 'rates',
+  'details.item.spaces': 'number of spaces',
   'facility.officialLink': 'Hours and rates on the operator’s page',
   // Starts with the link's visible text, so voice control finds it (WCAG 2.5.3).
   'facility.officialLinkLabel': 'Hours and rates on the operator’s page, for {name}',
@@ -116,6 +124,9 @@ export const en = {
   'sources.change.municipalities_reformatted': 'We reformat municipality names written in capitals.',
   'sources.change.sites_from_parcels':
     'We combine touching parcels into one site, and keep only public land described as parking with no school, public building, park, or church on the same block.',
+  'sources.change.locations_from_records':
+    "The page has no map points, so we placed each lot on the matching public parcel in the State's tax records, or with the State's geocoder.",
+  'sources.change.rates_converted_to_hourly': 'We show meter rates per hour: 25¢ per 20 minutes is $0.75 per hour.',
   'sources.change.unconfirmed_public_use':
     "We show these sites as unconfirmed: the records don't say who owns them or whether the public may park there.",
   'sources.loading': 'Loading the data sources…',

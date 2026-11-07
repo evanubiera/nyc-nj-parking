@@ -3,19 +3,19 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { DIRECTIONS_APPS, directionsUrl } from '../utils/directions.ts';
 import { facilityName } from '../utils/facilityName.ts';
 import { MeteredHours } from './MeteredHours.tsx';
+import { Rates } from './Rates.tsx';
 import { SourceCredits } from './SourceCredits.tsx';
 
 /** One suggestion (REC-4, ATT-2, WEB-6). */
 export function ResultCard({ facility, position }: { facility: RecommendedFacility; position?: number }) {
   const intl = useIntl();
   const hoursKnown = facility.meteredHours !== null || facility.openingHours !== null;
-  const ratesKnown = facility.rates.length > 0;
-  // WEB-6: the API doesn't send the number of spaces, so it's always among what's missing.
-  const missing = !facility.confirmed
-    ? 'details.missing.unconfirmed'
-    : hoursKnown
-      ? ratesKnown ? 'details.missing.spaces' : 'details.missing.ratesSpaces'
-      : ratesKnown ? 'details.missing.hoursSpaces' : 'details.missing.hoursRatesSpaces';
+  // WEB-6: lists only what this result doesn't show.
+  const missing = [
+    hoursKnown ? null : intl.formatMessage({ id: 'details.item.hours' }),
+    facility.rates.length > 0 ? null : intl.formatMessage({ id: 'details.item.rates' }),
+    facility.spaces === null ? intl.formatMessage({ id: 'details.item.spaces' }) : null,
+  ].filter((item): item is string => item !== null);
   const name = facilityName(intl, facility);
 
   return (
@@ -54,10 +54,21 @@ export function ResultCard({ facility, position }: { facility: RecommendedFacili
         )}
       </p>
 
+      {facility.spaces !== null && (
+        <p className="result__spaces">
+          <FormattedMessage id="facility.spaces" values={{ count: facility.spaces }} />
+        </p>
+      )}
       {facility.meteredHours && <MeteredHours hours={facility.meteredHours} />}
-      <p className="result__unknown">
-        <FormattedMessage id={missing} />
-      </p>
+      <Rates rates={facility.rates} />
+      {missing.length > 0 && (
+        <p className="result__unknown">
+          <FormattedMessage
+            id={facility.confirmed ? 'details.missing' : 'details.missing.unconfirmed'}
+            values={{ items: intl.formatList(missing, { type: 'conjunction' }) }}
+          />
+        </p>
+      )}
 
       <p className="result__directions">
         <span className="result__directions-label">

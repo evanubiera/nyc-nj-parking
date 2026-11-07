@@ -104,6 +104,7 @@ Decided with the user on 2026-11-04: show Jersey City's 7 city lots now, without
 | S4-9 | Web: unconfirmed sites get a checkbox of their own, "Show unconfirmed sites (from tax records)", instead of a "Run by" option (asked for by the user on 2026-11-04) | WEB-9 | Done |
 | S4-10 | Address search with suggestions: a built-in list of 564 NJ towns and 296 NYC boroughs and neighbourhoods (scripts/build-places.ts), NYC GeoSearch and NJ_Geocode for addresses, called from the browser; ADR-0013 (asked for by the user on 2026-11-06) | WEB-11, PRIV-5, PRIV-3 | Done |
 | S4-11 | Tests: each Vitest run gets its own database on TEST_DATABASE_URL, because `pnpm test` runs packages at once and they emptied each other's tables in CI (run 42313251786, 2026-11-06) | FND-5 | Done |
+| S4-12 | West New York's 9 metered lots with spaces, meter hours, and rates from the Parking Utility's page (`wny-parking-lots`, held until SRC-10 is asked); rates on source records (migration 0005); `spaces` in the API; rates and spaces in the web app (asked for by the user on 2026-11-06); live since 2026-11-06 under ADR-0014 | REC-10, WEB-12, ING-10 | Done |
 
 ### Slice 4 status, Jersey City (2026-11-04)
 

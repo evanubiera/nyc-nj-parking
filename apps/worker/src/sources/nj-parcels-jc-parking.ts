@@ -157,6 +157,7 @@ function toRecord(site: Parcel[]): SourceRecordInput {
     spaces: null,
     officialUrl: null,
     meterPeriods: [],
+    rates: [],
     confirmed: false,
     lotNumber: null,
     withheldReason: null,

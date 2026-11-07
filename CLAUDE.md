@@ -22,7 +22,7 @@ A public web app, usable on phones, that suggests public parking near the user a
 ## Rules that must never be broken
 1. **Users' locations** are never stored or logged. The web app rounds coordinates to 3 decimal places, and the API rounds again. Request logs never contain the URL, the query string, or the body. (ADR-0006, PRIV-1 to PRIV-3)
 2. **No upstream calls during a request.** Only the worker calls upstream portals. (ADR-0005, ING-1)
-3. **Only Admitted sources** in `specs/06-sources.md` are ingested. A source with unstated terms can be Admitted, terms pending while we ask its publisher; a source with stated restrictions can't. (ING-6, ADR-0011)
+3. **Only Admitted sources** in `specs/06-sources.md` are ingested. A source with unstated terms can be admitted without asking its publisher first (Admitted, terms unstated), and comes out if the publisher objects; a source with stated restrictions can't. (ING-6, ADR-0011, ADR-0014)
 4. **A failed ingestion run changes no facility data.** Normalizing and writing happen in one transaction. (ING-3)
 5. **Every facility shown carries its source and data date**, and every page shows the disclaimer. (ADR-0008, ATT-1, ATT-2)
 6. **Private facilities** (owner recorded as private) aren't shown. Every facility has an operator name and type, except an unconfirmed site from tax records, which is marked `confirmed: false` with operator type `unknown` and no name. (ADR-0007, ADR-0012)

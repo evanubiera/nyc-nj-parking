@@ -132,6 +132,7 @@ describe('GET /api/parking/recommendations', () => {
       address: { line: '1624 Chestnut Avenue', locality: 'Brooklyn', region: 'NY' },
       location: { lat: expect.closeTo(north(337), 5), lng: ORIGIN.lng },
       distanceMeters: 340,
+      spaces: null,
       openingHours: null,
       meteredHours: {
         timeZone: 'America/New_York',
@@ -220,6 +221,25 @@ describe('GET /api/parking/recommendations', () => {
 
     expect(withoutUnknown.body.results.map((result) => result.id)).toEqual(['lot']);
     expect(onlyUnknown.body.results.map((result) => result.id)).toEqual(['site']);
+  });
+
+  it('REC-10 returns spaces and the rates a source states, including an overnight pass', async () => {
+    await seedFacility(sql, { id: 'wny-66th-street-parking-lot', name: '66th Street Parking Lot', lat: north(100), lng: ORIGIN.lng, spaces: 73,
+      rates: [
+        { days: 63, startsAt: '09:00', endsAt: '21:00', kind: 'per_hour', upToMinutes: null, amountMinor: 75 },
+        { days: 127, startsAt: '21:01', endsAt: '09:00', kind: 'overnight_pass', upToMinutes: null, amountMinor: 1000 },
+      ] });
+
+    const { body } = await recommend(`lat=${ORIGIN.lat}&lng=${ORIGIN.lng}`);
+
+    expect(body.results[0]).toMatchObject({
+      spaces: 73,
+      // Ordered like metered hours: rates for more days first.
+      rates: [
+        { days: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'], from: '21:01', to: '09:00', kind: 'overnight_pass', upToMinutes: null, price: { amountMinor: 1000, currency: 'USD' } },
+        { days: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat'], from: '09:00', to: '21:00', kind: 'per_hour', upToMinutes: null, price: { amountMinor: 75, currency: 'USD' } },
+      ],
+    });
   });
 
   it('REC-8 returns a lot number where the source has one, and null elsewhere', async () => {

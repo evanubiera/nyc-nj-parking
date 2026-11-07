@@ -22,6 +22,8 @@ export interface SeedFacility {
   lotNumber?: string | null;
   /** REC-9: an unconfirmed site has operator type `unknown`, no operator name, and no official page. */
   unconfirmed?: boolean;
+  spaces?: number | null;
+  rates?: { days: number; startsAt: string; endsAt: string; kind: string; upToMinutes: number | null; amountMinor: number }[];
   sourceIds?: string[];
   meterPeriods?: { days: number; startsAt: string; endsAt: string; maxStayMinutes: number | null; vehicleClass: string | null; sourceText: string }[];
 }
@@ -32,12 +34,12 @@ export async function seedFacility(sql: Sql, facility: SeedFacility): Promise<vo
   const unconfirmed = facility.unconfirmed ?? false;
   await sql`
     insert into facility (id, name, kind, operator_name, operator_type, address_line, locality, region, time_zone,
-      location, official_url, lot_number, confirmed, status, first_seen_at, last_seen_at, withdrawn_at)
+      location, official_url, lot_number, confirmed, spaces, status, first_seen_at, last_seen_at, withdrawn_at)
     values (${facility.id}, ${facility.name ?? `Facility ${facility.id}`}, ${facility.kind ?? 'field'},
       ${unconfirmed ? null : 'NYC Department of Transportation'}, ${unconfirmed ? 'unknown' : (facility.operatorType ?? 'municipal')},
       ${facility.addressLine === undefined ? '1 Test Street' : facility.addressLine},
       'Brooklyn', 'NY', 'America/New_York', ST_SetSRID(ST_MakePoint(${facility.lng}, ${facility.lat}), 4326)::geography,
-      ${unconfirmed ? null : 'https://www.nyc.gov/html/dot/html/motorist/parkinglist.shtml#kings'}, ${facility.lotNumber ?? null}, ${!unconfirmed},
+      ${unconfirmed ? null : 'https://www.nyc.gov/html/dot/html/motorist/parkinglist.shtml#kings'}, ${facility.lotNumber ?? null}, ${!unconfirmed}, ${facility.spaces ?? null},
       ${status}, ${now}, ${now},
       ${status === 'withdrawn' ? now : null})`;
   for (const sourceId of facility.sourceIds ?? ['test-source']) {
@@ -49,6 +51,11 @@ export async function seedFacility(sql: Sql, facility: SeedFacility): Promise<vo
         'municipal', 'Brooklyn', 'NY', 'America/New_York', ST_SetSRID(ST_MakePoint(${facility.lng}, ${facility.lat}), 4326)::geography,
         'https://example.test', ${now}, ${now})`;
     await sql`insert into facility_source (source_id, source_record_id, facility_id) values (${sourceId}, ${facility.id}, ${facility.id})`;
+  }
+  for (const rate of facility.rates ?? []) {
+    await sql`
+      insert into facility_rate (facility_id, days, starts_at, ends_at, kind, up_to_minutes, amount_minor, currency)
+      values (${facility.id}, ${rate.days}, ${rate.startsAt}, ${rate.endsAt}, ${rate.kind}, ${rate.upToMinutes}, ${rate.amountMinor}, 'USD')`;
   }
   for (const period of facility.meterPeriods ?? []) {
     await sql`

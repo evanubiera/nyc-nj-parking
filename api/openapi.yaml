@@ -54,7 +54,7 @@ paths:
         or echoes them (PRIV-3, ADR-0006). At most 50 results. A facility without hours from any source
         is still returned (REC-6).
       tags: [parking]
-      x-requirements: [REC-1, REC-2, REC-3, REC-4, REC-6, REC-7, REC-8, REC-9, PRIV-3, ATT-2]
+      x-requirements: [REC-1, REC-2, REC-3, REC-4, REC-6, REC-7, REC-8, REC-9, REC-10, PRIV-3, ATT-2]
       parameters:
         - name: lat
           in: query
@@ -193,7 +193,7 @@ components:
       description: One facility (REC-4). Values are data or codes, never display text.
       type: object
       additionalProperties: false
-      required: [id, name, lotNumber, confirmed, kind, operator, address, location, distanceMeters, openingHours, meteredHours, rates, officialUrl, sources]
+      required: [id, name, lotNumber, confirmed, kind, operator, address, location, distanceMeters, spaces, openingHours, meteredHours, rates, officialUrl, sources]
       properties:
         id:
           type: string
@@ -226,6 +226,10 @@ components:
           type: integer
           minimum: 0
           description: From the rounded request point, rounded to the nearest 10 m.
+        spaces:
+          type: [integer, 'null']
+          minimum: 0
+          description: The number of spaces, when a source states it (REC-10).
         openingHours:
           description: When the facility is open. Null until a source states it (SRC-1).
           anyOf:
@@ -369,7 +373,7 @@ components:
           $ref: '#/components/schemas/TimeOfDay'
         kind:
           type: string
-          enum: [per_hour, up_to_duration, daily_max, monthly_permit]
+          enum: [per_hour, up_to_duration, daily_max, monthly_permit, overnight_pass]
         upToMinutes:
           type: [integer, 'null']
         price:
@@ -446,6 +450,8 @@ components:
               - municipalities_reformatted
               - sites_from_parcels
               - unconfirmed_public_use
+              - locations_from_records
+              - rates_converted_to_hourly
         dataUpdatedAt:
           type: [string, 'null']
           format: date-time

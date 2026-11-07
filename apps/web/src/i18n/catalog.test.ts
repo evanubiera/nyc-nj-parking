@@ -27,6 +27,15 @@ const MODIFICATIONS: Record<Source['modifications'][number], true> = {
   municipalities_reformatted: true,
   sites_from_parcels: true,
   unconfirmed_public_use: true,
+  locations_from_records: true,
+  rates_converted_to_hourly: true,
+};
+const RATE_KINDS: Record<RecommendedFacility['rates'][number]['kind'], true> = {
+  per_hour: true,
+  up_to_duration: true,
+  daily_max: true,
+  monthly_permit: true,
+  overnight_pass: true,
 };
 
 describe('message catalog', () => {
@@ -34,6 +43,7 @@ describe('message catalog', () => {
     ...Object.keys(KINDS).map((code) => `facility.kind.${code}`),
     ...Object.keys(OPERATOR_TYPES).map((code) => `facility.operatorType.${code}`),
     ...Object.keys(MODIFICATIONS).map((code) => `sources.change.${code}`),
+    ...Object.keys(RATE_KINDS).map((kind) => `rate.${kind}`),
   ])('WEB-1 has text for %s', (id) => {
     expect(en).toHaveProperty([id]);
   });

@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { en } from '../i18n/en.ts';
-import { avenueM, delancey, montgomerySite, morristown2, sources } from '../test/facilities.ts';
+import { avenueM, delancey, montgomerySite, morristown2, sources, wny66th } from '../test/facilities.ts';
 import { axeViolations, renderWithProviders } from '../test/render.tsx';
 import { ResultCard } from './ResultCard.tsx';
 
@@ -27,25 +27,38 @@ describe('ResultCard', () => {
   it('WEB-6 says rates and spaces are missing on a metered field, which shows its metered hours', () => {
     renderWithProviders(<ResultCard facility={avenueM} />);
 
-    expect(screen.getByText(en['details.missing.ratesSpaces'])).toBeInTheDocument();
-    expect(screen.queryByText(en['details.missing.hoursRatesSpaces'])).not.toBeInTheDocument();
+    expect(screen.getByText('Not shown here: rates and number of spaces. Check with the operator before you park.')).toBeInTheDocument();
   });
 
-  it('WEB-6 says only spaces are missing once hours and rates are known', () => {
+  it('WEB-6 lists only spaces once hours and rates are known', () => {
     const withRates = {
       ...avenueM,
       rates: [{ days: ['mon' as const], from: '07:00', to: '22:00', kind: 'per_hour' as const, upToMinutes: null, price: { amountMinor: 150, currency: 'USD' } }],
     };
     renderWithProviders(<ResultCard facility={withRates} />);
 
-    expect(screen.getByText(en['details.missing.spaces'])).toBeInTheDocument();
+    expect(screen.getByText('Not shown here: number of spaces. Check with the operator before you park.')).toBeInTheDocument();
+  });
+
+  it('WEB-12 shows a lot\'s spaces, metered hours, and rates as money, and nothing as missing', async () => {
+    const { container } = renderWithProviders(<ResultCard facility={wny66th} />);
+
+    expect(screen.getByText('73 spaces')).toBeInTheDocument();
+    expect(screen.getByText('Pay at the meter Mon–Sat, 9:00 AM to 9:00 PM')).toBeInTheDocument();
+    expect(screen.getByText(en['rate.heading'])).toBeInTheDocument();
+    expect(screen.getByText('$0.75 per hour, Mon–Sat, 9:00 AM to 9:00 PM')).toBeInTheDocument();
+    expect(screen.getByText('Overnight pass: $10.00, every day, 9:01 PM to 9:00 AM')).toBeInTheDocument();
+    // The hourly rate reads first, though the API lists the pass first.
+    expect([...container.querySelectorAll('.rates__list li')].map((item) => item.textContent)[0]).toBe('$0.75 per hour, Mon–Sat, 9:00 AM to 9:00 PM');
+    expect(container.querySelector('.result__unknown')).toBeNull();
+    expect(await axeViolations(container)).toEqual([]);
   });
 
   it('WEB-9 marks an unconfirmed site, says its owner isn\'t recorded, and offers no official link', async () => {
     const { container } = renderWithProviders(<ResultCard facility={montgomerySite} position={1} />);
 
     expect(screen.getByText(en['facility.unconfirmed'])).toBeInTheDocument();
-    expect(screen.getByText(en['details.missing.unconfirmed'])).toBeInTheDocument();
+    expect(screen.getByText('Not shown here: hours, rates, and number of spaces. Check the signs on site before you park.')).toBeInTheDocument();
     expect(screen.getByText('Lot · Owner not recorded · 60 m away')).toBeInTheDocument();
     expect(screen.getByText('Jersey City')).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /operator’s page/ })).not.toBeInTheDocument();
@@ -101,7 +114,7 @@ describe('ResultCard', () => {
   it('REC-6 says when hours are unknown and links to the operator’s page', () => {
     renderWithProviders(<ResultCard facility={delancey} />);
 
-    expect(screen.getByText("Hours, rates, and number of spaces aren't shown here. Check with the operator before you park.")).toBeInTheDocument();
+    expect(screen.getByText('Not shown here: hours, rates, and number of spaces. Check with the operator before you park.')).toBeInTheDocument();
     expect(screen.queryByText(en['meter.heading'])).not.toBeInTheDocument();
     const link = screen.getByRole('link', { name: 'Hours and rates on the operator’s page, for Delancey - Essex Municipal Parking Garage' });
     expect(link).toHaveAttribute('href', 'https://www.nyc.gov/html/dot/html/motorist/parkinglist.shtml#manhattan');

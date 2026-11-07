@@ -1,8 +1,8 @@
 # 06 Sources
 
-Every source below was opened through its API or page on 2026-11-03, and the counts are from live queries that day. A source is ingested only when its status is **Admitted** (ADR-0005, ING-6). Admission needs, all checked against the live source: the dataset ID or URL, format, fields and coordinates, update frequency, terms, and rate limits, with no open terms question. A source whose terms are unstated (no license, or only a liability disclaimer) can be **Admitted, terms pending** while we ask its publisher (ADR-0011), and comes out if the publisher objects.
+Every source below was opened through its API or page on 2026-11-03, and the counts are from live queries that day. A source is ingested only when its status is **Admitted** (ADR-0005, ING-6). Admission needs, all checked against the live source: the dataset ID or URL, format, fields and coordinates, update frequency, terms, and rate limits, with no open terms question. A source whose terms are unstated (no license, or only a liability disclaimer) can be **Admitted, terms pending** while we ask its publisher (ADR-0011), or, since ADR-0014, **Admitted, terms unstated** without asking first; either comes out if the publisher objects.
 
-Statuses: **Admitted** (the worker ingests it), **Admitted, terms pending** (ingested under ADR-0011 while we ask), **Verified** (checked and usable, with an adapter planned), **Blocked** (waiting on an open question), **Later** (useful for a later slice), **Rejected** (not usable).
+Statuses: **Admitted** (the worker ingests it), **Admitted, terms pending** (ingested under ADR-0011 while we ask), **Admitted, terms unstated** (ingested under ADR-0014 without asking), **Verified** (checked and usable, with an adapter planned), **Blocked** (waiting on an open question), **Later** (useful for a later slice), **Rejected** (not usable).
 
 The `Admitted` table is read by a test (ING-6). Keep its format: one source ID per row, in backticks.
 
@@ -14,6 +14,7 @@ The `Admitted` table is read by a test (ING-6). Keep its format: one source ID p
 | `nyc-meters-offstreet` | Parking Meters Locations and Status, rows with `facility = 'Off Street'` | S1-4, 2026-11-03 |
 | `jc-municipal-lots` | Jersey City Municipal Parking Lots (7 lots, 2020) | S4-2, 2026-11-04 (ADR-0012) |
 | `nj-parcels-jc-parking` | Parcels and MOD-IV Composite of NJ, Jersey City candidate sites only, shown as unconfirmed | S4-3, 2026-11-04 (ADR-0012) |
+| `wny-parking-lots` | West New York Parking Utility's Facilities page, 9 metered lots, terms unstated | S4-12, 2026-11-06 (ADR-0014) |
 
 ## Terms that apply
 
@@ -123,6 +124,16 @@ Rules decided with the user on 2026-11-03 (PRD-4, ADR-0007), and counts from the
 - **Kept** (ING-13): a site none of whose parcels says railroad or right of way (`R.O.W`, `ROW`, `RAILROAD`), on a block where no public parcel, the site's own included, names a school, college, police, fire house, public housing, post office, court, library, hospital, administrative or office building, community centre, garage (other than a parking garage), park, recreation, church, or cemetery. On 2026-11-04 that's 26 sites: 23 shown as unconfirmed, and 3 that merge into city lots 33, 44, and 49 (ING-14). The first sort (docs/requests) counted 25 unexplained sites; two of them are post office land on block 101, which their own parcels say.
 - **Record:** the record ID is the site's first `PAMS_PIN`; the facility ID is `jc-site-` plus that PIN's block and lot, such as `jc-site-14102-12`. The name is the first parcel's `PROP_LOC`, title-cased, such as "179 Montgomery St." Kind `lot`; operator type `unknown` with no name; `confirmed` false; no address line, spaces, or official page; locality Jersey City; region NJ.
 - **Matching** (ING-14): a site within 90 m of a `jc-municipal-lots` lot or an `njt-parking-lots` lot is that lot, and the lot is the primary.
+
+## West New York (slice 4, S4-12)
+
+### `wny-parking-lots` (S4-12)
+
+- **Source:** the Town of West New York Parking Utility's [Facilities page](https://www.westnewyorknj.org/pages/parking-services/facilities/), HTML, checked 2026-11-06. The data date is the page's `Last-Modified` header. No terms are stated. **Admitted, terms unstated (ADR-0014), 2026-11-06**, without asking first; it comes out if West New York objects (SRC-10).
+- **What it lists:** 10 municipal lots, each with a name, where it is (cross streets or an address), and its spaces; and, for all of them, meters Monday to Saturday 9:00am to 9:00pm at "20-Minute parking = 25¢", permit holders only from 9:01pm to 9:00am, and an overnight pass for others at $10.00 a night from 9:01pm to 9:00am. It also lists three reserved garages (62nd Street, Fillmore, Meridia), monthly only with waiting lists, which we leave out. The page has no staff email addresses.
+- **Locations:** the page has no coordinates. Each lot was placed once, on 2026-11-06, on the public parcel the tax records describe as parking that matches the page's description (seven lots, such as the Parking Authority's parcel at 5717 Madison St "behind Miller Stadium"; the 67th Street lot's parcel is class 15F, "municipal / parking area"), or else with the State's geocoder (the 54th Street lot, midway along Park Avenue between 54th and 55th). OpenStreetMap was only a cross-check (SRC-9). The "6701 Dewey Triangle Lot" (15 spots) couldn't be placed with confidence and is left out. A lot the page adds later that isn't placed counts as a row that can't be read (ING-10).
+- **Record:** name as published; the address line is the page's "where"; operator West New York Parking Utility, `municipal`; spaces from the page; metered hours from the page's sentence (no time limit, since "maximum allotment varies per lot"); rates: 75¢ per hour Monday to Saturday 9:00am to 9:00pm (the page's 25¢ per 20 minutes, shown per hour), and an overnight pass, $10.00, every day 9:01pm to 9:00am. If the page's wording for the hours, rate, or pass changes, the run fails and changes nothing.
+- **Result on 2026-11-06:** 9 lots, 932 spaces.
 
 ## New Jersey municipalities (researched 2026-11-03)
 

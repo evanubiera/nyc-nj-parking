@@ -10,6 +10,7 @@ export const avenueM: RecommendedFacility = {
   address: { line: '1624 Chestnut Avenue', locality: 'Brooklyn', region: 'NY' },
   location: { lat: 40.61877, lng: -73.95869 },
   distanceMeters: 340,
+  spaces: null,
   openingHours: null,
   meteredHours: {
     timeZone: 'America/New_York',
@@ -37,6 +38,7 @@ export const delancey: RecommendedFacility = {
   address: { line: '105 Essex Street', locality: 'Manhattan', region: 'NY' },
   location: { lat: 40.71936, lng: -73.98829 },
   distanceMeters: 1250,
+  spaces: null,
   openingHours: null,
   meteredHours: null,
   rates: [],
@@ -55,6 +57,7 @@ export const morristown2: RecommendedFacility = {
   address: { line: null, locality: 'Morristown Town', region: 'NJ' },
   location: { lat: 40.79761, lng: -74.47384 },
   distanceMeters: 180,
+  spaces: 97,
   openingHours: null,
   meteredHours: null,
   rates: [],
@@ -73,11 +76,38 @@ export const montgomerySite: RecommendedFacility = {
   address: { line: null, locality: 'Jersey City', region: 'NJ' },
   location: { lat: 40.71703, lng: -74.04278 },
   distanceMeters: 60,
+  spaces: null,
   openingHours: null,
   meteredHours: null,
   rates: [],
   officialUrl: null,
   sources: [{ id: 'nj-parcels-jc-parking', dataUpdatedAt: '2026-08-18T09:32:38.134Z' }],
+};
+
+/** One of West New York's lots (S4-12), from the saved page of 2026-11-06: spaces, metered hours, and rates. */
+export const wny66th: RecommendedFacility = {
+  id: 'wny-66th-street-parking-lot',
+  name: '66th Street Parking Lot',
+  lotNumber: null,
+  confirmed: true,
+  kind: 'lot',
+  operator: { name: 'West New York Parking Utility', type: 'municipal' },
+  address: { line: 'Corner of 66th & Park Avenue', locality: 'West New York', region: 'NJ' },
+  location: { lat: 40.79023, lng: -74.00471 },
+  distanceMeters: 120,
+  spaces: 73,
+  openingHours: null,
+  meteredHours: {
+    timeZone: 'America/New_York',
+    periods: [{ days: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat'], from: '09:00', to: '21:00', maxStayMinutes: null, vehicleClass: null }],
+    sourceText: ['Monday – Saturday from 9:00am – 9:00pm'],
+  },
+  rates: [
+    { days: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'], from: '21:01', to: '09:00', kind: 'overnight_pass', upToMinutes: null, price: { amountMinor: 1000, currency: 'USD' } },
+    { days: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat'], from: '09:00', to: '21:00', kind: 'per_hour', upToMinutes: null, price: { amountMinor: 75, currency: 'USD' } },
+  ],
+  officialUrl: 'https://www.westnewyorknj.org/pages/parking-services/facilities/',
+  sources: [{ id: 'wny-parking-lots', dataUpdatedAt: '2026-11-06T23:10:53.000Z' }],
 };
 
 export const sources: Source[] = [
