@@ -59,12 +59,12 @@ describe('address search suggestions (WEB-11, ADR-0013)', () => {
     expect(requests.every((url) => !url.pathname.startsWith('/api'))).toBe(true);
   });
 
-  it('WEB-11 asks NYC GeoSearch for an address that names New York', async () => {
+  it('WEB-11 asks NYC GeoSearch for an address that names New York, and shows it in proper case', async () => {
     geocoders({ ny: NYC_120_BROADWAY });
 
     const results = await suggest('120 Broadway, New York, NY');
 
-    expect(results).toEqual([expect.objectContaining({ label: '120 BROADWAY, New York, NY', state: 'NY', point: { lat: 40.708233, lng: -74.010542 } })]);
+    expect(results).toEqual([expect.objectContaining({ label: '120 Broadway, New York, NY', state: 'NY', point: { lat: 40.708233, lng: -74.010542 } })]);
     expect(requests).toHaveLength(1);
     expect(requests[0]!.href.startsWith(geocoderUrls.nyc)).toBe(true);
   });

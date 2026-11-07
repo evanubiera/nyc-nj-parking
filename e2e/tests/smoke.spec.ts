@@ -15,6 +15,12 @@ async function recommendationsRequest(page: Page, action: () => Promise<void>): 
   return new URL(request.url());
 }
 
+/** WEB-4: the location button, then "Share my location" in the dialog it opens. */
+async function shareLocation(page: Page) {
+  await page.getByRole('button', { name: 'Use my current location' }).click();
+  await page.getByRole('dialog', { name: 'Search near your current location?' }).getByRole('button', { name: 'Share my location' }).click();
+}
+
 declare const axe: { run: (context: Document, options: object) => Promise<{ violations: { id: string; nodes: { target: string[] }[] }[] }> };
 const axePath = createRequire(import.meta.url).resolve('axe-core/axe.min.js');
 
@@ -31,7 +37,7 @@ test.describe('with location sharing on', () => {
   test('S1-10 finds parking near the device: metered hours, sources, and the rounded point only', async ({ page }) => {
     await page.goto('/');
 
-    const url = await recommendationsRequest(page, () => page.getByRole('button', { name: 'Use my location' }).click());
+    const url = await recommendationsRequest(page, () => shareLocation(page));
 
     expect(Object.fromEntries(url.searchParams)).toEqual({ lat: '40.618', lng: '-73.959', radius: '2000' });
     await expect(page.getByRole('heading', { name: '1 place within 2 km' })).toBeVisible();
@@ -45,9 +51,28 @@ test.describe('with location sharing on', () => {
     await expect(page.getByRole('button', { name: '1. Avenue M Municipal Parking Field, 90 m away' })).toBeVisible();
   });
 
+  test('WEB-4 asks in a dialog before the device\'s location is used, and "Not now" sends nothing', async ({ page }) => {
+    const searches: string[] = [];
+    page.on('request', (request) => {
+      if (request.url().includes('/api/parking/recommendations')) searches.push(request.url());
+    });
+    await page.goto('/');
+
+    await page.getByRole('button', { name: 'Use my current location' }).click();
+
+    const dialog = page.getByRole('dialog', { name: 'Search near your current location?' });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole('button', { name: 'Share my location' })).toBeFocused();
+    expect(await axeViolations(page)).toEqual([]);
+    await dialog.getByRole('button', { name: 'Not now' }).click();
+    await expect(dialog).toBeHidden();
+    await expect(page.getByRole('button', { name: 'Use my current location' })).toBeFocused();
+    expect(searches).toEqual([]);
+  });
+
   test('WEB-2 search results have no axe violations, including colour contrast', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('button', { name: 'Use my location' }).click();
+    await shareLocation(page);
     await expect(page.getByRole('heading', { name: '1 place within 2 km' })).toBeVisible();
 
     expect(await axeViolations(page)).toEqual([]);
@@ -59,7 +84,7 @@ test.describe('at an NJ Transit station', () => {
 
   test('S2-9 shows the station\'s lots by number, and filters them by operator type', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('button', { name: 'Use my location' }).click();
+    await shareLocation(page);
 
     const transitLot = page.getByRole('article', { name: 'Morristown, lot 1' });
     const townLot = page.getByRole('article', { name: 'Morristown, lot 2' });
@@ -84,7 +109,7 @@ test.describe('in Jersey City', () => {
 
     test('S4-7 shows a city lot, and says its hours, rates, and spaces aren\'t shown', async ({ page }) => {
       await page.goto('/');
-      await page.getByRole('button', { name: 'Use my location' }).click();
+      await shareLocation(page);
 
       const lot = page.getByRole('article', { name: 'Lot 52' });
       await expect(lot.getByText(/^Lot · City-run · \d+ m away$/)).toBeVisible();
@@ -104,7 +129,7 @@ test.describe('in Jersey City', () => {
 
     test('S4-7 marks a site from tax records as unconfirmed, with no operator link', async ({ page }) => {
       await page.goto('/');
-      await page.getByRole('button', { name: 'Use my location' }).click();
+      await shareLocation(page);
 
       const site = page.getByRole('article', { name: '179 Montgomery St.' });
       await expect(site.getByText('Unconfirmed: tax records list this as public land used for parking.', { exact: false })).toBeVisible();
@@ -124,7 +149,7 @@ test.describe('in West New York', () => {
 
   test('S4-12 shows a lot\'s spaces, metered hours, and rates, with nothing listed as missing', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('button', { name: 'Use my location' }).click();
+    await shareLocation(page);
 
     const lot = page.getByRole('article', { name: '66th Street Parking Lot' });
     await expect(lot.getByText('73 spaces')).toBeVisible();
@@ -141,7 +166,7 @@ test.describe('in Hoboken', () => {
 
   test('S4-15 shows the garages taking hourly parkers, with their spaces, and not Garage G', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('button', { name: 'Use my location' }).click();
+    await shareLocation(page);
 
     const garage = page.getByRole('article', { name: 'Garage B' });
     await expect(garage.getByText(/^Garage · City-run · \d+ m away$/)).toBeVisible();
@@ -167,6 +192,16 @@ test('S4-10 searches near a typed address, chosen from suggestions', async ({ pa
   expect(await axeViolations(page)).toEqual([]);
 });
 
+test('S4-16 shows a New York City address from suggestions in proper case', async ({ page }) => {
+  await page.goto('/');
+  const box = page.getByRole('combobox', { name: 'Search near a town or address' });
+
+  await box.fill('120 Broadway, New York');
+  await page.getByRole('option', { name: /^120 Broadway, New York, NY/ }).click();
+
+  await expect(page.getByText('Searching near 120 Broadway, New York, NY')).toBeVisible();
+});
+
 test('S4-10 suggests a town from the built-in list', async ({ page }) => {
   await page.goto('/');
   const box = page.getByRole('combobox', { name: 'Search near a town or address' });
@@ -182,7 +217,7 @@ test('S4-10 suggests a town from the built-in list', async ({ page }) => {
 test('S1-10 points to the map when location sharing is off', async ({ page }) => {
   await page.goto('/');
 
-  await page.getByRole('button', { name: 'Use my location' }).click();
+  await shareLocation(page);
 
   await expect(page.getByText('Location sharing is off for this site. Tap the map to search there instead', { exact: false })).toBeVisible();
 });

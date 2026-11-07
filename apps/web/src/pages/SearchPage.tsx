@@ -2,6 +2,7 @@ import type { OperatorType } from '@parking/api-client';
 import { lazy, Suspense, useCallback, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { AddressSearch } from '../components/AddressSearch.tsx';
+import { LocationDialog } from '../components/LocationDialog.tsx';
 import { OperatorFilter } from '../components/OperatorFilter.tsx';
 import { DEFAULT_RADIUS, RadiusPicker } from '../components/RadiusPicker.tsx';
 import { ResultCard } from '../components/ResultCard.tsx';
@@ -14,7 +15,10 @@ import { OPERATOR_TYPES } from '../utils/operatorTypes.ts';
 // MapLibre is large, so the map loads only when it's configured (ADR-0009) and the page has rendered.
 const ResultsMap = lazy(() => import('../components/ResultsMap.tsx'));
 
-/** WEB-4, WEB-5, WEB-8, WEB-11. Search from the device's location, a tapped point, or a town or address. */
+/**
+ * WEB-4, WEB-5, WEB-8, WEB-11. Search near a town or address (the default), a tapped point, or the device's location,
+ * which the person volunteers through a dialog.
+ */
 export function SearchPage({ geolocation, styleUrl = mapStyleUrl }: { geolocation?: Geolocation; styleUrl?: string | null }) {
   const intl = useIntl();
   const [radius, setRadius] = useState(DEFAULT_RADIUS);
@@ -46,6 +50,15 @@ export function SearchPage({ geolocation, styleUrl = mapStyleUrl }: { geolocatio
     },
     [reset],
   );
+  // WEB-4: the device's location only after the person agrees in the dialog. Once they have, in this visit, the button
+  // searches straight away; the answer is kept in memory only, like the point.
+  const [asking, setAsking] = useState(false);
+  const [volunteered, setVolunteered] = useState(false);
+  const searchNearDevice = useCallback(() => {
+    setPlaceLabel(null);
+    locate();
+  }, [locate]);
+
   const showCard = useCallback((id: string) => {
     const card = document.getElementById(`card-${id}`);
     card?.scrollIntoView?.({ behavior: 'smooth', block: 'nearest' });
@@ -62,19 +75,34 @@ export function SearchPage({ geolocation, styleUrl = mapStyleUrl }: { geolocatio
       </p>
 
       <AddressSearch onSelect={searchNear} />
+      <p className="search__or" aria-hidden="true">
+        <FormattedMessage id="search.or" />
+      </p>
+      <button
+        type="button"
+        className="button button--secondary search__locate"
+        aria-haspopup={volunteered ? undefined : 'dialog'}
+        onClick={() => (volunteered ? searchNearDevice() : setAsking(true))}
+        disabled={state.status === 'locating'}
+      >
+        <svg className="search__locate-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="12" cy="12" r="3.5" />
+          <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+          <circle cx="12" cy="12" r="7" fill="none" />
+        </svg>
+        <FormattedMessage id="search.useLocation" />
+      </button>
+      <LocationDialog
+        open={asking}
+        onShare={() => {
+          setAsking(false);
+          setVolunteered(true);
+          searchNearDevice();
+        }}
+        onCancel={() => setAsking(false)}
+      />
       <div className="search__controls">
         <RadiusPicker value={radius} onChange={setRadius} />
-        <button
-          type="button"
-          className="button"
-          onClick={() => {
-            setPlaceLabel(null);
-            locate();
-          }}
-          disabled={state.status === 'locating'}
-        >
-          <FormattedMessage id="search.useLocation" />
-        </button>
       </div>
       <OperatorFilter value={operatorTypes} onChange={setOperatorTypes} />
       {styleUrl && (

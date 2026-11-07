@@ -42,7 +42,10 @@ await app.listen({ port: API_PORT, host: '127.0.0.1' });
 
 // Stand-ins for the geocoders address search calls (ADR-0013), so the smoke test calls nothing outside.
 const GEOCODERS: Record<string, unknown> = {
-  '/nyc/autocomplete': { features: [] },
+  // NYC GeoSearch writes streets in capitals; the app shows them in proper case (WEB-11).
+  '/nyc/autocomplete': {
+    features: [{ properties: { label: '120 BROADWAY, New York, NY, USA', gid: 'nycpad:address:smoke-120' }, geometry: { coordinates: [-74.010542, 40.708233] } }],
+  },
   '/nj/suggest': { suggestions: [{ text: '174 Newark Avenue, Jersey City, NJ, 07302', magicKey: 'smoke-174' }] },
   '/nj/findAddressCandidates': { candidates: [{ location: { x: -74.045042, y: 40.721587 } }] },
 };

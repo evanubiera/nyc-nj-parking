@@ -3,11 +3,12 @@
 // straight from the browser to the state's geocoder (NYC GeoSearch or the State's NJ_Geocode), never through
 // our API. Nothing typed is stored, logged, or put in a URL of ours (PRIV-1, PRIV-5).
 import { geocoderUrls } from '../config.ts';
+import { properCaseAddress } from '../utils/addressCase.ts';
 import { roundPoint, type Point } from '../utils/location.ts';
 
 export interface Suggestion {
   id: string;
-  /** The text to show, as the place list or geocoder writes it. */
+  /** The text to show: as the place list or geocoder writes it, with an address in capitals put in proper case. */
   label: string;
   kind: 'place' | 'address';
   /** For a place, a neighbourhood's borough or a town's county; it tells same-named places apart. */
@@ -89,7 +90,8 @@ async function nycAddresses(text: string, signal?: AbortSignal): Promise<Suggest
   const data = (await response.json()) as { features?: { properties?: { label?: string; gid?: string }; geometry?: { coordinates?: number[] } }[] };
   return (data.features ?? []).slice(0, MAX_ADDRESSES).flatMap((feature, index) => {
     const [lng, lat] = feature.geometry?.coordinates ?? [];
-    const label = feature.properties?.label?.replace(/, USA$/, '');
+    const raw = feature.properties?.label?.replace(/, USA$/, '');
+    const label = raw && properCaseAddress(raw);
     if (!label || typeof lat !== 'number' || typeof lng !== 'number') return [];
     return [{ id: `ny:${feature.properties?.gid ?? index}`, label, kind: 'address', state: 'NY', point: { lat, lng } } satisfies Suggestion];
   });
@@ -102,7 +104,7 @@ async function njAddresses(text: string, signal?: AbortSignal): Promise<Suggesti
   const data = (await response.json()) as { suggestions?: { text?: string; magicKey?: string }[] };
   return (data.suggestions ?? []).flatMap((suggestion) =>
     suggestion.text && suggestion.magicKey
-      ? [{ id: `nj:${suggestion.magicKey}`, label: suggestion.text, kind: 'address', state: 'NJ', magicKey: suggestion.magicKey } satisfies Suggestion]
+      ? [{ id: `nj:${suggestion.magicKey}`, label: properCaseAddress(suggestion.text), kind: 'address', state: 'NJ', magicKey: suggestion.magicKey } satisfies Suggestion]
       : [],
   );
 }

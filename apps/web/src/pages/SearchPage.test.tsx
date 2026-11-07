@@ -34,6 +34,12 @@ function geolocationAnswering(answer: { lat: number; lng: number } | { error: nu
   } as unknown as Geolocation;
 }
 
+/** WEB-4: the location button, then "Share my location" in the dialog it opens. */
+function shareLocation() {
+  fireEvent.click(screen.getByRole('button', { name: en['search.useLocation'] }));
+  fireEvent.click(within(screen.getByRole('dialog', { name: en['location.dialog.title'] })).getByRole('button', { name: en['location.dialog.share'] }));
+}
+
 beforeEach(() => {
   resetMaps();
   recommend.mockReset();
@@ -41,22 +47,62 @@ beforeEach(() => {
 });
 
 describe('SearchPage', () => {
-  it('WEB-4 asks for the location only when the person chooses to search near them', async () => {
+  it('WEB-4 asks for the location only after the person volunteers it in the dialog', async () => {
     const geolocation = geolocationAnswering({ lat: 40.71949, lng: -73.98751 });
     renderWithProviders(<SearchPage geolocation={geolocation} />);
 
-    expect(geolocation.getCurrentPosition).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: en['search.useLocation'] }));
+
+    const dialog = screen.getByRole('dialog', { name: en['location.dialog.title'] });
+    expect(dialog).toHaveAccessibleDescription(en['location.dialog.body']);
+    expect(geolocation.getCurrentPosition).not.toHaveBeenCalled();
+    expect(await axeViolations(document.body)).toEqual([]);
+
+    fireEvent.click(within(dialog).getByRole('button', { name: en['location.dialog.share'] }));
 
     expect(await screen.findByRole('heading', { name: '2 places within 2 km' })).toBeInTheDocument();
     expect(screen.getAllByRole('article')).toHaveLength(2);
     expect(geolocation.getCurrentPosition).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('WEB-4 asks nothing of the browser when the person says not now', () => {
+    const geolocation = geolocationAnswering({ lat: 40.71949, lng: -73.98751 });
+    renderWithProviders(<SearchPage geolocation={geolocation} />);
+
+    fireEvent.click(screen.getByRole('button', { name: en['search.useLocation'] }));
+    fireEvent.click(screen.getByRole('button', { name: en['location.dialog.cancel'] }));
+
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(geolocation.getCurrentPosition).not.toHaveBeenCalled();
+    expect(recommend).not.toHaveBeenCalled();
+  });
+
+  it('WEB-4 searches straight away the next time, once the person has shared in this visit', async () => {
+    const geolocation = geolocationAnswering({ lat: 40.71949, lng: -73.98751 });
+    renderWithProviders(<SearchPage geolocation={geolocation} />);
+    shareLocation();
+    await screen.findByRole('heading', { level: 2 });
+
+    fireEvent.click(screen.getByRole('button', { name: en['search.useLocation'] }));
+
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(geolocation.getCurrentPosition).toHaveBeenCalledTimes(2);
+  });
+
+  it('WEB-11 offers the search box first, with the location as a separate choice after it', () => {
+    renderWithProviders(<SearchPage />);
+
+    const box = screen.getByRole('combobox', { name: en['address.label'] });
+    const button = screen.getByRole('button', { name: en['search.useLocation'] });
+    expect(box.compareDocumentPosition(button) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(button).toHaveAttribute('aria-haspopup', 'dialog');
   });
 
   it('PRIV-3 passes on only the rounded point', async () => {
     renderWithProviders(<SearchPage geolocation={geolocationAnswering({ lat: 40.71949, lng: -73.98751 })} />);
 
-    fireEvent.click(screen.getByRole('button', { name: en['search.useLocation'] }));
+    shareLocation();
     await screen.findByRole('heading', { level: 2 });
 
     expect(recommend).toHaveBeenCalledWith({ lat: 40.719, lng: -73.988 }, 2000);
@@ -64,7 +110,7 @@ describe('SearchPage', () => {
 
   it('REC-2 searches again with the radius the person picks', async () => {
     renderWithProviders(<SearchPage geolocation={geolocationAnswering({ lat: 40.719, lng: -73.988 })} />);
-    fireEvent.click(screen.getByRole('button', { name: en['search.useLocation'] }));
+    shareLocation();
     await screen.findByRole('heading', { level: 2 });
 
     fireEvent.change(screen.getByLabelText(en['search.radius.label']), { target: { value: '5000' } });
@@ -76,7 +122,7 @@ describe('SearchPage', () => {
   it('WEB-4 explains what to do when location sharing is off and there is no map', async () => {
     const { container } = renderWithProviders(<SearchPage geolocation={geolocationAnswering({ error: 1 })} styleUrl={null} />);
 
-    fireEvent.click(screen.getByRole('button', { name: en['search.useLocation'] }));
+    shareLocation();
 
     expect(await screen.findByText(en['location.deniedNoMap'])).toBeInTheDocument();
     expect(container.querySelector('.results-map')).toBeNull();
@@ -86,7 +132,7 @@ describe('SearchPage', () => {
   it('WEB-4 points to the map when location sharing is off', async () => {
     renderWithProviders(<SearchPage geolocation={geolocationAnswering({ error: 1 })} styleUrl="https://tiles.example.test/style" />);
 
-    fireEvent.click(screen.getByRole('button', { name: en['search.useLocation'] }));
+    shareLocation();
 
     expect(await screen.findByText(en['location.denied'])).toBeInTheDocument();
   });
@@ -118,7 +164,7 @@ describe('SearchPage', () => {
   it('WEB-4 says so when the browser cannot share a location', () => {
     renderWithProviders(<SearchPage />);
 
-    fireEvent.click(screen.getByRole('button', { name: en['search.useLocation'] }));
+    shareLocation();
 
     expect(screen.getByText(en['location.unsupported'])).toBeInTheDocument();
   });
@@ -127,7 +173,7 @@ describe('SearchPage', () => {
     recommend.mockResolvedValue({ status: 'error', code: 'location.out_of_area' });
     renderWithProviders(<SearchPage geolocation={geolocationAnswering({ lat: 39.29, lng: -76.612 })} />);
 
-    fireEvent.click(screen.getByRole('button', { name: en['search.useLocation'] }));
+    shareLocation();
 
     expect(await screen.findByText(en['results.error.location.out_of_area'])).toBeInTheDocument();
   });
@@ -136,7 +182,7 @@ describe('SearchPage', () => {
     recommend.mockResolvedValue({ status: 'ok', results: [] });
     renderWithProviders(<SearchPage geolocation={geolocationAnswering({ lat: 40.736, lng: -74.172 })} />);
 
-    fireEvent.click(screen.getByRole('button', { name: en['search.useLocation'] }));
+    shareLocation();
 
     expect(await screen.findByText('No public parking found within 2 km. Try a wider search.')).toBeInTheDocument();
   });
@@ -149,7 +195,7 @@ describe('SearchPage', () => {
     expect(boxes.map((box) => box.closest('label')?.textContent)).toEqual(['City-run', 'County-run', 'State-run', 'Transit agency', 'Public authority']);
     expect(screen.getByRole('checkbox', { name: en['search.unconfirmed.toggle'] })).toBeChecked();
     expect(boxes.every((box) => (box as HTMLInputElement).checked)).toBe(true);
-    fireEvent.click(screen.getByRole('button', { name: en['search.useLocation'] }));
+    shareLocation();
     await screen.findByRole('heading', { level: 2 });
     expect(recommend).toHaveBeenLastCalledWith({ lat: 40.797, lng: -74.474 }, 2000);
 
@@ -164,7 +210,7 @@ describe('SearchPage', () => {
 
   it('WEB-9 leaves out unconfirmed sites when their checkbox is cleared', async () => {
     renderWithProviders(<SearchPage geolocation={geolocationAnswering({ lat: 40.721, lng: -74.044 })} />);
-    fireEvent.click(screen.getByRole('button', { name: en['search.useLocation'] }));
+    shareLocation();
     await screen.findByRole('heading', { level: 2 });
 
     fireEvent.click(screen.getByRole('checkbox', { name: en['search.unconfirmed.toggle'] }));
@@ -182,7 +228,7 @@ describe('SearchPage', () => {
     for (const box of within(group).getAllByRole('checkbox')) fireEvent.click(box);
     fireEvent.click(screen.getByRole('checkbox', { name: en['search.unconfirmed.toggle'] }));
 
-    fireEvent.click(screen.getByRole('button', { name: en['search.useLocation'] }));
+    shareLocation();
 
     expect(await screen.findByText(en['search.operators.none'])).toBeInTheDocument();
     expect(recommend).not.toHaveBeenCalled();
@@ -226,7 +272,7 @@ describe('SearchPage', () => {
 
   it('WEB-2 has no axe violations with results showing', async () => {
     const { container } = renderWithProviders(<SearchPage geolocation={geolocationAnswering({ lat: 40.719, lng: -73.988 })} />);
-    fireEvent.click(screen.getByRole('button', { name: en['search.useLocation'] }));
+    shareLocation();
     await screen.findAllByText(/Facilities Database/);
 
     expect(await axeViolations(container)).toEqual([]);

@@ -108,6 +108,7 @@ Decided with the user on 2026-11-04: show Jersey City's 7 city lots now, without
 | S4-13 | Hoboken's garages that take hourly parkers, with capacity, from the City's page (`hoboken-garages`), email addresses removed before storing; ADR-0015 (asked for by the user on 2026-11-06: "continue with the rest of the hudson county cities") | ING-2, ING-10, ATT-2 | Done |
 | S4-14 | Unconfirmed sites in all 12 Hudson County towns (`nj-parcels-hudson-parking`, replacing `nj-parcels-jc-parking`; migration 0006): the county's wording for parking, the neighbours query in parts, playgrounds and public works buildings as other uses, per-town facility IDs, and 60 m matching for West New York's lots and Hoboken's garages | ING-13, ING-14 | Done |
 | S4-15 | Smoke test and a browser check in Hoboken and Bayonne | All slice 4 | Done |
+| S4-16 | Web: the search box first, as the default; "or", then "Use my current location" as a separate button that opens a dialog, where the person volunteers their location; NYC addresses in suggestions in proper case, with ordinals for numbered streets (asked for by the user on 2026-11-06) | WEB-4, WEB-11, PRIV-3 | Done |
 
 ### Slice 4 status, Hudson County (2026-11-06)
 

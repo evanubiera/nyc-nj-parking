@@ -10,10 +10,12 @@ export const en = {
     "Garages, lots, and fields run by cities, counties, the state, and transit agencies. This release covers NYC Department of Transportation garages and fields; the municipal lots of Jersey City and West New York and Hoboken's garages; and, across Hudson County, unconfirmed sites from tax records.",
   'search.radius.label': 'Search within',
   'search.radius.option': '{km, number} km',
-  'search.useLocation': 'Use my location',
+  // WEB-4: the device's location is offered apart from the search box, and shared only through the dialog.
+  'search.or': 'or',
+  'search.useLocation': 'Use my current location',
   // WEB-11, ADR-0013: address search.
   'address.label': 'Search near a town or address',
-  'address.placeholder': 'Hoboken, NJ or 174 Newark Ave, Jersey City, NJ',
+  'address.placeholder': 'Hoboken, NJ or 174 Newark Ave',
   'address.suggestions': 'Suggestions',
   'address.area': '{area}, {state}',
   'address.count': '{count, plural, one {# suggestion} other {# suggestions}}. Use the up and down arrows to choose.',
@@ -28,6 +30,12 @@ export const en = {
   'search.unconfirmed.toggle': 'Show unconfirmed sites (from tax records)',
   'search.mapHint': 'Or tap the map to search there.',
 
+  'location.dialog.title': 'Search near your current location?',
+  'location.dialog.body':
+    "To search near you, this site needs your device's location. It's rounded to about 100 m before it leaves your device, used only for this search, and never stored.",
+  'location.dialog.browser': 'Your browser may ask you to allow it.',
+  'location.dialog.share': 'Share my location',
+  'location.dialog.cancel': 'Not now',
   'location.locating': 'Finding your location…',
   'location.denied': "Location sharing is off for this site. Tap the map to search there instead, or allow location for this site in your browser's settings.",
   'location.deniedNoMap':
