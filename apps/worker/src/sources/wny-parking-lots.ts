@@ -10,8 +10,11 @@ import type { Normalized, RateInput, SourceRecordInput } from '../facilities/typ
 import type { UpstreamHttp } from '../http.ts';
 import type { MeterPeriod } from '../normalize/meter-hours.ts';
 import { matchTokens } from '../normalize/names.ts';
+import { pageText } from './html.ts';
 import { NEW_YORK_TIME } from './nyc.ts';
 import type { FetchedData, SourceDefinition, StoredSnapshot } from './types.ts';
+
+export { pageText };
 
 export const WNY_FACILITIES_PAGE = 'https://www.westnewyorknj.org/pages/parking-services/facilities/';
 
@@ -74,24 +77,6 @@ function dayMask(first: string, last: string): number {
   let mask = 0;
   for (let day = a; day <= b; day += 1) mask |= 1 << day;
   return mask;
-}
-
-/** The page's text, one block per line. */
-export function pageText(body: Uint8Array): string {
-  const html = new TextDecoder().decode(body);
-  const text = html
-    .replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/gi, '')
-    .replace(/<[^>]+>/g, '\n')
-    .replace(/&#8217;|&rsquo;/g, '’')
-    .replace(/&#8211;|&ndash;/g, '–')
-    .replace(/&amp;/g, '&')
-    .replace(/&nbsp;|&#160;/g, ' ')
-    .replace(/&#162;|&cent;/g, '¢');
-  return text
-    .split('\n')
-    .map((line) => line.replace(/\s+/g, ' ').trim())
-    .filter(Boolean)
-    .join('\n');
 }
 
 /** The page's "Municipal Parking Lots" section: the lot rules and the list. */

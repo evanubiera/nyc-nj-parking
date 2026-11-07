@@ -80,7 +80,7 @@ One facility as one source describes it, after normalizing. Each successful run 
 | name | text | As published |
 | kind | text | `garage`, `lot`, or `field` |
 | operator_name | text | Such as "NYC Department of Transportation" |
-| operator_type | text | `municipal`, `county`, `state`, `transit_agency`, or `public_authority` (ADR-0007) |
+| operator_type | text | `municipal`, `county`, `state`, `transit_agency`, or `public_authority` (ADR-0007). A town's own parking utility or parking authority, such as the Union City Parking Authority, is `municipal` ("City-run"); `public_authority` is for regional and state authorities, such as the Port Authority. `unknown` only for an unconfirmed site (ADR-0012) |
 | address_line | text, nullable | The facility's public street address, when a source gives one |
 | locality, region | text | `locality` is a borough or municipality; `region` is `NY` or `NJ` |
 | time_zone | text | IANA name |

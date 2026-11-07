@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" href="/favicon.ico" />
+    <title>UCPA - Municipal Parking Lots</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/[email address removed]/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/[email address removed]/font/bootstrap-icons.min.css" crossorigin="anonymous" />
+    <link href="/_Assets/css/default.css" rel="stylesheet"/>
+
+    <link href="/_Assets/css/components/footable/footable.core.css" rel="stylesheet"/>
+
+    
+    <style>
+        .feature-img {
+            background-image: url('/_Content/img/slide/hdr-parking.jpg');
+        }
+    </style>
+
+</head>
+<body id="site-body" itemscope itemtype="http://schema.org/WebPage">
+
+    <div class="container-fluid">
+        <div class=" row">
+
+            <header class="col-md-12 site-header" role="banner" itemscope itemtype="http://schema.org/WPHeader">
+                <section class="row">
+                    <nav class="col-md-12">
+
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-12 navbar navbar-default" role="navigation" itemscope itemtype="http://schema.org/SiteNavigationElement">
+                                    <div class="navbar-header">
+                                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#site-nav" aria-controls="site-nav" aria-expanded="false" aria-label="Toggle navigation">
+                                            <span class="sr-only">Toggle navigation</span>
+                                            <span class="icon-bar"></span>
+                                            <span class="icon-bar"></span>
+                                            <span class="icon-bar"></span>
+                                        </button>
+                                        <a class="navbar-brand" href="/" itemprop="headline">UCPA</a>
+                                    </div>
+                                    <div class="collapse navbar-collapse" id="site-nav">
+                                        <ul class="nav navbar-nav">
+                                            <li id="menu-s1" class="has-form clearfix">
+                                                <a href="/Search/" rel="nofollow">Search</a>
+                                                <form class="input-group" role="search" action="/Search/">
+                                                    <input name="searchText" id="searchText" placeholder="Help me find..." type="search" autocomplete="on" class="form-control site-search-1" />
+                                                    <div class="input-group-append">
+                                                        <button type="submit" class="btn btn-default"><i class="bi bi-search" aria-hidden="true"></i></button>
+                                                    </div>
+                                                </form>
+                                            </li>
+                                            <li id="menu-hm"><a href="/" itemprop="url"><span itemprop="name">Home</span></a></li>
+                                            <li id="menu-pa"><a href="/Parking" itemprop="url"><span itemprop="name">Parking</span></a></li>
+                                            <li id="menu-pe"><a href="/Permits" itemprop="url"><span itemprop="name">Permits</span></a></li>
+                                            <li id="menu-fo"><a href="/Forms" itemprop="url"><span itemprop="name">Forms</span></a></li>
+                                            <li id="menu-me"><a href="/Meetings" itemprop="url"><span itemprop="name">Meetings</span></a></li>
+                                            <li id="menu-di"><a href="/Directory" itemprop="url"><span itemprop="name">Directory</span></a></li>
+                                            <li id="menu-ad"><a href="/Commissioners" itemprop="url"><span itemprop="name">Commissioners</span></a></li>
+                                            <li id="menu-ho"><a href="#" itemprop="url" data-toggle="modal" data-target="#Hours"><span itemprop="name">Hours</span></a></li>
+                                            <li id="menu-co"><a href="/Contact" itemprop="url"><span itemprop="name">Contact</span></a></li>
+                                            <li id="menu-s2" class="dropdown">
+                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" rel="nofollow">Search</a>
+                                                <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                                                    <li class="has-form">
+                                                        <form class="input-group" role="search" action="/Search/">
+                                                            <input name="searchText" id="searchText2" placeholder="Help me find..." type="search" autocomplete="on" class="form-control site-search-2" />
+                                                            <div class="input-group-append">
+                                                                <button type="submit" class="btn btn-default"><i class="bi bi-search" aria-hidden="true"></i></button>
+                                                            </div>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+                    </nav>
+                </section>
+
+                
+    <section class="row">
+    <div class="col-md-12 feature-img">
+
+        <div class="container">
+            <div class="row">
+
+                <div class="col-md-12 feature-bg">
+
+                    <figure itemscope itemtype="http://schema.org/GovernmentOrganization">
+                        <figcaption>
+                            <h1 itemprop="legalName"><a href="/"><strong>UCPA</strong>Union City Parking Authority</a></h1>
+                        </figcaption>
+                        <a href="/" itemprop="url"><img src="/_Assets/img/logo/site-logo.png" alt="Union City Parking Authority" class="site-logo img-responsive" itemprop="logo" /></a>
+                    </figure>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+                <section class="hid ticker-init" id="ticker-init">
+
+                    <ul id="ticker">
+                        <li>
+                            <ul id="ticker-data">
+                                
+                            </ul>
+                        </li>
+                    </ul>
+                </section>
+            </header>
+        </div>
+
+        <main class="row main-content" role="main">
+
+            <div class="col-md-12">
+                <div class="container">
+                    <div class="row">
+
+                        
+
+
+
+<section class="col-md-6 col-md-push-3 primary" id="primary" role="main" itemscope itemprop="mainContentOfPage">
+    <section class="inner-section parking-section">
+
+        <header class="main-hdr text-center" data-page="di">
+            <h2>Parking Lots <span>Municipal Lot Locations</span></h2>
+        </header>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                6th Street West
+            </div>
+            <div class="panel-body">
+                Located on 6th and West Street. <strong>Permit Holders Only</strong>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                12th-13th Street Lot
+            </div>
+            <div class="panel-body">
+                Located between 12th &amp; 13th Street between New York Ave. and Palisade Ave. <strong>Permit Holders Only</strong>
+            </div>
+        </div>
+
+        
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                25th Street Lot
+            </div>
+            <div class="panel-body">
+                Located at 25th Street between Bergenline Ave. and Central Ave.
+                <br /><br /><strong><b>No commercial vehicles allowed to park in municipal parking lots</b></strong>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                35th-36th Street Lot
+            </div>
+            <div class="panel-body">
+                Located between 35th &amp; 36th Street between Bergenline Ave. and Kennedy Blvd.
+                <br /><br /><strong><b>No commercial vehicles allowed to park in municipal parking lots</b></strong>
+            </div>
+        </div>
+
+        
+
+        
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                39th-38th Street Deck
+            </div>
+            <div class="panel-body">
+                Located between Bergenline Ave. and Kennedy Blvd.
+                <br /><br /><strong><b>No commercial vehicles allowed to park in municipal parking lots</b></strong>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                41st-42th Street Lot
+            </div>
+            <div class="panel-body">
+                Located between 41th &amp; 42th Street between Bergenline Ave. and Kennedy Blvd.
+                <br /><br /><strong><b>No commercial vehicles allowed to park in municipal parking lots</b></strong>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                44th-45th Street Lot
+            </div>
+            <div class="panel-body">
+                Located between 44th &amp; 45th Street between Bergenline Ave. and New York Ave.
+                <br /><br /><strong><b>No commercial vehicles allowed to park in municipal parking lots</b></strong>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                47th-48th Street Lot
+            </div>
+            <div class="panel-body">
+                Located between 47th &amp; 48th Street between Bergenline Ave. and Kennedy Blvd.
+                <br /><br /><strong><b>No commercial vehicles allowed to park in municipal parking lots</b></strong>
+            </div>
+        </div>
+    </section>
+</section>
+
+
+
+                        
+    <aside class="col-md-3 col-md-pull-6 sidebar" role="complementary" itemscope itemtype="http://schema.org/WPSideBar">
+<section class="row">
+    <div class="col-md-12">
+
+        <h3>Meetings <span>Our Upcoming Public Meetings</span></h3>
+
+        <div class="side-box-border">
+            <ul class="list-xpand meeting-side">
+                        <li>
+                            <span>Tuesday, 11/17/26 7:00 PM</span>
+                            <span>UCPA Board Meeting</span>
+                        </li>
+                        <li>
+                            <span>Tuesday, 12/15/26 7:00 PM</span>
+                            <span>UCPA Board Meeting</span>
+                        </li>
+            </ul>
+        </div>
+        <p class="etc-link etc-adj">
+            <a href="/Meetings">View All Meeting Info</a>
+        </p>
+    </div>
+</section>
+
+<section class="row has-subsection">
+    <div class="col-md-12">
+
+        <h3>Financials <span>View Our Finance Details</span></h3>
+
+            <h4>Budgets</h4>
+            <div class="side-box-border">
+                <ul class="list-xpand">
+                        <li><a href="/_Content/pdf/budgets/2026-Intorduced-Budget.pdf" target="_blank">2026 - Introduced</a></li>
+                        <li><a href="/_Content/pdf/budgets/2025-Adopted-Budget.pdf" target="_blank">2025</a></li>
+                        <li><a href="/_Content/pdf/budgets/2024-Adopted-Budget.pdf" target="_blank">2024</a></li>
+                        <li><a href="/_Content/pdf/budgets/2023-Adopted-Budget.pdf" target="_blank">2023</a></li>
+                        <li><a href="/_Content/pdf/2022-Adopted-Budget.pdf" target="_blank">2022</a></li>
+                        <li><a href="/_Content/pdf/budgets/2021-Adopted-Budget.pdf" target="_blank">2021</a></li>
+                        <li><a href="/_Content/pdf/budgets/2020-Adopted-Budget.pdf" target="_blank">2020</a></li>
+                        <li><a href="/_Content/pdf/2019-Adopted-Budget.pdf">2019</a></li>
+                        <li><a href="/_Content/pdf/budgets/2018-Adopted-Budget.pdf" target="_blank">2018</a></li>
+                        <li><a href="/_Content/pdf/budgets/2017-Adopted-Budget.pdf">2017</a></li>
+                        <li><a href="/_Content/pdf/budgets/2016-Adopted-Budget.pdf">2016</a></li>
+                        <li><a href="/_Content/pdf/budgets/2016-One-Month-Budget-DEC.pdf">2016 One Month Budget - Dec</a></li>
+                        <li><a href="/_Content/pdf/budgets/2015-Adopted-Budget.pdf" target="_blank">2015</a></li>
+                        <li><a href="/_Content/pdf/budgets/2014-Adopted-Budget.pdf" target="_blank">2014</a></li>
+                        <li><a href="/_Content/pdf/budgets/2013-Adopted-Budget.pdf" target="_blank">2013</a></li>
+                </ul>
+            </div>
+            <h4>Audits</h4>
+            <div class="side-box-border">
+                <ul class="list-xpand">
+                        <li><a href="/_Content/pdf/audits/2024-Audit-Report.pdf" target="_blank">2024</a></li>
+                        <li><a href="/_Content/pdf/audits/2023-Audit-Report.pdf" target="_blank">2023</a></li>
+                        <li><a href="/_Content/pdf/audits/2022-Audit-Report.pdf">2022</a></li>
+                        <li><a href="/_Content/pdf/audits/2020-Audit-Report.pdf" target="_blank">2020</a></li>
+                        <li><a href="/_Content/pdf/audits/2019-Audit-Report.pdf" target="_blank">2019</a></li>
+                        <li><a href="/_Content/pdf/audits/2018-Audit-Report.pdf" target="_blank">2018</a></li>
+                        <li><a href="/_Content/pdf/audits/2017-Audit-Report.pdf">2017</a></li>
+                        <li><a href="/_Content/pdf/audits/2016-Audit-Report.pdf" target="_blank">2016</a></li>
+                        <li><a href="/_Content/pdf/audits/2015-Audit-Report.pdf" target="_blank">2015</a></li>
+                        <li><a href="/_Content/pdf/audits/2014-Audit-Report.pdf" target="_blank">2014</a></li>
+                        <li><a href="/_Content/pdf/audits/2013-Audit-Report.pdf" target="_blank">2013</a></li>
+                        <li><a href="/_Content/pdf/audits/2012-Audit-Report.pdf" target="_blank">2012</a></li>
+                        <li><a href="/_Content/pdf/audits/2011-Audit-Report.pdf" target="_blank">2011</a></li>
+                        <li><a href="/_Content/pdf/audits/2010-Audit-Report.pdf" target="_blank">2010</a></li>
+                        <li><a href="/_Content/pdf/audits/2009-Audit-Report.pdf" target="_blank">2009</a></li>
+                </ul>
+            </div>
+            <h4>Published Audit Synopsis</h4>
+            <div class="side-box-border">
+                <ul class="list-xpand">
+                        <li><a href="/_Content/pdf/2023-2024-AUDIT-SYNOPSIS.pdf" target="_blank">FY 2024 &amp; 2023</a></li>
+                        <li><a href="/_Content/pdf/audits-published/2021-2022-Published-Audit-Synopsis.pdf">FY 2022 &amp; 2021</a></li>
+                        <li><a href="/_Content/pdf/audits-published/2018-2017-Published-Audit-Synopsis.pdf" target="_blank">FY 2018 &amp; 2017</a></li>
+                        <li><a href="/_Content/pdf/audits-published/2014-2013-Published-Audit-Synopsis.pdf" target="_blank">FY 2014 &amp; 2013</a></li>
+                        <li><a href="/_Content/pdf/audits-published/2013-2012-Published-Audit-Synopsis.pdf" target="_blank">FY 2013 &amp; 2012</a></li>
+                        <li><a href="/_Content/pdf/audits-published/2012-2011-Published-Audit-Synopsis.pdf" target="_blank">FY 2012 &amp; 2011</a></li>
+                        <li><a href="/_Content/pdf/audits-published/2011-2010-Published-Audit-Synopsis.pdf" target="_blank">FY 2011 &amp; 2010</a></li>
+                        <li><a href="/_Content/pdf/audits-published/2010-2009-Published-Audit-Synopsis.pdf" target="_blank">FY 2010 &amp; 2009</a></li>
+                        <li><a href="/_Content/pdf/audits-published/2009-2008-Published-Audit-Synopsis.pdf" target="_blank">FY 2009 &amp; 2008</a></li>
+                </ul>
+            </div>
+            <h4>Unaudited Financial Statements</h4>
+            <div class="side-box-border">
+                <ul class="list-xpand">
+                        <li><a href="/_Content/pdf/statements/2013-Unaudited-Annual-Financial-Statements.pdf" target="_blank">2013</a></li>
+                </ul>
+            </div>
+    </div>
+</section>
+</aside>
+    <aside class="col-md-3 sidebar" role="complementary" itemscope itemtype="http://schema.org/WPSideBar">
+
+    <section class="row welcome">
+        <div class="col-md-12">
+
+            <h3>Welcome <span>A Message From Our Executive Director</span></h3>
+
+            <div class="side-box-border">
+                <div class="side-box xpand">
+                    <p>
+                        Welcome to the Union City Parking Authority website.  The Parking Authority manages and maintains the on-street and parking facilities throughout the city.  It is our mission to provide clean and safe parking for residents and visitors.
+                    </p>
+                    <p>
+                        The Parking Authority staff is available to assist you with any questions or concerns you may have regarding parking in Union City.  As a convenience to you, we have extended our hours on Monday until 6 PM and we are open on Saturdays until noon.
+                    </p>
+                    <p>
+                        The Parking Authority is very active on social media and will often post changes to parking hours on Twitter.  The UCPA Twitter account is also linked to our website so you can always receive the most up to date information available.
+                    </p>
+                    <p>
+                        It is our hope to provide the best public service possible.  If you have any suggestions or concerns, please do not hesitate to contact us.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="row mission">
+        <div class="col-md-12">
+
+            <h3>Our Mission <span>About Us &amp; How We Serve You</span></h3>
+
+            <div class="side-box-border">
+                <div class="side-box xpand">
+                    <p>
+                        The mission of The Authority is the construction, provision and operation of off-street parking
+                        facilities, for the promotion of free traffic flow, relief of traffic congestion on the City's
+                        streets and improvement of conditions affecting the public safety and welfare.
+                    </p>
+                    <p>
+                        Additionally, to the extent authorized by the governing body of the City, The Authority is
+                        responsible for the management and operation of on-street parking and related facilities through the
+                        use of parking meters and the Residential Permit Parking Program (RPP). The Authority is also responsible
+                        for the enforcement of applicable laws, ordinances and regulations as to the parking of vehicles. The
+                        Authority is self-sufficient with all revenues derived from on-street meters; management fees; summons
+                        fine sharing and rental income from off-street parking lots.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+
+<section class="row">
+    <div class="col-md-12">
+        <a href="https://portal.njcourts.gov/webe11/atswepr2/home.do" target="_blank">
+            <img src="/_Assets/img/btn/btn-Pay-Your-Parking-Tickets-Online.jpg" alt="Pay Your Parking Tickets Online" />
+        </a>
+    </div>
+</section>
+
+<section class="row">
+    <div class="col-md-12">
+        <a href="https://ucpaonline.parkvantage.com/" target="_blank">
+            <img src="/_Assets/img/btn/btn-Residential-Visitors-Parking-Permits-Application.jpg" alt="Residential & Visitors Parking Permits Application" />
+        </a>
+    </div>
+</section>
+
+<section class="row">
+    <div class="col-md-12">
+
+        <h3>Quick Links <span>Links of Interest to Citizens &amp; Visitors </span></h3>
+
+        <div class="side-box-border">
+            <ul class="list-xpand">
+                    <li><a href="/_Content/pdf/Union-City-Master-Plan.pdf" target="_blank">Union City Master Plan</a></li>
+                    <li><a href="/_content/pdf/Zoning_Map_UC.pdf" target="_blank">Union City Zoning Map</a></li>
+                    <li><a href="http://www.ucnj.com" target="_blank">Union City Website</a></li>
+                    <li><a href="http://www.ucranj.org" target="_blank">Union City Redevelopment Agency</a></li>
+                    <li><a href="http://www.unioncitypd.org" target="_blank">Union City Police Dept</a></li>
+                    <li><a href="http://www.ecode360.com/15776422">Union City Online Ordinance Archive</a></li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+
+        
+
+                
+
+
+            
+</aside>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        
+
+        <div class="modal fade" id="Hours" tabindex="-1" role="dialog" aria-labelledby="HoursLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="HoursLabel">UCPA Hours of Operation</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+
+                        <ul class="nav nav-tabs" id="hour-tabs" role="tablist">
+                            <li class="nav-item"><a class="nav-link active" id="hours-tab" data-toggle="tab" href="#hours" role="tab">Hours</a></li>
+                            <li class="nav-item"><a class="nav-link" id="holiday-tab" data-toggle="tab" href="#holiday" role="tab">Holiday Schedule</a></li>
+                        </ul>
+
+                        <div class="tab-content">
+
+                            <div role="tabpanel" class="tab-pane fade show active" id="hours">
+                                <div class="tab-inner">
+                                    <p>
+                                        The Authority operates twenty-four (24) hours per day seven days per week.
+                                        It is the policy of the authority to maintain Administrative Office Hours.
+                                    </p>
+                                    <ul class="ul no-bullet li-mb-lg">
+                                        <li><i class="bi bi-clock" aria-hidden="true"></i> Monday - 8:00AM to 6:00PM</li>
+                                        <li><i class="bi bi-clock" aria-hidden="true"></i> Tuesday - 8:00AM to 4:00PM</li>
+                                        <li><i class="bi bi-clock" aria-hidden="true"></i> Wednesday - 8:00AM to 4:00PM</li>
+                                        <li><i class="bi bi-clock" aria-hidden="true"></i> Thursday - 8:00AM to 4:00PM</li>
+                                        <li><i class="bi bi-clock" aria-hidden="true"></i> Friday - 8:00AM to 4:00PM</li>
+                                        <li><i class="bi bi-clock" aria-hidden="true"></i> Saturday - 8:00AM to 12:00PM</li>
+                                        <li><i class="bi bi-clock" aria-hidden="true"></i> Sunday - <span class="txt-red">CLOSED</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div role="tabpanel" class="tab-pane fade" id="holiday">
+                                <div class="tab-inner">
+                                    <p>
+                                        Union City Parking Authority will be closed on the following dates:
+                                    </p>
+                                    <ul class="ul no-bullet li-mb-md">
+                                        <li>
+                                            <a href="https://www.google.com/search?q=Martin+Luther+King+Jr.+Day+Date" target="_blank">
+                                                <span class="bi bi-calendar" aria-hidden="true"></span>
+                                                January 20, 2025 (Monday) – Martin Luther King Day
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="https://www.google.com/search?q=President%27s+Day+Date" target="_blank">
+                                                <span class="bi bi-calendar" aria-hidden="true"></span>
+                                                February 17, 2025 (Monday) – Washington's Birthday (President's Day)
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="https://www.google.com/search?q=Good+Friday+Date" target="_blank">
+                                                <span class="bi bi-calendar" aria-hidden="true"></span>
+                                                April 18, 2025 (Friday) – Good Friday
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="https://www.google.com/search?q=Memorial+Day+Date" target="_blank">
+                                                <span class="bi bi-calendar" aria-hidden="true"></span>
+                                                May 26, 2025 (Monday) – Memorial Day
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="https://www.google.com/search?q=Juneteenth" target="_blank">
+                                                <span class="bi bi-calendar" aria-hidden="true"></span>
+                                                June 19, 2025 (Thursday) – Juneteenth
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="https://www.google.com/search?q=Independence+Day+Date" target="_blank">
+                                                <span class="bi bi-calendar" aria-hidden="true"></span>
+                                                July 4, 2025 (Friday) – Independence Day
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="https://www.google.com/search?q=Labor+Day+Date" target="_blank">
+                                                <span class="bi bi-calendar" aria-hidden="true"></span>
+                                                September 1, 2025 (Monday) – Labor Day
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="https://www.google.com/search?q=Columbus+Day+Date" target="_blank">
+                                                <span class="bi bi-calendar" aria-hidden="true"></span>
+                                                October 13, 2025 (Monday) – Columbus Day
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="https://www.google.com/search?q=US+Election+Day+Date" target="_blank">
+                                                <span class="bi bi-calendar" aria-hidden="true"></span>
+                                                November 4, 2025 (Tuesday) – General Election Day
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="https://www.google.com/search?q=Veterans+Day+Date" target="_blank">
+                                                <span class="bi bi-calendar" aria-hidden="true"></span>
+                                                November 11, 2025 (Tuesday) – Veteran's Day
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="https://www.google.com/search?q=Thanksgiving+Day+Date" target="_blank">
+                                                <span class="bi bi-calendar" aria-hidden="true"></span>
+                                                November 27, 2025 (Thursday) – Thanksgiving Day
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="https://www.google.com/search?q=Thanksgiving+Day+Date" target="_blank">
+                                                <span class="bi bi-calendar" aria-hidden="true"></span>
+                                                November 28, 2025 (Friday) – Day after Thanksgiving
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="https://www.google.com/search?q=Christmas+Eve+Date" target="_blank">
+                                                <span class="bi bi-calendar" aria-hidden="true"></span>
+                                                December 24, 2025 (Wednesday) – Christmas Eve (1/2 day pm)
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="https://www.google.com/search?q=Christmas+Day+Date" target="_blank">
+                                                <span class="bi bi-calendar" aria-hidden="true"></span>
+                                                December 25, 2025 (Thursday) – Christmas Day
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="https://www.google.com/search?q=New+Years+Day+Date" target="_blank">
+                                                <span class="bi bi-calendar" aria-hidden="true"></span>
+                                                December 31, 2025 (Wednesday) – New Year's Eve (1/2 day pm)
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="https://www.google.com/search?q=New+Years+Day+Date" target="_blank">
+                                                <span class="bi bi-calendar" aria-hidden="true"></span>
+                                                December 1, 2026 (Wednesday) – New Year's Day
+                                            </a>
+                                        </li>
+                                    </ul>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+
+        <footer class="row">
+
+            <div class="col-md-12">
+                <div class="container">
+                    <div class="row">
+
+                        <section class="col-md-4">
+
+                            <h3><a href="/Commissioners" itemprop="url">Commissioners</a></h3>
+
+                            <ul class="board-list">
+                                <li itemscope itemtype="http://schema.org/Person">
+                                    <strong itemprop="jobTitle">Chairwoman</strong>
+                                    <span itemprop="name" class="board-name">Tifphany White</span>
+                                </li>
+                                <li itemscope itemtype="http://schema.org/Person">
+                                    <strong itemprop="jobTitle">Secretary</strong>
+                                    <span itemprop="name" class="board-name">Daisy Rivera</span>
+                                </li>
+                                <li itemscope itemtype="http://schema.org/Person">
+                                    <strong itemprop="jobTitle">A/ Executive Director</strong>
+                                    <span itemprop="name" class="board-name">D./ Sgt. Ivan Palacios</span>
+                                </li>
+                                <li itemscope itemtype="http://schema.org/Person">
+                                    <strong itemprop="jobTitle">Commissioner</strong>
+                                    <span itemprop="name" class="board-name">Benigno Rosario</span>
+                                </li>
+                                <li itemscope itemtype="http://schema.org/Person">
+                                    <strong itemprop="jobTitle">Commissioner</strong>
+                                    <span itemprop="name" class="board-name">Teresa Adams</span>
+                                </li>
+                                <li itemscope itemtype="http://schema.org/Person">
+                                    <strong itemprop="jobTitle">Commissioner</strong>
+                                    <span itemprop="name" class="board-name">Omar Chaqour</span>
+                                </li>
+                                <li itemscope itemtype="http://schema.org/Person">
+                                    <strong itemprop="jobTitle">Commissioner</strong>
+                                    <span itemprop="name" class="board-name">Elsa Leonard</span>
+                                </li>
+                                <li itemscope itemtype="http://schema.org/Person">
+                                    <strong itemprop="jobTitle">Commissioner</strong>
+                                    <span itemprop="name" class="board-name">Ligia Marte</span>
+                                </li>
+                            </ul>
+                        </section>
+
+                        <nav class="col-md-4" role="navigation" itemscope itemtype="http://schema.org/SiteNavigationElement">
+
+                            <h3>Site Map</h3>
+
+                            <ul>
+                                <li><a href="/" itemprop="url"><span itemprop="name">Home</span></a></li>
+                                <li><a href="/Parking" itemprop="url"><span itemprop="name">Parking</span></a></li>
+                                <li><a href="/Permits" itemprop="url"><span itemprop="name">Permits</span></a></li>
+                                <li><a href="/Forms" itemprop="url"><span itemprop="name">Forms</span></a></li>
+                                <li><a href="/Meetings" itemprop="url"><span itemprop="name">Meetings</span></a></li>
+                                <li><a href="/Directory" itemprop="url"><span itemprop="name">Directory</span></a></li>
+                                <li><a href="/Commissioners" itemprop="url"><span itemprop="name">Commissioners</span></a></li>
+                                <li><a href="#" itemprop="url" data-toggle="modal" data-target="#Hours"><span itemprop="name">Hours</span></a></li>
+                                <li><a href="/Contact" itemprop="url"><span itemprop="name">Contact</span></a></li>
+                                
+                            </ul>
+
+                            <div class="social-links clearfix">
+                                <a href="https://www.facebook.com/ucpanj" class="social-icon clearfix"><span class="ico-fb">&nbsp;</span><i><em>Visit us on Facebook!</em></i></a>
+                                <a href="https://twitter.com/UCParking" class="social-icon clearfix"><span class=" ico-tw">&nbsp;</span><i><em>Visit us on Twitter!</em></i></a>
+                            </div>
+                        </nav>
+
+                        <figure class="col-md-3 col-md-push-1 text-center">
+                            <a href="/Parking"><img src="/_Assets/img/logo/footer-logo.png" /></a>
+                        </figure>
+
+                        <small class="col-md-12">
+                            <em><span>&copy;&nbsp;2026&nbsp;Parking Authority <i>/</i> <a href="https://goo.gl/maps/XxNrc" target="_blank">506-518 38th Street (Rooftop), Union City, NJ, 07087 </a> <i>/</i> Tel <a href="tel:+1-(201) 348.5836" rel="nofollow" class="tel" itemprop="telephone">(201) 348.5836</a> <i>/</i>  </span></em>
+                            <em><span class="site-by"><a href="http://www.alphadogsolutions.com/" target="_blank">&nbsp;</a></span></em>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/[email address removed]/dist/jquery.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/[email address removed]/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+    <script src="/_Assets/js/components/jquery.liscroll.js"></script>
+<script src="/_Assets/js/components/jquery.expander.js"></script>
+<script src="/_Assets/js/components/jquery.hideMaxListItems.js"></script>
+<script src="/_Assets/js/components/footable/footable.js"></script>
+<script src="/_Assets/js/components/jquery.maskedinput.js"></script>
+
+    <script src="/Scripts/jquery.unobtrusive-ajax.js"></script>
+<script src="/Scripts/jquery.validate.js"></script>
+<script src="/Scripts/jquery.validate.unobtrusive.js"></script>
+
+    <script src="/_Assets/js/site.js"></script>
+
+    
+</body>
+</html>

@@ -23,6 +23,9 @@ export const NEARBY_MATCHES: readonly { sources: readonly [string, string]; mete
   { sources: ['hoboken-garages', 'nj-parcels-hudson-parking'], meters: 60 },
   // Bayonne's lots were placed on the parcels its ordinance names (ADR-0016).
   { sources: ['bayonne-parking-lots', 'nj-parcels-hudson-parking'], meters: 60 },
+  // Union City's lots and Harrison's garage, placed the same way (S4-19, S4-20).
+  { sources: ['union-city-parking-lots', 'nj-parcels-hudson-parking'], meters: 60 },
+  { sources: ['harrison-parking-center', 'nj-parcels-hudson-parking'], meters: 60 },
 ];
 
 export interface Clusterable {

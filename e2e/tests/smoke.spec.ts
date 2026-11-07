@@ -10,6 +10,7 @@ const MONTGOMERY_SITE = { latitude: 40.71703, longitude: -74.04278 };
 const WNY_66TH = { latitude: 40.79023, longitude: -74.00471 };
 const HOBOKEN_GARAGE_B = { latitude: 40.73804, longitude: -74.02905 };
 const BAYONNE_E24TH = { latitude: 40.66463, longitude: -74.11656 };
+const UNION_CITY_DECK = { latitude: 40.77581, longitude: -74.02721 };
 
 async function recommendationsRequest(page: Page, action: () => Promise<void>): Promise<URL> {
   const [request] = await Promise.all([page.waitForRequest((request) => request.url().includes('/api/parking/recommendations')), action()]);
@@ -194,6 +195,22 @@ test.describe('in Bayonne', () => {
     await expect(lot.getByText('Not shown here: hours, rates, and number of spaces. Check with the operator before you park.')).toBeVisible();
     await expect(lot.getByRole('link', { name: /^Data: Ordinance O-16-64, Time-Limited Metered Parking Lots, as of Jan 15, 2021/ })).toBeVisible();
     await expect(page.getByRole('article', { name: '509-515 Broadway-Rear' })).toHaveCount(0); // that site is the West 24th Street lot
+    expect(await axeViolations(page)).toEqual([]);
+  });
+});
+
+test.describe('in Union City', () => {
+  test.use({ geolocation: UNION_CITY_DECK, permissions: ['geolocation'] });
+
+  test('S4-19 shows the Parking Authority\'s lots open to visitors, with the deck as a garage', async ({ page }) => {
+    await page.goto('/');
+    await shareLocation(page);
+
+    const deck = page.getByRole('article', { name: '39th-38th Street Deck' });
+    await expect(deck.getByText(/^Garage · City-run · \d+ m away$/)).toBeVisible();
+    await expect(deck.getByText('Between Bergenline Ave. and Kennedy Blvd., Union City')).toBeVisible();
+    await expect(page.getByRole('article', { name: '41st-42nd Street Lot' })).toBeVisible();
+    await expect(page.getByRole('article', { name: '506-18 38th St' })).toHaveCount(0); // the deck's tax-record site
     expect(await axeViolations(page)).toEqual([]);
   });
 });

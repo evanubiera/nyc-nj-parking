@@ -7,7 +7,7 @@ export const en = {
 
   'search.heading': 'Find public parking near you',
   'search.intro':
-    "Garages, lots, and fields run by cities, counties, the state, and transit agencies. This release covers NYC Department of Transportation garages and fields; the municipal lots of Jersey City, West New York, and Bayonne, and Hoboken's garages; and, across Hudson County, unconfirmed sites from tax records.",
+    "Garages, lots, and fields run by cities, counties, the state, and transit agencies. This release covers NYC Department of Transportation garages and fields; the municipal lots of Jersey City, West New York, Bayonne, and Union City, and Hoboken's and Harrison's garages; and, across Hudson County, unconfirmed sites from tax records.",
   'search.radius.label': 'Search within',
   'search.radius.option': '{km, number} km',
   // WEB-4: the device's location is offered apart from the search box, and shared only through the dialog.

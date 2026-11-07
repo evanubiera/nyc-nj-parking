@@ -20,3 +20,21 @@ export function fragmentText(html: string): string {
     .replace(/\s+/g, ' ')
     .trim();
 }
+
+/** The page's text, one block per line. */
+export function pageText(body: Uint8Array): string {
+  const html = new TextDecoder().decode(body);
+  const text = html
+    .replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/gi, '')
+    .replace(/<[^>]+>/g, '\n')
+    .replace(/&#8217;|&rsquo;/g, '’')
+    .replace(/&#8211;|&ndash;/g, '–')
+    .replace(/&amp;/g, '&')
+    .replace(/&nbsp;|&#160;/g, ' ')
+    .replace(/&#162;|&cent;/g, '¢');
+  return text
+    .split('\n')
+    .map((line) => line.replace(/\s+/g, ' ').trim())
+    .filter(Boolean)
+    .join('\n');
+}
