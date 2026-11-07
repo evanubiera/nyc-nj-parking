@@ -181,4 +181,4 @@ Added by packages/db/migrations/0004_unconfirmed_sites.sql (S4-1), for ADR-0012.
 
 Added by packages/db/migrations/0005_rates_on_records.sql (S4-12): `source_record.rates`, jsonb, the rates a source states (days, starts and ends, kind, up-to minutes, minor units, currency); the rebuild writes the first record's rates, in priority order, to `facility_rate`. `facility_rate.kind` also allows `overnight_pass` (West New York's $10 pass, 9:01pm to 9:00am).
 
-The State's parcel layer is fetched with two queries, so its snapshot body is a JSON object holding both responses exactly as received, as strings: `{"candidates": "…", "neighbours": "…"}` (ADR-0012).
+The State's parcel layer is fetched with several queries (the candidates, then the neighbours in parts, since the layer refuses long query URLs), so its snapshot body is a JSON object holding every response exactly as received, as strings: `{"candidates": "…", "neighbours": ["…", "…"]}` (ADR-0012, ADR-0015). A web page's email addresses are removed before it's stored (ING-2).

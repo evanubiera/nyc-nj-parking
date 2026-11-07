@@ -8,6 +8,7 @@ const MORRISTOWN_STATION = { latitude: 40.79739, longitude: -74.47448 };
 const LOT_52 = { latitude: 40.72158, longitude: -74.04504 };
 const MONTGOMERY_SITE = { latitude: 40.71703, longitude: -74.04278 };
 const WNY_66TH = { latitude: 40.79023, longitude: -74.00471 };
+const HOBOKEN_GARAGE_B = { latitude: 40.73804, longitude: -74.02905 };
 
 async function recommendationsRequest(page: Page, action: () => Promise<void>): Promise<URL> {
   const [request] = await Promise.all([page.waitForRequest((request) => request.url().includes('/api/parking/recommendations')), action()]);
@@ -131,6 +132,25 @@ test.describe('in West New York', () => {
     await expect(lot.getByText('$0.75 per hour, Mon–Sat, 9:00 AM to 9:00 PM')).toBeVisible();
     await expect(lot.getByText('Overnight pass: $10.00, every day, 9:01 PM to 9:00 AM')).toBeVisible();
     await expect(lot.getByText(/^Not shown here/)).toHaveCount(0);
+    expect(await axeViolations(page)).toEqual([]);
+  });
+});
+
+test.describe('in Hoboken', () => {
+  test.use({ geolocation: HOBOKEN_GARAGE_B, permissions: ['geolocation'] });
+
+  test('S4-15 shows the garages taking hourly parkers, with their spaces, and not Garage G', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Use my location' }).click();
+
+    const garage = page.getByRole('article', { name: 'Garage B' });
+    await expect(garage.getByText(/^Garage · City-run · \d+ m away$/)).toBeVisible();
+    await expect(garage.getByText('829 spaces')).toBeVisible();
+    await expect(garage.getByText(/^Not shown here: hours and rates\./)).toBeVisible();
+    await expect(garage.getByRole('link', { name: 'Hours and rates on the operator’s page, for Garage B' })).toHaveAttribute('href', /hobokennj\.gov/);
+    await expect(garage.getByRole('link', { name: /^Data: Municipal Garages and Lots, as of Nov 6, 2026/ })).toBeVisible();
+    await expect(page.getByRole('article', { name: 'Midtown Garage' })).toBeVisible();
+    await expect(page.getByRole('article', { name: 'Garage G' })).toHaveCount(0);
     expect(await axeViolations(page)).toEqual([]);
   });
 });

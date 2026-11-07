@@ -1,6 +1,8 @@
 // The sources' real responses, saved on 2026-11-03 with the adapters' own queries (specs/06-sources.md).
 // For the ArcGIS layers, the item, service, and layer responses are trimmed to the fields the adapters
-// read; the query responses, which are what a run stores, are as received.
+// read; the query responses, which are what a run stores, are as received. Two exceptions, saved on 2026-11-06:
+// the Hudson parcel layer's neighbours are one response holding every neighbour, which the fake upstream filters
+// to each query's blocks; and Hoboken's page is saved as a run stores it, with its email addresses removed.
 import { readFileSync } from 'node:fs';
 import { UpstreamHttp } from '../src/http.ts';
 
@@ -24,14 +26,32 @@ export const fixtures = {
   parcelsItem: read('nj-parcels.item.json'),
   parcelsService: read('nj-parcels.service.json'),
   parcelsLayer: read('nj-parcels.layer.json'),
-  parcelsCandidates: read('nj-parcels.candidates.json'),
-  parcelsNeighbours: read('nj-parcels.neighbours.json'),
+  parcelsCandidates: read('nj-parcels-hudson.candidates.json'),
+  parcelsNeighbours: read('nj-parcels-hudson.neighbours.json'),
   wnyFacilities: read('wny.facilities.html'),
+  hobokenGarages: read('hoboken.garages.html'),
 };
 
 export const NJT_SERVICE_PATH = '/M0t0HPE53pFK525U/arcgis/rest/services/ParkingLotDB_20260320_Sync_view/FeatureServer';
 export const NJDOT_SERVICE_PATH = '/HggmsDF7UJsNN1FK/arcgis/rest/services/New_Jersey_DOT_Park_Ride/FeatureServer';
 export const PARCELS_SERVICE_PATH = '/XVOqAjTOJ5P6ngMu/arcgis/rest/services/Parcels_Composite_NJ_WM/FeatureServer';
+
+const PAGE_HEADERS: Record<string, Record<string, string>> = {
+  '/pages/parking-services/facilities/': { 'content-type': 'text/html; charset=UTF-8', 'last-modified': 'Fri, 06 Nov 2026 23:10:53 GMT' },
+  '/resources/municipal-garages': { 'content-type': 'text/html; charset=utf-8', 'last-modified': 'Fri, 06 Nov 2026 22:16:52 GMT' },
+};
+
+/** The neighbours response for one query: the saved neighbours on the blocks its `where` names, such as
+ * `(PCL_MUN='0906' AND PCLBLOCK IN ('11401','14102'))`. */
+export function neighboursFor(body: Uint8Array, where: string): Uint8Array {
+  const wanted = new Set(
+    [...where.matchAll(/PCL_MUN='(\d+)' AND PCLBLOCK IN \(([^)]*)\)/g)].flatMap(([, town, blocks]) =>
+      [...blocks!.matchAll(/'([^']*)'/g)].map(([, block]) => `${town}:${block}`)),
+  );
+  const parsed = JSON.parse(new TextDecoder().decode(body)) as { features: { attributes: Record<string, string> }[] };
+  parsed.features = parsed.features.filter(({ attributes }) => wanted.has(`${attributes.PCL_MUN?.trim()}:${attributes.PCLBLOCK?.trim()}`));
+  return new TextEncoder().encode(JSON.stringify(parsed));
+}
 
 /** An ArcGIS query response with each feature's attributes changed by `edit`, or the feature dropped when it returns null. */
 export function featuresEdited(
@@ -74,9 +94,13 @@ export function fixtureHttp(overrides: Partial<Record<keyof typeof fixtures, Uin
     [PARCELS_SERVICE_PATH]: bodies.parcelsService,
     [`${PARCELS_SERVICE_PATH}/0`]: bodies.parcelsLayer,
     '/pages/parking-services/facilities/': bodies.wnyFacilities,
+    '/resources/municipal-garages': bodies.hobokenGarages,
   };
-  // The parcel layer's two queries share a path; the candidates ask for class 15C, the neighbours for all of 15.
-  const parcelsQuery = (url: URL) => (url.searchParams.get('where')?.includes("PROP_CLASS='15C'") ? bodies.parcelsCandidates : bodies.parcelsNeighbours);
+  // The parcel layer's queries share a path; the candidates ask for class 15C, the neighbours for all of 15.
+  const parcelsQuery = (url: URL) => {
+    const where = url.searchParams.get('where') ?? '';
+    return where.includes("PROP_CLASS='15C'") ? bodies.parcelsCandidates : neighboursFor(bodies.parcelsNeighbours, where);
+  };
   const http = new UpstreamHttp({
     socrataAppToken: 'fixture-token',
     fetch: async (input, init) => {
@@ -86,9 +110,7 @@ export function fixtureHttp(overrides: Partial<Record<keyof typeof fixtures, Uin
       const body = url.pathname === `${PARCELS_SERVICE_PATH}/0/query` ? parcelsQuery(url) : routes[url.pathname];
       return body
         ? new Response(new Uint8Array(body), {
-            headers: url.pathname.endsWith('/facilities/')
-              ? { 'content-type': 'text/html; charset=UTF-8', 'last-modified': 'Fri, 06 Nov 2026 23:10:53 GMT' }
-              : { 'content-type': 'application/json;charset=utf-8' },
+            headers: PAGE_HEADERS[url.pathname] ?? { 'content-type': 'application/json;charset=utf-8' },
           })
         : new Response('{}', { status: 404 });
     },

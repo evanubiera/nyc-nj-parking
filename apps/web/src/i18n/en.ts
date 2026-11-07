@@ -7,7 +7,7 @@ export const en = {
 
   'search.heading': 'Find public parking near you',
   'search.intro':
-    "Garages, lots, and fields run by cities, counties, the state, and transit agencies. This release covers NYC Department of Transportation garages and fields, and the municipal lots of Jersey City and West New York.",
+    "Garages, lots, and fields run by cities, counties, the state, and transit agencies. This release covers NYC Department of Transportation garages and fields; the municipal lots of Jersey City and West New York and Hoboken's garages; and, across Hudson County, unconfirmed sites from tax records.",
   'search.radius.label': 'Search within',
   'search.radius.option': '{km, number} km',
   'search.useLocation': 'Use my location',
@@ -123,10 +123,12 @@ export const en = {
   'sources.change.duplicates_removed': 'Where a lot is listed twice under one name, we show it once.',
   'sources.change.municipalities_reformatted': 'We reformat municipality names written in capitals.',
   'sources.change.sites_from_parcels':
-    'We combine touching parcels into one site, and keep only public land described as parking with no school, public building, park, or church on the same block.',
+    'We combine touching parcels into one site, and keep only public land described as parking with no school, public building, park, playground, or church on the same block.',
   'sources.change.locations_from_records':
-    "The page has no map points, so we placed each lot on the matching public parcel in the State's tax records, or with the State's geocoder.",
+    "The page has no map points, so we placed each lot or garage on the matching public parcel in the State's tax records, or with the State's geocoder.",
   'sources.change.rates_converted_to_hourly': 'We show meter rates per hour: 25¢ per 20 minutes is $0.75 per hour.',
+  'sources.change.no_hourly_parking_excluded':
+    "We leave out garages the page lists as not taking hourly parkers, and lots for monthly permit holders only.",
   'sources.change.unconfirmed_public_use':
     "We show these sites as unconfirmed: the records don't say who owns them or whether the public may park there.",
   'sources.loading': 'Loading the data sources…',

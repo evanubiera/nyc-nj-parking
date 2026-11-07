@@ -81,7 +81,7 @@ export const montgomerySite: RecommendedFacility = {
   meteredHours: null,
   rates: [],
   officialUrl: null,
-  sources: [{ id: 'nj-parcels-jc-parking', dataUpdatedAt: '2026-08-18T09:32:38.134Z' }],
+  sources: [{ id: 'nj-parcels-hudson-parking', dataUpdatedAt: '2026-08-18T09:32:38.134Z' }],
 };
 
 /** One of West New York's lots (S4-12), from the saved page of 2026-11-06: spaces, metered hours, and rates. */

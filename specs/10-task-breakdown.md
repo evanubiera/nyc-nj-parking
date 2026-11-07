@@ -105,6 +105,15 @@ Decided with the user on 2026-11-04: show Jersey City's 7 city lots now, without
 | S4-10 | Address search with suggestions: a built-in list of 564 NJ towns and 296 NYC boroughs and neighbourhoods (scripts/build-places.ts), NYC GeoSearch and NJ_Geocode for addresses, called from the browser; ADR-0013 (asked for by the user on 2026-11-06) | WEB-11, PRIV-5, PRIV-3 | Done |
 | S4-11 | Tests: each Vitest run gets its own database on TEST_DATABASE_URL, because `pnpm test` runs packages at once and they emptied each other's tables in CI (run 42313251786, 2026-11-06) | FND-5 | Done |
 | S4-12 | West New York's 9 metered lots with spaces, meter hours, and rates from the Parking Utility's page (`wny-parking-lots`, held until SRC-10 is asked); rates on source records (migration 0005); `spaces` in the API; rates and spaces in the web app (asked for by the user on 2026-11-06); live since 2026-11-06 under ADR-0014 | REC-10, WEB-12, ING-10 | Done |
+| S4-13 | Hoboken's garages that take hourly parkers, with capacity, from the City's page (`hoboken-garages`), email addresses removed before storing; ADR-0015 (asked for by the user on 2026-11-06: "continue with the rest of the hudson county cities") | ING-2, ING-10, ATT-2 | Done |
+| S4-14 | Unconfirmed sites in all 12 Hudson County towns (`nj-parcels-hudson-parking`, replacing `nj-parcels-jc-parking`; migration 0006): the county's wording for parking, the neighbours query in parts, playgrounds and public works buildings as other uses, per-town facility IDs, and 60 m matching for West New York's lots and Hoboken's garages | ING-13, ING-14 | Done |
+| S4-15 | Smoke test and a browser check in Hoboken and Bayonne | All slice 4 | Done |
+
+### Slice 4 status, Hudson County (2026-11-06)
+
+- `pnpm lint`, `pnpm typecheck`, `pnpm test` (272 tests: web 107, worker 108, api 50, db 5, api-client 2, on the PGlite fallback), `pnpm build`, and `pnpm test:e2e` (12 smoke tests, one new in Hoboken) all passed.
+- `pnpm dev` database: `pnpm db:migrate` applied `0006_hudson_parcels`, which removed `nj-parcels-jc-parking`; then `pnpm ingest nj-parcels-hudson-parking` (250 parcels read, 58 sites) and `pnpm ingest hoboken-garages` (4 rows, 3 garages), from the live sources, matching the fixtures. New Jersey now has 19 confirmed facilities (Jersey City 7, West New York 9, Hoboken 3) and 50 unconfirmed sites in 10 towns. Two of Jersey City's old sites were withdrawn (ADR-0015). The stored Hoboken page has no email addresses (11 removed).
+- In the browser at phone width: near 28 2nd Street, Hoboken, 13 places within 2 km, Garage B first (829 spaces, the city's page, data date Nov 6, 2026), then Garage D, Hoboken's unconfirmed sites, and Midtown Garage; no Garage G. Near Bayonne, 6 unconfirmed sites. The Sources page lists Hoboken's page with what we change. The intro now names Hoboken's garages and Hudson County's unconfirmed sites.
 
 ### Slice 4 status, Jersey City (2026-11-04)
 

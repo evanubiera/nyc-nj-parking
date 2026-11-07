@@ -18,7 +18,7 @@ Each requirement has an ID. Tasks, tests, and contract operations (`x-requiremen
 | ID | Requirement | Slice |
 |---|---|---|
 | ING-1 | Only the worker calls upstream sources. No API request causes an upstream call. | 0 |
-| ING-2 | Each run stores the raw upstream response as a snapshot (fetch time, SHA-256, byte size, content type) before normalizing it. | 0 |
+| ING-2 | Each run stores the raw upstream response as a snapshot (fetch time, SHA-256, byte size, content type) before normalizing it. An HTML page's email addresses are removed first (Hoboken's page lists staff addresses). | 0 |
 | ING-3 | A run that fails at any step leaves facility data unchanged, and is recorded as `failed` with an error code. | 0 |
 | ING-4 | Every run is recorded: source, start and end time, status, rows read, rows written, and rows withdrawn. | 0 |
 | ING-5 | Upstream requests send a User-Agent that names the app and, when `CONTACT_URL` is set (required in deployment), a contact URL. They send the Socrata app token in the `X-App-Token` header for Socrata sources, and time out after 30 seconds. Tokens are never logged. | 0 |
@@ -29,8 +29,8 @@ Each requirement has an ID. Tasks, tests, and contract operations (`x-requiremen
 | ING-10 | A run whose data gives no facilities, or where rows that can't be read outnumber those that can, fails with a code and changes nothing. | 1 |
 | ING-11 | A record whose owner is recorded as private (ADR-0007), or that has no recorded owner (PRD-4), isn't published. A private record is kept as withheld, so the same lot from another source isn't published either. | 2 |
 | ING-12 | Records in different regions never match. An NJ Transit record and an NJDOT record within 100 m of each other are the same lot, whatever their names, and NJ Transit's record is the primary. | 2 |
-| ING-13 | `nj-parcels-jc-parking` takes Jersey City parcels in class 15C whose building description or facility name mentions parking, groups touching parcels on a block into sites, and keeps a site only when none of its parcels is railroad or right of way and no public parcel on its block, its own included, is a school, public building, park, or church (ADR-0012, specs/06). | 4 |
-| ING-14 | A Jersey City candidate site within 90 m of a city lot or an NJ Transit lot is that lot, and the lot's record is the primary. | 4 |
+| ING-13 | `nj-parcels-hudson-parking` takes Hudson County parcels in class 15C whose building description or facility name says parking (in the county's wording, ADR-0015), groups touching parcels on a block into sites, and keeps a site only when none of its parcels is railroad or right of way and no public parcel on its block, its own included, is a school, public building (including a public works or maintenance building), park, playground, or church (ADR-0012, ADR-0015, specs/06). | 4 |
+| ING-14 | A candidate site from tax records is the same lot, and the lot's record is the primary, when it's within 90 m of a Jersey City or NJ Transit lot, or within 60 m of a West New York lot or Hoboken garage (those were placed on their own tax parcels). | 4 |
 
 ## Privacy (PRIV)
 

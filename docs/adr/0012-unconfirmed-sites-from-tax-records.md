@@ -3,6 +3,7 @@
 - Status: Accepted (2026-11-04, by the user)
 - Date: 2026-11-04
 - Amends: ADR-0007 ("every facility has an operator name and type"), for unconfirmed sites only
+- Extended by ADR-0015 to all of Hudson County, with the county's wording for parking
 
 ## Context
 

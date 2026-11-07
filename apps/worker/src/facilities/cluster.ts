@@ -14,9 +14,13 @@ export const MATCH_DISTANCE_M = 750;
  */
 export const NEARBY_MATCHES: readonly { sources: readonly [string, string]; meters: number }[] = [
   { sources: ['njt-parking-lots', 'njdot-park-ride'], meters: 100 },
-  // ING-14: a Jersey City candidate site from tax records is named by its address, never like the lot it may be.
-  { sources: ['jc-municipal-lots', 'nj-parcels-jc-parking'], meters: 90 },
-  { sources: ['njt-parking-lots', 'nj-parcels-jc-parking'], meters: 90 },
+  // ING-14: a candidate site from tax records is named by its address, never like the lot it may be.
+  { sources: ['jc-municipal-lots', 'nj-parcels-hudson-parking'], meters: 90 },
+  { sources: ['njt-parking-lots', 'nj-parcels-hudson-parking'], meters: 90 },
+  // West New York's lots and Hoboken's garages were placed on their own tax parcels, so a site that's the same lot
+  // is close: 30 m for West New York's 55th Street lot (specs/06). A different site was 91 m from Garage D.
+  { sources: ['wny-parking-lots', 'nj-parcels-hudson-parking'], meters: 60 },
+  { sources: ['hoboken-garages', 'nj-parcels-hudson-parking'], meters: 60 },
 ];
 
 export interface Clusterable {
