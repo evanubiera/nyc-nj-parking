@@ -10,9 +10,11 @@ import { njtParkingLots } from './njt-parking-lots.ts';
 import { nycFacdbDot } from './nyc-facdb-dot.ts';
 import { nutleyParkingLots } from './nutley-parking-lots.ts';
 import { nycMetersOffstreet } from './nyc-meters-offstreet.ts';
+import { oradellParkingLots } from './oradell-parking-lots.ts';
 import { southOrangeParkingLots } from './south-orange-parking-lots.ts';
 import { unionCityParkingLots } from './union-city-parking-lots.ts';
 import { veronaParkingLots } from './verona-parking-lots.ts';
+import { westwoodParkingLots } from './westwood-parking-lots.ts';
 import { wnyParkingLots } from './wny-parking-lots.ts';
 import type { SourceDefinition } from './types.ts';
 
@@ -32,6 +34,8 @@ export const sources: readonly SourceDefinition[] = [
   nutleyParkingLots,
   veronaParkingLots,
   njParcelsBergenParking,
+  westwoodParkingLots,
+  oradellParkingLots,
 ];
 
 /**

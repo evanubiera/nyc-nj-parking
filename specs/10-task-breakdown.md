@@ -126,7 +126,9 @@ Decided with the user on 2026-11-04: show Jersey City's 7 city lots now, without
 | S4-31 | Web: a period from 00:00 to 24:00 reads "around the clock" in meter hours, rates, and opening hours | WEB-6, WEB-12 | Done |
 | S4-32 | Bergen County (the user asked to continue on 2026-11-07): unconfirmed sites in all 70 towns as `nj-parcels-bergen-parking`; the rule tightened for every county (pools, ballfields, rinks, "PK"; future parking; condominium units; shapes with one parcel number); ADR-0019 | ING-13 | Done |
 | S4-33 | Bergen towns' own pages, first pass: Hackensack, Englewood, Fort Lee, Ridgewood, and Teaneck checked; none has a list we can read (specs/06) | — | Done |
-| S4-34 | Bergen towns' own pages, the other 65 | — | To do |
+| S4-34 | Bergen towns' own pages, the other 65, checked 2026-11-07 (asked for by the user: "how about Fairlawn, and the rest of Bergen county?"): Westwood and Oradell have lists (S4-35, S4-36); Fair Lawn has no parking page, and its lots are in NJ Transit's database, which isn't running (SRC-2); Tenafly's is an old drawn map and Glen Rock's are images; the others have no list (specs/06) | SRC-2 | Done |
+| S4-35 | Westwood's 4 metered municipal lots with shopper spaces and time limits, from the Parking Utility's Downtown Customer Parking page, with its meter hours checked on the Parking Utility page each run (`westwood-parking-lots`); a private lot and a Saturday-only lot left out | REC-10, ING-3, ING-10, ING-14 | Done |
+| S4-36 | Oradell's municipal lots for public use, 8 of 9, with where each is, from the Municipal Parking page (`oradell-parking-lots`); the Waite Place lot not placed | ING-10, ING-14, ATT-2 | Done |
 
 ### Slice 4 status, Hudson County (2026-11-06)
 

@@ -5,7 +5,7 @@
 // to each query's blocks; and Hoboken's page is saved as a run stores it, with its email addresses removed.
 // Essex's and Bergen's parcel responses were saved on 2026-11-07, the same way as Hudson's. Bayonne's ordinance (a PDF) was saved on
 // 2026-11-07, as received; Union City's and Harrison's pages on 2026-11-07, as a
-// run stores them (no email addresses).
+// run stores them (no email addresses). Westwood's and Oradell's pages were saved on 2026-11-07 as a run stores them.
 import { readFileSync } from 'node:fs';
 import { UpstreamHttp } from '../src/http.ts';
 
@@ -44,6 +44,9 @@ export const fixtures = {
   southOrangeMeters: read('south-orange.meters.html'),
   nutleyParking: read('nutley.parking.html'),
   veronaParking: read('verona.municipal-parking.html'),
+  westwoodCustomer: read('westwood.downtown-customer-parking.html'),
+  westwoodUtility: read('westwood.parking-utility.html'),
+  oradellParking: read('oradell.municipal-parking.html'),
 };
 
 export const NJT_SERVICE_PATH = '/M0t0HPE53pFK525U/arcgis/rest/services/ParkingLotDB_20260320_Sync_view/FeatureServer';
@@ -61,6 +64,10 @@ const PAGE_HEADERS: Record<string, Record<string, string>> = {
   '/189/Meters-Pay-Stations': { 'content-type': 'text/html; charset=utf-8' },
   '/parking': { 'content-type': 'text/html; charset=utf-8' },
   '/MunicipalParking': { 'content-type': 'text/html; charset=utf-8' },
+  '/408/Downtown-Customer-Parking': { 'content-type': 'text/html; charset=utf-8' },
+  '/399/Parking-Utility': { 'content-type': 'text/html; charset=utf-8' },
+  // Oradell's Last-Modified is the time of the request, so the adapter ignores it.
+  '/1410/Municipal-Parking': { 'content-type': 'text/html; charset=utf-8', 'last-modified': 'Sat, 07 Nov 2026 12:21:48 GMT' },
 };
 
 /** The neighbours response for one query: the saved neighbours on the blocks its `where` names, such as
@@ -124,6 +131,9 @@ export function fixtureHttp(overrides: Partial<Record<keyof typeof fixtures, Uin
     '/189/Meters-Pay-Stations': bodies.southOrangeMeters,
     '/parking': bodies.nutleyParking,
     '/MunicipalParking': bodies.veronaParking,
+    '/408/Downtown-Customer-Parking': bodies.westwoodCustomer,
+    '/399/Parking-Utility': bodies.westwoodUtility,
+    '/1410/Municipal-Parking': bodies.oradellParking,
   };
   // The parcel layer's queries share a path; the candidates ask for class 15C, the neighbours for all of 15.
   const parcelsQuery = (url: URL) => {

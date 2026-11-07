@@ -31,6 +31,9 @@ export const NEARBY_MATCHES: readonly { sources: readonly [string, string]; mete
   { sources: ['south-orange-parking-lots', 'nj-parcels-essex-parking'], meters: 60 },
   { sources: ['nutley-parking-lots', 'nj-parcels-essex-parking'], meters: 60 },
   { sources: ['verona-parking-lots', 'nj-parcels-essex-parking'], meters: 60 },
+  // Bergen (S4-35, S4-36), the same way.
+  { sources: ['westwood-parking-lots', 'nj-parcels-bergen-parking'], meters: 60 },
+  { sources: ['oradell-parking-lots', 'nj-parcels-bergen-parking'], meters: 60 },
 ];
 
 export interface Clusterable {
