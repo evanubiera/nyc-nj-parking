@@ -36,6 +36,11 @@ export interface ApplyResult {
 export interface SourceDefinition extends SourceMetadata {
   /** Cron expression in America/New_York, such as '15 4 * * *' for 04:15 daily. */
   schedule: string;
+  /**
+   * ING-7: the revision of this adapter's normalizing, 1 if absent. Raise it whenever a change would normalize the
+   * same upstream bytes differently, so the next run normalizes them again instead of skipping them as unchanged.
+   */
+  revision?: number;
   fetch(http: UpstreamHttp): Promise<FetchedData>;
   /**
    * Normalizes the snapshot and writes facilities, inside the run's transaction (ING-3). Throw an

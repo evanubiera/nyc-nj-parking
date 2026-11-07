@@ -110,15 +110,18 @@ describe('Hudson County candidate sites from tax records (S4-3, S4-14)', () => {
 
     expect(rowsRead).toBe(250);
     expect(invalidRows).toBe(0);
-    expect(records).toHaveLength(58);
+    expect(records).toHaveLength(53);
+    // East Newark's 2 sites, Guttenberg's 1, and 2 of North Bergen's are left out as not for visitors (ADR-0017).
     expect(towns).toEqual({
-      Bayonne: 6, 'East Newark': 2, Guttenberg: 1, Harrison: 3, Hoboken: 6, 'Jersey City': 24,
-      'North Bergen': 5, Secaucus: 1, 'Union City': 4, Weehawken: 1, 'West New York': 5,
+      Bayonne: 6, Harrison: 3, Hoboken: 6, 'Jersey City': 24,
+      'North Bergen': 3, Secaucus: 1, 'Union City': 4, Weehawken: 1, 'West New York': 5,
     });
     expect(names).toContain('179 Montgomery St.');
     expect(names).toContain('2080 West Side Ave.');
     expect(names).toContain('259 11th/ 1033 Willow Ave'); // "PRKNG LOT 23PS" in Hoboken
-    expect(names).toContain('127 71st St'); // "MUNICIPAL PKG." in Guttenberg
+    expect(names).toContain('5717 Madison St'); // "PKG AUTHORITY" in West New York
+    expect(names).not.toContain('127 71st St'); // Guttenberg's reserved town lot (ADR-0017)
+    expect(names).not.toContain('1314 14th St'); // a North Bergen Parking Authority rental lot
     expect(names).not.toContain('Secaucus Road'); // post office land, as its own parcels say
     expect(names).not.toContain('256 Carbon St.'); // a private right of way beside public housing
     expect(names).not.toContain('197 Bergen Ave.'); // beside a school and an administrative building
@@ -153,7 +156,7 @@ describe("Hudson County's sources together (S4-4, S4-14)", () => {
     const facilities = await sql<{ id: string; name: string; confirmed: boolean; operator_type: string; locality: string }[]>`
       select id, name, confirmed, operator_type, locality from facility where status = 'active' order by id`;
     expect(facilities.filter((facility) => facility.confirmed)).toHaveLength(7 + 9 + 3);
-    expect(facilities.filter((facility) => !facility.confirmed)).toHaveLength(21 + 6 + 23);
+    expect(facilities.filter((facility) => !facility.confirmed)).toHaveLength(21 + 6 + 18);
     const sourcesOf = async (id: string) =>
       (await sql`select source_id from facility_source where facility_id = ${id} order by source_id`).map((link) => link.source_id);
     expect(await sourcesOf('jc-lot-33')).toEqual(['jc-municipal-lots', 'nj-parcels-hudson-parking']);

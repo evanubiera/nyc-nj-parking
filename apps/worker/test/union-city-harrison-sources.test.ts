@@ -90,8 +90,22 @@ describe("Harrison's parking garage (S4-20)", () => {
         lng: -74.15685,
         officialUrl: HARRISON_PARKING_PAGE,
         confirmed: true,
+        openingHours: [{ days: 127, opensAt: '00:00', closesAt: '24:00' }],
       }),
     ]);
+  });
+
+  it('S4-22 gives no opening hours when the page words them differently, rather than guess', () => {
+    const { records } = normalizeHarrison(edited(fixtures.harrisonParking, 'Open 24/7', 'Open most days'));
+
+    expect(records[0]?.openingHours).toEqual([]);
+  });
+
+  it('S4-22 writes the garage\'s opening hours to the facility', async () => {
+    await runSource(harrisonParkingCenter, { sql, http: fixtureHttp().http, logger: testLogger().logger });
+
+    const hours = await sql`select days, opens_at::text as opens, closes_at::text as closes from facility_hours where facility_id = 'harrison-parking-center'`;
+    expect(hours).toEqual([{ days: 127, opens: '00:00:00', closes: '24:00:00' }]);
   });
 
   it('ING-3 fails the run when the page no longer gives the garage\'s address', async () => {

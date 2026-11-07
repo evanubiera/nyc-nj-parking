@@ -93,6 +93,20 @@ describe('runSource', () => {
     expect(outcome).toMatchObject({ status: 'failed', errorCode: 'run.unexpected' });
   });
 
+  it('ING-7 normalizes the same bytes again when the adapter\'s revision has changed', async () => {
+    const context = { sql, http, logger: testLogger().logger };
+    const before = fakeSource();
+    await runSource(before, context);
+
+    const after = fakeSource({ revision: 2 });
+    const changed = await runSource(after, context);
+    const again = await runSource(after, context);
+
+    expect([changed.status, again.status]).toEqual(['succeeded', 'unchanged']);
+    expect(after.applied).toHaveLength(1);
+    expect((await sql`select revision from ingestion_run order by id`).map((run) => run.revision)).toEqual([1, 2, 2]);
+  });
+
   it('ING-7 skips normalizing when the bytes match the last successful run', async () => {
     let body = '{"version":1}';
     const source = fakeSource({ body: () => body });

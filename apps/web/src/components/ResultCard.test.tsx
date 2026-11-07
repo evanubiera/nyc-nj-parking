@@ -1,3 +1,4 @@
+import type { RecommendedFacility } from '@parking/api-client';
 import { screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { en } from '../i18n/en.ts';
@@ -109,6 +110,25 @@ describe('ResultCard', () => {
     expect(screen.getByText('Pay at the meter Mon–Sat, 7:00 AM to 10:00 PM')).toBeInTheDocument();
     expect(screen.getByText('Time limit: 4 hours or 15 hours, depending on the meter')).toBeInTheDocument();
     expect(container.textContent).not.toMatch(/\bopen/i);
+  });
+
+  it('REC-4 shows a garage open around the clock, and leaves hours off the missing list', async () => {
+    const garage: RecommendedFacility = {
+      ...wny66th, id: 'harrison-parking-center', name: 'Harrison Parking Center', kind: 'garage', spaces: null, meteredHours: null, rates: [],
+      openingHours: { timeZone: 'America/New_York', periods: [{ days: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'], opens: '00:00', closes: '24:00' }] },
+    };
+    const { container } = renderWithProviders(<ResultCard facility={garage} />);
+
+    expect(screen.getByText('Open 24 hours, every day')).toBeInTheDocument();
+    expect(screen.getByText('Not shown here: rates and number of spaces. Check with the operator before you park.')).toBeInTheDocument();
+    expect(await axeViolations(container)).toEqual([]);
+  });
+
+  it('REC-4 shows opening hours by day and time when a source gives them', () => {
+    renderWithProviders(<ResultCard facility={{ ...wny66th, meteredHours: null,
+      openingHours: { timeZone: 'America/New_York', periods: [{ days: ['mon', 'tue', 'wed', 'thu', 'fri'], opens: '08:00', closes: '18:00' }] } }} />);
+
+    expect(screen.getByText('Open Mon–Fri, 8:00 AM to 6:00 PM')).toBeInTheDocument();
   });
 
   it('REC-6 says when hours are unknown and links to the operator’s page', () => {

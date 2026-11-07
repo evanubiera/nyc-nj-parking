@@ -53,6 +53,7 @@ One row per run (ING-4).
 | error_code | text, nullable | Set when `failed`, and only then: `upstream.timeout`, `upstream.network`, `upstream.http_status`, `upstream.too_large`, `normalize.unexpected_format`, `normalize.invalid_record`, `normalize.empty`, `run.abandoned`, or `run.unexpected` |
 | snapshot_id | bigint, nullable, references `source_snapshot` | |
 | rows_read, rows_written, rows_withdrawn | integer, nullable | |
+| revision | integer | The adapter's revision that ran (migration 0008); unchanged bytes are normalized again under a new one (ING-7) |
 
 A run left as `running` by a crash is marked `failed` with `run.abandoned` when the next run of that source starts.
 
@@ -71,6 +72,7 @@ One facility as one source describes it, after normalizing. Each successful run 
 | name, kind, operator_name, operator_type, address_line, locality, region, time_zone, location, spaces, official_url | as in `facility` | |
 | match_tokens | text[] | Lower-case name words for matching, such as `{bensonhurst,1}` |
 | meter_periods | jsonb | Parsed metered periods (meters only) |
+| opening_hours | jsonb | Opening periods as the source states them: `days`, `opensAt`, `closesAt` (migration 0007). Empty when it gives none |
 | first_seen_at, last_seen_at | timestamptz | |
 
 ### `facility`
@@ -113,7 +115,7 @@ When payment is required at the meters, and the time limit. Built from the meter
 A `meter_hours` value that doesn't parse (the data has at least one, "Rate NOT Available …") produces no period and isn't shown; the facility keeps its other data. Meters in one field can have different limits for the same times (Avenue M has 4-hour and 15-hour meters), so a facility can have several periods that differ only in `max_stay_minutes`.
 
 ### `facility_hours`
-Opening hours. Filled only from a source that states them; none is admitted yet (SRC-1).
+Opening hours. Filled only from a source that states them, from `source_record.opening_hours` of the first record in priority order that has any (S4-22). Each row is days (bit mask), `opens_at`, and `closes_at`; `24:00` closes at midnight, so `00:00`-`24:00` every day is open around the clock. The first source to state them is `harrison-parking-center` ("Open 24/7").
 
 | Column | Type | Notes |
 |---|---|---|

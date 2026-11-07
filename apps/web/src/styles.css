@@ -375,6 +375,13 @@ a {
   margin-top: var(--space-4);
 }
 
+/* REC-4: opening hours on a result card. */
+.opening-hours {
+  margin: 0 0 var(--space-2);
+  padding: 0;
+  list-style: none;
+}
+
 .search__status-line {
   display: block;
   margin-bottom: var(--space-1);

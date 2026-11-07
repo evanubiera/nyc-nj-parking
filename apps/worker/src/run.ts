@@ -32,7 +32,7 @@ export async function runSource(source: SourceDefinition, { sql, http, logger, n
     where source_id = ${source.id} and status = 'running'`;
 
   const [run] = await sql<{ id: number }[]>`
-    insert into ingestion_run (source_id, started_at, status) values (${source.id}, ${now()}, 'running')
+    insert into ingestion_run (source_id, started_at, status, revision) values (${source.id}, ${now()}, 'running', ${source.revision ?? 1})
     returning id::int as id`;
   const runId = run!.id;
   let snapshotId: number | null = null;
@@ -41,13 +41,13 @@ export async function runSource(source: SourceDefinition, { sql, http, logger, n
     const fetched = await source.fetch(http);
     const sha256 = createHash('sha256').update(fetched.body).digest('hex');
 
-    // ING-7: the same bytes as the last successful run need no normalizing.
-    const [last] = await sql<{ snapshotId: number; sha256: string }[]>`
-      select s.id::int as "snapshotId", s.content_sha256 as sha256
+    // ING-7: the same bytes as the last successful run, normalized by the same revision, need no normalizing.
+    const [last] = await sql<{ snapshotId: number; sha256: string; revision: number }[]>`
+      select s.id::int as "snapshotId", s.content_sha256 as sha256, r.revision
       from ingestion_run r join source_snapshot s on s.id = r.snapshot_id
       where r.source_id = ${source.id} and r.status in ('succeeded', 'unchanged')
       order by r.started_at desc, r.id desc limit 1`;
-    if (last && last.sha256 === sha256) {
+    if (last && last.sha256 === sha256 && last.revision === (source.revision ?? 1)) {
       snapshotId = last.snapshotId;
       await finish(sql, runId, { status: 'unchanged', snapshotId, counts: null, errorCode: null }, now());
       logger.info({ sourceId: source.id, runId, status: 'unchanged' }, 'ingestion run finished');

@@ -3,6 +3,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { DIRECTIONS_APPS, directionsUrl } from '../utils/directions.ts';
 import { facilityName } from '../utils/facilityName.ts';
 import { MeteredHours } from './MeteredHours.tsx';
+import { OpeningHours } from './OpeningHours.tsx';
 import { Rates } from './Rates.tsx';
 import { SourceCredits } from './SourceCredits.tsx';
 
@@ -59,6 +60,7 @@ export function ResultCard({ facility, position }: { facility: RecommendedFacili
           <FormattedMessage id="facility.spaces" values={{ count: facility.spaces }} />
         </p>
       )}
+      {facility.openingHours && <OpeningHours hours={facility.openingHours} />}
       {facility.meteredHours && <MeteredHours hours={facility.meteredHours} />}
       <Rates rates={facility.rates} />
       {missing.length > 0 && (

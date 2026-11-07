@@ -25,6 +25,7 @@ export interface SeedFacility {
   spaces?: number | null;
   rates?: { days: number; startsAt: string; endsAt: string; kind: string; upToMinutes: number | null; amountMinor: number }[];
   sourceIds?: string[];
+  openingHours?: { days: number; opensAt: string; closesAt: string }[];
   meterPeriods?: { days: number; startsAt: string; endsAt: string; maxStayMinutes: number | null; vehicleClass: string | null; sourceText: string }[];
 }
 
@@ -56,6 +57,11 @@ export async function seedFacility(sql: Sql, facility: SeedFacility): Promise<vo
     await sql`
       insert into facility_rate (facility_id, days, starts_at, ends_at, kind, up_to_minutes, amount_minor, currency)
       values (${facility.id}, ${rate.days}, ${rate.startsAt}, ${rate.endsAt}, ${rate.kind}, ${rate.upToMinutes}, ${rate.amountMinor}, 'USD')`;
+  }
+  for (const period of facility.openingHours ?? []) {
+    await sql`
+      insert into facility_hours (facility_id, days, opens_at, closes_at)
+      values (${facility.id}, ${period.days}, ${period.opensAt}, ${period.closesAt})`;
   }
   for (const period of facility.meterPeriods ?? []) {
     await sql`

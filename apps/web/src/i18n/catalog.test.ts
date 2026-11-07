@@ -31,6 +31,7 @@ const MODIFICATIONS: Record<Source['modifications'][number], true> = {
   rates_converted_to_hourly: true,
   no_hourly_parking_excluded: true,
   names_from_streets: true,
+  sites_not_for_visitors_excluded: true,
 };
 const RATE_KINDS: Record<RecommendedFacility['rates'][number]['kind'], true> = {
   per_hour: true,

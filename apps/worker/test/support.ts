@@ -29,6 +29,7 @@ export function fakeSource(options: {
   body?: string | (() => string);
   fetch?: () => Promise<FetchedData>;
   apply?: (tx: TransactionSql, snapshot: StoredSnapshot) => Promise<ApplyResult>;
+  revision?: number;
 } = {}): FakeSource {
   const applied: StoredSnapshot[] = [];
   const body = options.body ?? '{"rows":[1,2,3]}';
@@ -41,6 +42,7 @@ export function fakeSource(options: {
     creditText: null,
     modificationCodes: ['merged_across_sources'],
     schedule: '15 4 * * *',
+    revision: options.revision,
     applied,
     fetch:
       options.fetch ??

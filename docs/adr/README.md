@@ -20,3 +20,4 @@ Each ADR records one decision: the context, the options, the choice, and what fo
 | [0014](0014-unstated-terms-without-asking.md) | Sources with unstated terms can go live without asking first | Accepted |
 | [0015](0015-hudson-county.md) | The rest of Hudson County: Hoboken's garages, and unconfirmed sites in every town | Accepted |
 | [0016](0016-ordinance-as-a-source.md) | A city ordinance as a source, checked by its file's hash | Accepted |
+| [0017](0017-sites-not-for-visitors.md) | Unconfirmed sites a town says aren't for visitors are left out | Accepted |

@@ -24,6 +24,8 @@ export const harrisonParkingCenter: SourceDefinition = {
   creditText: null,
   modificationCodes: ['locations_from_records'],
   schedule: '30 6 * * 4',
+  // 2: opening hours (S4-22).
+  revision: 2,
   fetch: fetchPage,
   apply: (tx: TransactionSql, snapshot: StoredSnapshot) =>
     applyNormalized(tx, 'harrison-parking-center', normalizeHarrison(snapshot.body), snapshot.fetchedAt),
@@ -43,10 +45,12 @@ export const LOCATIONS: Record<string, { lat: number; lng: number; basis: string
 };
 
 /** The garage's block on the page: its name, then "Address" and the street address on the next line. */
-export function listedGarage(text: string): { name: string; address: string } {
+export function listedGarage(text: string): { name: string; address: string; openAllHours: boolean } {
   const match = /\n(Harrison Parking Center)\nAddress\n([^\n]+?),?\n/.exec(text);
   if (!match) throw new IngestionError('normalize.unexpected_format', 'no "Harrison Parking Center" address on the page');
-  return { name: match[1]!, address: match[2]!.trim() };
+  // "Hours of Operation" then "Open 24/7". Any other wording gives no hours rather than a guess.
+  const block = text.slice(match.index, match.index + 400);
+  return { name: match[1]!, address: match[2]!.trim(), openAllHours: /\nHours of Operation\nOpen 24\/7\n/i.test(block) };
 }
 
 export function normalizeHarrison(body: Uint8Array): Normalized {
@@ -68,11 +72,12 @@ export function normalizeHarrison(body: Uint8Array): Normalized {
     timeZone: NEW_YORK_TIME,
     lat: location.lat,
     lng: location.lng,
-    // The page says "Open 24/7", but opening hours don't reach the app yet; its spaces and rates aren't on the page.
+    // Its spaces and rates aren't on the page.
     spaces: null,
     officialUrl: HARRISON_PARKING_PAGE,
     meterPeriods: [],
     rates: [],
+    openingHours: garage.openAllHours ? [{ days: 127, opensAt: '00:00', closesAt: '24:00' }] : [],
     confirmed: true,
     lotNumber: null,
     withheldReason: null,

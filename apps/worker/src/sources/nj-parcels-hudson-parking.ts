@@ -54,9 +54,11 @@ export const njParcelsHudsonParking: SourceDefinition = {
   // The item's terms: a disclaimer, not survey data, credit to NJOGIS requested, and the State's Conditions of Use.
   termsUrl: arcgisItemPage(NJ_PARCELS_ITEM_ID),
   creditText: null,
-  modificationCodes: ['sites_from_parcels', 'unconfirmed_public_use', 'merged_across_sources'],
+  modificationCodes: ['sites_from_parcels', 'unconfirmed_public_use', 'sites_not_for_visitors_excluded', 'merged_across_sources'],
   // Published every few months. A weekly check is plenty, and unchanged data is skipped (ING-7).
   schedule: '55 5 * * 3',
+  // 2: sites not for visitors left out (ADR-0017).
+  revision: 2,
   fetch: fetchCandidates,
   apply: (tx: TransactionSql, snapshot: StoredSnapshot) =>
     applyNormalized(tx, 'nj-parcels-hudson-parking', normalizeCandidates(snapshot.body), snapshot.fetchedAt),
@@ -128,6 +130,18 @@ const RIGHT_OF_WAY = /R\.?O\.?W|RAILROAD|RIGHT OF WAY/i;
 /** Another public use on the block that the parking most likely serves (ING-13). */
 const SERVES =
   /SCHOOL|COLLEGE|POLICE|FIRE|HOUSING|POST|COURT|LIBRARY|HOSPITAL|ADMIN|OFFICE|COMMUNITY|\bDEPT\b|DEPARTMENT|\bDPW\b|PUBLIC WORKS|MAINTENANCE|\bGARAGES?\b|\bPARKS?\b|PLAYGROUND|RECREATION|CHURCH|CEMET/i;
+/**
+ * ADR-0017: sites their own town says aren't for visitors (rented, reserved, or private), by the site's first PIN.
+ * Checked by hand on 2026-11-07. A town's page is used only to leave a site out; nothing from it is shown.
+ */
+export const NOT_FOR_VISITORS: Readonly<Record<string, string>> = {
+  '0902_16_2.01': 'East Newark, 10-12 Sering Ave: the Borough says parking lot areas throughout the Borough are private (Residential Parking page)',
+  '0902_8_47': 'East Newark, 411 John St: as above',
+  '0903_31_11': 'Guttenberg, 127 71st St: "The town lot on 71st Street offers reserved, paid parking only" (Town news, 2020-01-08)',
+  '0908_26_9': 'North Bergen, 1314 14th St: a rental lot on the Parking Authority\'s Parking Lots page',
+  '0908_8_66': 'North Bergen, 600 Liberty Ave: a rental lot on the Parking Authority\'s Parking Lots page',
+};
+
 /** Wording for the parking itself, which isn't another use: "PARKING GARAGE", "GARAGE#B-810", "PARK LOT". */
 const PARKING_ITSELF = /PARKING GARAGES?|GARAGE ?#\S*|\bPARK LOT\b|PARK'G/gi;
 
@@ -161,6 +175,7 @@ export function normalizeCandidates(body: Uint8Array): Normalized {
     if (site.some((parcel) => RIGHT_OF_WAY.test(parcel.description))) continue;
     const uses = [...(blockUses.get(blockKey(site[0]!.town, site[0]!.block)) ?? []), ...site.map((parcel) => parcel.description.replace(PARKING_ITSELF, ''))];
     if (uses.some((use) => SERVES.test(use))) continue;
+    if (site[0]!.pin in NOT_FOR_VISITORS) continue; // modification `sites_not_for_visitors_excluded`
     records.push(toRecord(site));
   }
   return { rowsRead: candidateFeatures.length, records, invalidRows };

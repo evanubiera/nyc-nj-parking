@@ -11,6 +11,7 @@ const WNY_66TH = { latitude: 40.79023, longitude: -74.00471 };
 const HOBOKEN_GARAGE_B = { latitude: 40.73804, longitude: -74.02905 };
 const BAYONNE_E24TH = { latitude: 40.66463, longitude: -74.11656 };
 const UNION_CITY_DECK = { latitude: 40.77581, longitude: -74.02721 };
+const HARRISON_GARAGE = { latitude: 40.7394, longitude: -74.15685 };
 
 async function recommendationsRequest(page: Page, action: () => Promise<void>): Promise<URL> {
   const [request] = await Promise.all([page.waitForRequest((request) => request.url().includes('/api/parking/recommendations')), action()]);
@@ -211,6 +212,20 @@ test.describe('in Union City', () => {
     await expect(deck.getByText('Between Bergenline Ave. and Kennedy Blvd., Union City')).toBeVisible();
     await expect(page.getByRole('article', { name: '41st-42nd Street Lot' })).toBeVisible();
     await expect(page.getByRole('article', { name: '506-18 38th St' })).toHaveCount(0); // the deck's tax-record site
+    expect(await axeViolations(page)).toEqual([]);
+  });
+});
+
+test.describe('in Harrison', () => {
+  test.use({ geolocation: HARRISON_GARAGE, permissions: ['geolocation'] });
+
+  test('S4-22 shows a garage\'s opening hours, and leaves hours off what\'s missing', async ({ page }) => {
+    await page.goto('/');
+    await shareLocation(page);
+
+    const garage = page.getByRole('article', { name: 'Harrison Parking Center' });
+    await expect(garage.getByText('Open 24 hours, every day')).toBeVisible();
+    await expect(garage.getByText('Not shown here: rates and number of spaces. Check with the operator before you park.')).toBeVisible();
     expect(await axeViolations(page)).toEqual([]);
   });
 });

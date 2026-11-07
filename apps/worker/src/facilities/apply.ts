@@ -6,7 +6,7 @@ import { IngestionError } from '../errors.ts';
 import type { MeterPeriod } from '../normalize/meter-hours.ts';
 import type { ApplyResult } from '../sources/types.ts';
 import { clusterRecords } from './cluster.ts';
-import type { Normalized, RateInput, SourceRecordInput } from './types.ts';
+import type { Normalized, OpeningPeriod, RateInput, SourceRecordInput } from './types.ts';
 
 const REBUILD_LOCK = 7_340_212;
 
@@ -31,7 +31,7 @@ async function replaceSourceRecords(tx: TransactionSql, sourceId: string, record
       insert into source_record (
         source_id, record_id, facility_key, priority, name, match_tokens, kind, operator_name, operator_type,
         address_line, locality, region, time_zone, location, spaces, official_url, meter_periods,
-        lot_number, withheld_reason, confirmed, rates, first_seen_at, last_seen_at)
+        lot_number, withheld_reason, confirmed, rates, opening_hours, first_seen_at, last_seen_at)
       values (
         ${sourceId}, ${record.recordId}, ${record.facilityKey}, ${record.priority}, ${record.name},
         ${textArray(tx, record.matchTokens)}, ${record.kind}, ${record.operatorName}, ${record.operatorType},
@@ -39,7 +39,8 @@ async function replaceSourceRecords(tx: TransactionSql, sourceId: string, record
         ST_SetSRID(ST_MakePoint(${record.lng}, ${record.lat}), 4326)::geography, ${record.spaces},
         ${record.officialUrl}, ${tx.json(record.meterPeriods as unknown as Parameters<typeof tx.json>[0])},
         ${record.lotNumber}, ${record.withheldReason}, ${record.confirmed},
-        ${tx.json(record.rates as unknown as Parameters<typeof tx.json>[0])}, ${now}, ${now})
+        ${tx.json(record.rates as unknown as Parameters<typeof tx.json>[0])},
+        ${tx.json((record.openingHours ?? []) as unknown as Parameters<typeof tx.json>[0])}, ${now}, ${now})
       on conflict (source_id, record_id) do update set
         facility_key = excluded.facility_key, priority = excluded.priority, name = excluded.name,
         match_tokens = excluded.match_tokens, kind = excluded.kind, operator_name = excluded.operator_name,
@@ -47,7 +48,7 @@ async function replaceSourceRecords(tx: TransactionSql, sourceId: string, record
         region = excluded.region, time_zone = excluded.time_zone, location = excluded.location,
         spaces = excluded.spaces, official_url = excluded.official_url, meter_periods = excluded.meter_periods,
         lot_number = excluded.lot_number, withheld_reason = excluded.withheld_reason, confirmed = excluded.confirmed,
-        rates = excluded.rates,
+        rates = excluded.rates, opening_hours = excluded.opening_hours,
         last_seen_at = excluded.last_seen_at`;
   }
   const removed = await tx`
@@ -79,6 +80,7 @@ interface StoredRecord {
   withheldReason: string | null;
   confirmed: boolean;
   rates: RateInput[];
+  openingHours: OpeningPeriod[];
 }
 
 export async function rebuildFacilities(tx: TransactionSql, now: Date): Promise<{ active: number; withdrawn: number }> {
@@ -90,7 +92,8 @@ export async function rebuildFacilities(tx: TransactionSql, now: Date): Promise<
       match_tokens as "matchTokens", kind, operator_name as "operatorName", operator_type as "operatorType",
       address_line as "addressLine", locality, region, time_zone as "timeZone",
       ST_Y(location::geometry) as lat, ST_X(location::geometry) as lng, spaces, official_url as "officialUrl",
-      meter_periods as "meterPeriods", lot_number as "lotNumber", withheld_reason as "withheldReason", confirmed, rates
+      meter_periods as "meterPeriods", lot_number as "lotNumber", withheld_reason as "withheldReason", confirmed, rates,
+      opening_hours as "openingHours"
     from source_record`;
   const clusters = clusterRecords(
     records.map((record) => ({ ...record, lat: Number(record.lat), lng: Number(record.lng) })),
@@ -98,6 +101,7 @@ export async function rebuildFacilities(tx: TransactionSql, now: Date): Promise<
 
   await tx`delete from facility_meter_period`;
   await tx`delete from facility_rate`;
+  await tx`delete from facility_hours`;
   await tx`delete from facility_source`;
 
   for (const { facilityId, primary, members } of clusters) {
@@ -131,6 +135,13 @@ export async function rebuildFacilities(tx: TransactionSql, now: Date): Promise<
         insert into facility_rate (facility_id, days, starts_at, ends_at, kind, up_to_minutes, amount_minor, currency)
         values (${facilityId}, ${rate.days}, ${rate.startsAt}, ${rate.endsAt}, ${rate.kind}, ${rate.upToMinutes},
                 ${rate.amountMinor}, ${rate.currency})`;
+    }
+
+    // Opening hours, like rates, come from the first record in priority order that states any.
+    for (const period of members.find((member) => member.openingHours.length > 0)?.openingHours ?? []) {
+      await tx`
+        insert into facility_hours (facility_id, days, opens_at, closes_at)
+        values (${facilityId}, ${period.days}, ${period.opensAt}, ${period.closesAt})`;
     }
 
     for (const period of distinctPeriods(members.flatMap((member) => member.meterPeriods))) {

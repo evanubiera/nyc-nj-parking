@@ -231,7 +231,7 @@ components:
           minimum: 0
           description: The number of spaces, when a source states it (REC-10).
         openingHours:
-          description: When the facility is open. Null until a source states it (SRC-1).
+          description: When the facility is open, as a source states it; 00:00 to 24:00 is open around the clock. Null when no source does.
           anyOf:
             - $ref: '#/components/schemas/OpeningHours'
             - type: 'null'
@@ -454,6 +454,7 @@ components:
               - rates_converted_to_hourly
               - no_hourly_parking_excluded
               - names_from_streets
+              - sites_not_for_visitors_excluded
         dataUpdatedAt:
           type: [string, 'null']
           format: date-time

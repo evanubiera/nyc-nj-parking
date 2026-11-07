@@ -28,6 +28,8 @@ export interface SourceRecordInput {
   meterPeriods: MeterPeriod[];
   /** Rates as the source states them (S4-12). Empty when it gives none. */
   rates: RateInput[];
+  /** When it's open, as the source states it (S4-22). Absent or empty when it gives none; never meter hours (WEB-6). */
+  openingHours?: OpeningPeriod[];
   /** REC-9: false for a candidate site from tax records, which may not be open to the public (ADR-0012). */
   confirmed: boolean;
   /** REC-8: only when the source has several lots with this name, such as "2". */
@@ -37,6 +39,15 @@ export interface SourceRecordInput {
 }
 
 export type WithheldReason = 'private_owner';
+
+/** One opening period, as stored in `source_record.opening_hours` and then `facility_hours` (specs/03). */
+export interface OpeningPeriod {
+  /** Bit mask, Monday = 1 through Sunday = 64. */
+  days: number;
+  /** Local wall-clock times, "HH:MM"; "24:00" closes at midnight. */
+  opensAt: string;
+  closesAt: string;
+}
 
 /** One rate, as stored in `source_record.rates` and then `facility_rate` (specs/03). */
 export interface RateInput {

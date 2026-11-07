@@ -242,6 +242,18 @@ describe('GET /api/parking/recommendations', () => {
     });
   });
 
+  it('REC-4 returns opening hours when a source states them, with midnight at the end of the day as 24:00', async () => {
+    await seedFacility(sql, { id: 'harrison-parking-center', name: 'Harrison Parking Center', kind: 'garage', lat: north(100), lng: ORIGIN.lng,
+      openingHours: [{ days: 127, opensAt: '00:00', closesAt: '24:00' }] });
+
+    const { body } = await recommend(`lat=${ORIGIN.lat}&lng=${ORIGIN.lng}`);
+
+    expect(body.results[0]).toMatchObject({
+      openingHours: { timeZone: 'America/New_York', periods: [{ days: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'], opens: '00:00', closes: '24:00' }] },
+      meteredHours: null,
+    });
+  });
+
   it('REC-8 returns a lot number where the source has one, and null elsewhere', async () => {
     await seedFacility(sql, { id: 'njt-morristown-02', name: 'Morristown', lotNumber: '2', lat: north(100), lng: ORIGIN.lng, operatorType: 'municipal' });
     await seedFacility(sql, { id: 'nyc-dot-delancey-essex', lat: north(200), lng: ORIGIN.lng });

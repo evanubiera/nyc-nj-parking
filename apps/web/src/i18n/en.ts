@@ -77,6 +77,9 @@ export const en = {
   'facility.nameWithLot': '{name}, lot {lot}',
 
   // WEB-6: these are when you pay at the meters, never opening hours.
+  // REC-4: opening hours, as a source states them. "{days}" is "every day" or "Mon–Fri".
+  'hours.allDay': 'Open 24 hours, {days}',
+  'hours.period': 'Open {days}, {from} to {to}',
   'meter.heading': 'Metered hours',
   'meter.period': 'Pay at the meter {days}, {from} to {to}',
   'meter.periodCommercial': 'Commercial vehicles pay at the meter {days}, {from} to {to}',
@@ -135,6 +138,7 @@ export const en = {
   'sources.change.locations_from_records':
     "The source has no map points, so we placed each lot or garage on the matching public parcel in the State's tax records, or with the State's geocoder.",
   'sources.change.rates_converted_to_hourly': 'We show meter rates per hour: 25¢ per 20 minutes is $0.75 per hour.',
+  'sources.change.sites_not_for_visitors_excluded': 'We leave out sites their town says are rented, reserved, or private.',
   'sources.change.names_from_streets': "The ordinance doesn't name its lots, so we name each by its street.",
   'sources.change.no_hourly_parking_excluded':
     "We leave out garages the page lists as not taking hourly parkers, and lots for monthly permit holders only.",
