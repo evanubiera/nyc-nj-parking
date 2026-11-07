@@ -4,7 +4,7 @@ import { bloomfieldParkingLots } from './bloomfield-parking-lots.ts';
 import { harrisonParkingCenter } from './harrison-parking-center.ts';
 import { hobokenGarages } from './hoboken-garages.ts';
 import { jcMunicipalLots } from './jc-municipal-lots.ts';
-import { njParcelsEssexParking, njParcelsHudsonParking } from './nj-parcels-parking.ts';
+import { njParcelsBergenParking, njParcelsEssexParking, njParcelsHudsonParking } from './nj-parcels-parking.ts';
 import { njdotParkRide } from './njdot-park-ride.ts';
 import { njtParkingLots } from './njt-parking-lots.ts';
 import { nycFacdbDot } from './nyc-facdb-dot.ts';
@@ -31,6 +31,7 @@ export const sources: readonly SourceDefinition[] = [
   southOrangeParkingLots,
   nutleyParkingLots,
   veronaParkingLots,
+  njParcelsBergenParking,
 ];
 
 /**

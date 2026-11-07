@@ -22,3 +22,4 @@ Each ADR records one decision: the context, the options, the choice, and what fo
 | [0016](0016-ordinance-as-a-source.md) | A city ordinance as a source, checked by its file's hash | Accepted |
 | [0017](0017-sites-not-for-visitors.md) | Unconfirmed sites a town says aren't for visitors are left out | Accepted |
 | [0018](0018-essex-county.md) | Essex County: unconfirmed sites in every town, and towns' own metered lots | Accepted |
+| [0019](0019-bergen-county.md) | Bergen County: unconfirmed sites, and a tighter rule for what isn't a public lot | Accepted |

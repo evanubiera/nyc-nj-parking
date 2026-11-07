@@ -39,9 +39,11 @@ describe('Essex County candidate sites from tax records (S4-25)', () => {
 
     expect(rowsRead).toBe(289);
     expect(invalidRows).toBe(0);
-    // Nutley's permit-only Lot #6 (11 East Plaza) is left out as not for visitors (ADR-0017).
-    expect(records).toHaveLength(99);
+    // Nutley's permit-only Lot #6 (11 East Plaza) is left out as not for visitors (ADR-0017), and Glen Ridge's site
+    // shares its block with a swimming pool (ADR-0019).
+    expect(records).toHaveLength(98);
     expect(towns).toMatchObject({ Newark: 30, 'East Orange': 13, Montclair: 7, Bloomfield: 2, 'South Orange': 2, Nutley: 1 });
+    expect(towns['Glen Ridge']).toBeUndefined();
     const names = records.map((record) => record.name);
     expect(names).not.toContain('463-465 Roseville Ave'); // "parking / tax lien foreclosure"
     expect(records.find((record) => record.name === 'Crescent Plaza')).toMatchObject({ kind: 'garage', locality: 'Montclair', facilityKey: 'montclair-site-2206-13' });

@@ -124,6 +124,9 @@ Decided with the user on 2026-11-04: show Jersey City's 7 city lots now, without
 | S4-29 | Nutley's 6 metered lots, enforced around the clock at $1.00 an hour, from Public Works' page (`nutley-parking-lots`); its permit lot's tax-record site left out (ADR-0017) | REC-10, ING-3, ING-14 | Done |
 | S4-30 | Verona's 2 lots with spaces and how to get in, from the Municipal Parking page (`verona-parking-lots`) | ING-10, ING-14 | Done |
 | S4-31 | Web: a period from 00:00 to 24:00 reads "around the clock" in meter hours, rates, and opening hours | WEB-6, WEB-12 | Done |
+| S4-32 | Bergen County (the user asked to continue on 2026-11-07): unconfirmed sites in all 70 towns as `nj-parcels-bergen-parking`; the rule tightened for every county (pools, ballfields, rinks, "PK"; future parking; condominium units; shapes with one parcel number); ADR-0019 | ING-13 | Done |
+| S4-33 | Bergen towns' own pages, first pass: Hackensack, Englewood, Fort Lee, Ridgewood, and Teaneck checked; none has a list we can read (specs/06) | — | Done |
+| S4-34 | Bergen towns' own pages, the other 65 | — | To do |
 
 ### Slice 4 status, Hudson County (2026-11-06)
 

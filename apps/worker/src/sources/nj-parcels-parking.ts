@@ -1,5 +1,6 @@
 // S4-3, S4-14, and S4-25: unconfirmed parking sites in a county's towns, from the State's parcel and tax-record layer
-// (ADR-0012, ADR-0015, ADR-0018, specs/06 "State parcels and tax records"). One source per county: Hudson and Essex. A site is public land (class 15C) that the
+// (ADR-0012, ADR-0015, ADR-0018, ADR-0019, specs/06 "State parcels and tax records"). One source per county: Hudson,
+// Essex, and Bergen. A site is public land (class 15C) that the
 // assessor describes as parking. The layer doesn't say who owns it (owner names are redacted) or whether the public
 // may park there, so every site is marked unconfirmed, with operator type `unknown` and no official page (REC-9).
 import type { TransactionSql } from '@parking/db';
@@ -60,10 +61,84 @@ export const ESSEX_TOWNS: Towns = {
   '0722': { name: 'West Orange', key: 'west-orange' },
 };
 
+/** Bergen County's towns, with the layer's abbreviations written out ("HASBROUCK HGHTS" is Hasbrouck Heights). */
+export const BERGEN_TOWNS: Towns = {
+  '0201': { name: 'Allendale', key: 'allendale' },
+  '0202': { name: 'Alpine', key: 'alpine' },
+  '0203': { name: 'Bergenfield', key: 'bergenfield' },
+  '0204': { name: 'Bogota', key: 'bogota' },
+  '0205': { name: 'Carlstadt', key: 'carlstadt' },
+  '0206': { name: 'Cliffside Park', key: 'cliffside-park' },
+  '0207': { name: 'Closter', key: 'closter' },
+  '0208': { name: 'Cresskill', key: 'cresskill' },
+  '0209': { name: 'Demarest', key: 'demarest' },
+  '0210': { name: 'Dumont', key: 'dumont' },
+  '0211': { name: 'Elmwood Park', key: 'elmwood-park' },
+  '0212': { name: 'East Rutherford', key: 'east-rutherford' },
+  '0213': { name: 'Edgewater', key: 'edgewater' },
+  '0214': { name: 'Emerson', key: 'emerson' },
+  '0215': { name: 'Englewood', key: 'englewood' },
+  '0216': { name: 'Englewood Cliffs', key: 'englewood-cliffs' },
+  '0217': { name: 'Fair Lawn', key: 'fair-lawn' },
+  '0218': { name: 'Fairview', key: 'fairview' },
+  '0219': { name: 'Fort Lee', key: 'fort-lee' },
+  '0220': { name: 'Franklin Lakes', key: 'franklin-lakes' },
+  '0221': { name: 'Garfield', key: 'garfield' },
+  '0222': { name: 'Glen Rock', key: 'glen-rock' },
+  '0223': { name: 'Hackensack', key: 'hackensack' },
+  '0224': { name: 'Harrington Park', key: 'harrington-park' },
+  '0225': { name: 'Hasbrouck Heights', key: 'hasbrouck-heights' },
+  '0226': { name: 'Haworth', key: 'haworth' },
+  '0227': { name: 'Hillsdale', key: 'hillsdale' },
+  '0228': { name: 'Ho-Ho-Kus', key: 'ho-ho-kus' },
+  '0229': { name: 'Leonia', key: 'leonia' },
+  '0230': { name: 'Little Ferry', key: 'little-ferry' },
+  '0231': { name: 'Lodi', key: 'lodi' },
+  '0232': { name: 'Lyndhurst', key: 'lyndhurst' },
+  '0233': { name: 'Mahwah', key: 'mahwah' },
+  '0234': { name: 'Maywood', key: 'maywood' },
+  '0235': { name: 'Midland Park', key: 'midland-park' },
+  '0236': { name: 'Montvale', key: 'montvale' },
+  '0237': { name: 'Moonachie', key: 'moonachie' },
+  '0238': { name: 'New Milford', key: 'new-milford' },
+  '0239': { name: 'North Arlington', key: 'north-arlington' },
+  '0240': { name: 'Northvale', key: 'northvale' },
+  '0241': { name: 'Norwood', key: 'norwood' },
+  '0242': { name: 'Oakland', key: 'oakland' },
+  '0243': { name: 'Old Tappan', key: 'old-tappan' },
+  '0244': { name: 'Oradell', key: 'oradell' },
+  '0245': { name: 'Palisades Park', key: 'palisades-park' },
+  '0246': { name: 'Paramus', key: 'paramus' },
+  '0247': { name: 'Park Ridge', key: 'park-ridge' },
+  '0248': { name: 'Ramsey', key: 'ramsey' },
+  '0249': { name: 'Ridgefield', key: 'ridgefield' },
+  '0250': { name: 'Ridgefield Park', key: 'ridgefield-park' },
+  '0251': { name: 'Ridgewood', key: 'ridgewood' },
+  '0252': { name: 'River Edge', key: 'river-edge' },
+  '0253': { name: 'River Vale', key: 'river-vale' },
+  '0254': { name: 'Rochelle Park', key: 'rochelle-park' },
+  '0255': { name: 'Rockleigh', key: 'rockleigh' },
+  '0256': { name: 'Rutherford', key: 'rutherford' },
+  '0257': { name: 'Saddle Brook', key: 'saddle-brook' },
+  '0258': { name: 'Saddle River', key: 'saddle-river' },
+  '0259': { name: 'South Hackensack', key: 'south-hackensack' },
+  '0260': { name: 'Teaneck', key: 'teaneck' },
+  '0261': { name: 'Tenafly', key: 'tenafly' },
+  '0262': { name: 'Teterboro', key: 'teterboro' },
+  '0263': { name: 'Upper Saddle River', key: 'upper-saddle-river' },
+  '0264': { name: 'Waldwick', key: 'waldwick' },
+  '0265': { name: 'Wallington', key: 'wallington' },
+  '0266': { name: 'Washington Township', key: 'washington-township' },
+  '0267': { name: 'Westwood', key: 'westwood' },
+  '0268': { name: 'Woodcliff Lake', key: 'woodcliff-lake' },
+  '0269': { name: 'Wood-Ridge', key: 'wood-ridge' },
+  '0270': { name: 'Wyckoff', key: 'wyckoff' },
+};
+
 /** One county's source: its ID, the layer's COUNTY value, and its towns. */
 export interface ParcelCounty {
   sourceId: string;
-  county: 'HUDSON' | 'ESSEX';
+  county: 'HUDSON' | 'ESSEX' | 'BERGEN';
   towns: Towns;
   schedule: string;
   revision: number;
@@ -71,8 +146,9 @@ export interface ParcelCounty {
 
 // 2: sites not for visitors left out (ADR-0017).
 export const HUDSON: ParcelCounty = { sourceId: 'nj-parcels-hudson-parking', county: 'HUDSON', towns: HUDSON_TOWNS, schedule: '55 5 * * 3', revision: 2 };
-// 2: Nutley's permit lot left out (ADR-0017).
-export const ESSEX: ParcelCounty = { sourceId: 'nj-parcels-essex-parking', county: 'ESSEX', towns: ESSEX_TOWNS, schedule: '58 5 * * 3', revision: 2 };
+// 2: Nutley's permit lot left out (ADR-0017). 3: pools, ballfields, and rinks as other uses (Glen Ridge's site).
+export const ESSEX: ParcelCounty = { sourceId: 'nj-parcels-essex-parking', county: 'ESSEX', towns: ESSEX_TOWNS, schedule: '58 5 * * 3', revision: 3 };
+export const BERGEN: ParcelCounty = { sourceId: 'nj-parcels-bergen-parking', county: 'BERGEN', towns: BERGEN_TOWNS, schedule: '1 6 * * 3', revision: 1 };
 
 /**
  * ING-13: how Hudson's assessors write parking: "PARKING AREA", "PRKNG LOT 23PS", "MUNICIPAL PKG.", "PARK'G",
@@ -111,6 +187,7 @@ export function parcelSitesSource(config: ParcelCounty): SourceDefinition {
 
 export const njParcelsHudsonParking = parcelSitesSource(HUDSON);
 export const njParcelsEssexParking = parcelSitesSource(ESSEX);
+export const njParcelsBergenParking = parcelSitesSource(BERGEN);
 
 /**
  * The candidate parcels, then the other public parcels on their blocks, in as many queries as the URL length allows.
@@ -170,16 +247,24 @@ interface Parcel {
   location: string;
   description: string;
   point: { lat: number; lng: number };
+  /** Each shape's centroid, when a parcel comes as several (their mean is `point`). */
+  shapes: { lat: number; lng: number }[];
   corners: { lat: number; lng: number }[];
 }
 
 /** Railroad or right-of-way land isn't a parking lot (ING-13). */
 const RIGHT_OF_WAY = /R\.?O\.?W|RAILROAD|RIGHT OF WAY/i;
-/** Land a town took for unpaid taxes ("PARKING TAX LIEN FORECLOSURE" in Newark) was a private lot, not a public one (ADR-0018). */
-const TAKEN_FOR_TAXES = /TAX LIEN|FORECLOS/i;
-/** Another public use on the block that the parking most likely serves (ING-13). */
+/**
+ * Not a public lot (ADR-0018, ADR-0019): land a town took for unpaid taxes ("PARKING TAX LIEN FORECLOSURE" in Newark)
+ * was a private lot, and "FUTURE PARKING" (Oradell) isn't a lot yet.
+ */
+const NOT_A_LOT = /TAX LIEN|FORECLOS|FUTURE PARKING/i;
+/**
+ * Another public use on the block that the parking most likely serves (ING-13): also a pool, a ballfield, a rink, or a
+ * park written "PK" ("PARKING VET PK", Ridgefield Park) (ADR-0019).
+ */
 const SERVES =
-  /SCHOOL|COLLEGE|POLICE|FIRE|HOUSING|POST|COURT|LIBRARY|HOSPITAL|ADMIN|OFFICE|COMMUNITY|\bDEPT\b|DEPARTMENT|\bDPW\b|PUBLIC WORKS|MAINTENANCE|\bGARAGES?\b|\bPARKS?\b|PLAYGROUND|RECREATION|CHURCH|CEMET/i;
+  /SCHOOL|COLLEGE|POLICE|FIRE|HOUSING|POST|COURT|LIBRARY|HOSPITAL|ADMIN|OFFICE|COMMUNITY|\bDEPT\b|DEPARTMENT|\bDPW\b|PUBLIC WORKS|MAINTENANCE|\bGARAGES?\b|\bPARKS?\b|\bPK\b(?! ?LOT)|PLAYGROUND|RECREATION|POOL|\bRINK\b|\b(?:HOCKEY|BALL|ATHLETIC|SOCCER|FOOTBALL|BASEBALL|SOFTBALL) FIELD|CHURCH|CEMET/i;
 /**
  * ADR-0017: sites their own town says aren't for visitors (rented, reserved, or private), by the site's first PIN.
  * Checked by hand on 2026-11-07. A town's page is used only to leave a site out; nothing from it is shown.
@@ -202,14 +287,29 @@ export function normalizeCandidates(body: Uint8Array, config: ParcelCounty): Nor
     throw new IngestionError('normalize.unexpected_format', 'snapshot is missing a query response');
   }
   const candidateFeatures = features(envelope.candidates);
-  const parcels: Parcel[] = [];
+  const byPin = new Map<string, Parcel>();
   let invalidRows = 0;
   for (const feature of candidateFeatures) {
     if (!SAYS_PARKING.test(describe(feature.attributes))) continue;
+    // A condominium unit ("0266_2506_7_CPA02", a single deeded parking space in Washington Township) isn't a lot.
+    if (/_C[A-Z0-9]+$/.test(text(feature.attributes, 'PAMS_PIN'))) continue;
     const parcel = readParcel(feature, config.towns);
-    if (parcel) parcels.push(parcel);
-    else invalidRows += 1;
+    if (!parcel) {
+      invalidRows += 1;
+      continue;
+    }
+    // One parcel can come as several shapes with the same PIN (Washington Township, Bergen): they're one parcel.
+    const seen = byPin.get(parcel.pin);
+    if (seen) {
+      seen.shapes.push(parcel.point);
+      seen.corners.push(...parcel.corners);
+      seen.point = {
+        lat: seen.shapes.reduce((sum, point) => sum + point.lat, 0) / seen.shapes.length,
+        lng: seen.shapes.reduce((sum, point) => sum + point.lng, 0) / seen.shapes.length,
+      };
+    } else byPin.set(parcel.pin, parcel);
   }
+  const parcels = [...byPin.values()];
 
   // Every public parcel's description on the block, the candidates' own included: a parcel recorded as
   // "parking lot" with facility "post office" is the post office's lot.
@@ -223,7 +323,7 @@ export function normalizeCandidates(body: Uint8Array, config: ParcelCounty): Nor
 
   const records: SourceRecordInput[] = [];
   for (const site of sitesOf(parcels)) {
-    if (site.some((parcel) => RIGHT_OF_WAY.test(parcel.description) || TAKEN_FOR_TAXES.test(parcel.description))) continue;
+    if (site.some((parcel) => RIGHT_OF_WAY.test(parcel.description) || NOT_A_LOT.test(parcel.description))) continue;
     const uses = [...(blockUses.get(blockKey(site[0]!.town, site[0]!.block)) ?? []), ...site.map((parcel) => parcel.description.replace(PARKING_ITSELF, ''))];
     if (uses.some((use) => SERVES.test(use))) continue;
     if (site[0]!.pin in NOT_FOR_VISITORS) continue; // modification `sites_not_for_visitors_excluded`
@@ -313,6 +413,7 @@ function readParcel({ attributes, centroid, geometry }: RawFeature, towns: Towns
     location: location.replace(/\s+/g, ' '),
     description: describe(attributes),
     point: { lat: y, lng: x },
+    shapes: [{ lat: y, lng: x }],
     corners,
   };
 }

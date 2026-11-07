@@ -3,7 +3,7 @@
 // read; the query responses, which are what a run stores, are as received. Two exceptions, saved on 2026-11-06:
 // the Hudson parcel layer's neighbours are one response holding every neighbour, which the fake upstream filters
 // to each query's blocks; and Hoboken's page is saved as a run stores it, with its email addresses removed.
-// Essex's parcel responses were saved on 2026-11-07, the same way as Hudson's. Bayonne's ordinance (a PDF) was saved on
+// Essex's and Bergen's parcel responses were saved on 2026-11-07, the same way as Hudson's. Bayonne's ordinance (a PDF) was saved on
 // 2026-11-07, as received; Union City's and Harrison's pages on 2026-11-07, as a
 // run stores them (no email addresses).
 import { readFileSync } from 'node:fs';
@@ -33,6 +33,8 @@ export const fixtures = {
   parcelsNeighbours: read('nj-parcels-hudson.neighbours.json'),
   essexCandidates: read('nj-parcels-essex.candidates.json'),
   essexNeighbours: read('nj-parcels-essex.neighbours.json'),
+  bergenCandidates: read('nj-parcels-bergen.candidates.json'),
+  bergenNeighbours: read('nj-parcels-bergen.neighbours.json'),
   wnyFacilities: read('wny.facilities.html'),
   hobokenGarages: read('hoboken.garages.html'),
   bayonneOrdinance: read('bayonne.o-16-64.pdf'),
@@ -126,9 +128,11 @@ export function fixtureHttp(overrides: Partial<Record<keyof typeof fixtures, Uin
   // The parcel layer's queries share a path; the candidates ask for class 15C, the neighbours for all of 15.
   const parcelsQuery = (url: URL) => {
     const where = url.searchParams.get('where') ?? '';
-    const essex = where.includes("COUNTY='ESSEX'") || where.includes("PCL_MUN='07");
-    if (where.includes("PROP_CLASS='15C'")) return essex ? bodies.essexCandidates : bodies.parcelsCandidates;
-    return neighboursFor(essex ? bodies.essexNeighbours : bodies.parcelsNeighbours, where);
+    // Each county by its name in the candidates' query, or its municipality codes (07xx Essex, 02xx Bergen) in the neighbours'.
+    const county = where.includes("COUNTY='ESSEX'") || where.includes("PCL_MUN='07") ? 'essex'
+      : where.includes("COUNTY='BERGEN'") || where.includes("PCL_MUN='02") ? 'bergen' : 'hudson';
+    if (where.includes("PROP_CLASS='15C'")) return { hudson: bodies.parcelsCandidates, essex: bodies.essexCandidates, bergen: bodies.bergenCandidates }[county];
+    return neighboursFor({ hudson: bodies.parcelsNeighbours, essex: bodies.essexNeighbours, bergen: bodies.bergenNeighbours }[county], where);
   };
   const http = new UpstreamHttp({
     socrataAppToken: 'fixture-token',
