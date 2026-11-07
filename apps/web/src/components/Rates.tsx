@@ -1,7 +1,7 @@
 import type { Rate } from '@parking/api-client';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { formatMoney } from '../utils/money.ts';
-import { formatDays, formatTime } from '../utils/timeFormat.ts';
+import { formatDays, formatTimes } from '../utils/timeFormat.ts';
 
 /** The order people read rates in: what an hour costs first, then longer stays, then passes and permits. */
 const KIND_ORDER: readonly Rate['kind'][] = ['per_hour', 'up_to_duration', 'daily_max', 'overnight_pass', 'monthly_permit'];
@@ -25,8 +25,7 @@ export function Rates({ rates: given }: { rates: readonly Rate[] }) {
                 price: formatMoney(intl, rate.price),
                 hours: rate.upToMinutes === null ? '' : intl.formatMessage({ id: 'meter.hours' }, { count: rate.upToMinutes / 60 }),
                 days: formatDays(intl, rate.days),
-                from: formatTime(intl, rate.from),
-                to: formatTime(intl, rate.to),
+                times: formatTimes(intl, rate.from, rate.to),
               }}
             />
           </li>

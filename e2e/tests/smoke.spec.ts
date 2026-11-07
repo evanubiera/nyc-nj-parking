@@ -13,6 +13,7 @@ const BAYONNE_E24TH = { latitude: 40.66463, longitude: -74.11656 };
 const UNION_CITY_DECK = { latitude: 40.77581, longitude: -74.02721 };
 const HARRISON_GARAGE = { latitude: 40.7394, longitude: -74.15685 };
 const SOUTH_ORANGE_LIBRARY_LOT = { latitude: 40.74712, longitude: -74.25772 };
+const NUTLEY_LOT_4 = { latitude: 40.81791, longitude: -74.15537 };
 
 async function recommendationsRequest(page: Page, action: () => Promise<void>): Promise<URL> {
   const [request] = await Promise.all([page.waitForRequest((request) => request.url().includes('/api/parking/recommendations')), action()]);
@@ -243,6 +244,21 @@ test.describe('in South Orange', () => {
     await expect(lot.getByText('Pay at the meter Mon–Sat, 8:00 AM to 6:00 PM')).toBeVisible();
     await expect(lot.getByText('$1.00 per hour, Mon–Sat, 8:00 AM to 6:00 PM')).toBeVisible();
     await expect(lot.getByText('$0.25 per hour, Mon–Sat, 8:00 AM to 6:00 PM')).toBeVisible();
+    expect(await axeViolations(page)).toEqual([]);
+  });
+});
+
+test.describe('in Nutley', () => {
+  test.use({ geolocation: NUTLEY_LOT_4, permissions: ['geolocation'] });
+
+  test('S4-29 shows a lot metered around the clock', async ({ page }) => {
+    await page.goto('/');
+    await shareLocation(page);
+
+    const lot = page.getByRole('article', { name: 'Municipal Parking Lot #4' });
+    await expect(lot.getByText('Pay at the meter every day, around the clock')).toBeVisible();
+    await expect(lot.getByText('Time limit: 2 hours')).toBeVisible();
+    await expect(lot.getByText('$1.00 per hour, every day, around the clock')).toBeVisible();
     expect(await axeViolations(page)).toEqual([]);
   });
 });

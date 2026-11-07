@@ -1,6 +1,6 @@
 import type { OpeningHours as OpeningHoursData } from '@parking/api-client';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { formatDays, formatTime } from '../utils/timeFormat.ts';
+import { formatDays, formatTimes } from '../utils/timeFormat.ts';
 
 /** REC-4, WEB-6: when the facility is open, as its source states it. Never meter hours, which have their own lines. */
 export function OpeningHours({ hours }: { hours: OpeningHoursData }) {
@@ -16,10 +16,7 @@ export function OpeningHours({ hours }: { hours: OpeningHoursData }) {
             {period.opens === '00:00' && period.closes === '24:00' ? (
               <FormattedMessage id="hours.allDay" values={{ days }} />
             ) : (
-              <FormattedMessage
-                id="hours.period"
-                values={{ days, from: formatTime(intl, period.opens), to: formatTime(intl, period.closes) }}
-              />
+              <FormattedMessage id="hours.period" values={{ days, times: formatTimes(intl, period.opens, period.closes) }} />
             )}
           </li>
         );

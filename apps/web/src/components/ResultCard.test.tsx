@@ -124,6 +124,16 @@ describe('ResultCard', () => {
     expect(await axeViolations(container)).toEqual([]);
   });
 
+  it('WEB-6 says a lot metered around the clock is, and its rate the same way', () => {
+    renderWithProviders(<ResultCard facility={{ ...wny66th,
+      meteredHours: { timeZone: 'America/New_York', sourceText: ['3 Hr. Metered Parking'],
+        periods: [{ days: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'], from: '00:00', to: '24:00', maxStayMinutes: 180, vehicleClass: null }] },
+      rates: [{ days: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'], from: '00:00', to: '24:00', kind: 'per_hour', upToMinutes: null, price: { amountMinor: 100, currency: 'USD' } }] }} />);
+
+    expect(screen.getByText('Pay at the meter every day, around the clock')).toBeInTheDocument();
+    expect(screen.getByText('$1.00 per hour, every day, around the clock')).toBeInTheDocument();
+  });
+
   it('REC-4 shows opening hours by day and time when a source gives them', () => {
     renderWithProviders(<ResultCard facility={{ ...wny66th, meteredHours: null,
       openingHours: { timeZone: 'America/New_York', periods: [{ days: ['mon', 'tue', 'wed', 'thu', 'fri'], opens: '08:00', closes: '18:00' }] } }} />);

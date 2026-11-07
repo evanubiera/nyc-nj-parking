@@ -29,6 +29,8 @@ export const NEARBY_MATCHES: readonly { sources: readonly [string, string]; mete
   // Essex (S4-26, S4-27): towns' lots placed on their own tax parcels.
   { sources: ['bloomfield-parking-lots', 'nj-parcels-essex-parking'], meters: 60 },
   { sources: ['south-orange-parking-lots', 'nj-parcels-essex-parking'], meters: 60 },
+  { sources: ['nutley-parking-lots', 'nj-parcels-essex-parking'], meters: 60 },
+  { sources: ['verona-parking-lots', 'nj-parcels-essex-parking'], meters: 60 },
 ];
 
 export interface Clusterable {

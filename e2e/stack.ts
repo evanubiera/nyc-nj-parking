@@ -15,9 +15,11 @@ import { njParcelsEssexParking, njParcelsHudsonParking } from '../apps/worker/sr
 import { njdotParkRide } from '../apps/worker/src/sources/njdot-park-ride.ts';
 import { njtParkingLots } from '../apps/worker/src/sources/njt-parking-lots.ts';
 import { nycFacdbDot } from '../apps/worker/src/sources/nyc-facdb-dot.ts';
+import { nutleyParkingLots } from '../apps/worker/src/sources/nutley-parking-lots.ts';
 import { nycMetersOffstreet } from '../apps/worker/src/sources/nyc-meters-offstreet.ts';
 import { southOrangeParkingLots } from '../apps/worker/src/sources/south-orange-parking-lots.ts';
 import { unionCityParkingLots } from '../apps/worker/src/sources/union-city-parking-lots.ts';
+import { veronaParkingLots } from '../apps/worker/src/sources/verona-parking-lots.ts';
 import { wnyParkingLots } from '../apps/worker/src/sources/wny-parking-lots.ts';
 import { fixtureHttp } from '../apps/worker/test/fixtures.ts';
 import { testLogger } from '../apps/worker/test/support.ts';
@@ -38,7 +40,8 @@ const sql = connectTest(database);
 const { http } = fixtureHttp();
 const { logger } = testLogger();
 for (const source of [nycFacdbDot, nycMetersOffstreet, njtParkingLots, njdotParkRide, jcMunicipalLots, njParcelsHudsonParking, wnyParkingLots, hobokenGarages, bayonneParkingLots,
-  unionCityParkingLots, harrisonParkingCenter, njParcelsEssexParking, bloomfieldParkingLots, southOrangeParkingLots]) {
+  unionCityParkingLots, harrisonParkingCenter, njParcelsEssexParking, bloomfieldParkingLots, southOrangeParkingLots,
+  nutleyParkingLots, veronaParkingLots]) {
   const outcome = await runSource(source, { sql, http, logger });
   if (outcome.status !== 'succeeded') throw new Error(`Seeding ${source.id} ended ${outcome.status} (${outcome.errorCode})`);
 }

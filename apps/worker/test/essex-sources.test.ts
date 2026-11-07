@@ -3,7 +3,9 @@ import { afterAll, beforeEach, describe, expect, inject, it } from 'vitest';
 import { runSource } from '../src/run.ts';
 import { BLOOMFIELD_METERS_PAGE, bloomfieldParkingLots, normalizeBloomfield } from '../src/sources/bloomfield-parking-lots.ts';
 import { ESSEX, njParcelsEssexParking, normalizeCandidates } from '../src/sources/nj-parcels-parking.ts';
+import { normalizeNutley, NUTLEY_PARKING_PAGE, nutleyParkingLots } from '../src/sources/nutley-parking-lots.ts';
 import { normalizeSouthOrange, SOUTH_ORANGE_METERS_PAGE, southOrangeParkingLots } from '../src/sources/south-orange-parking-lots.ts';
+import { normalizeVerona, veronaParkingLots } from '../src/sources/verona-parking-lots.ts';
 import { fixtureHttp, fixtures, PARCELS_SERVICE_PATH } from './fixtures.ts';
 import { testLogger } from './support.ts';
 
@@ -37,8 +39,9 @@ describe('Essex County candidate sites from tax records (S4-25)', () => {
 
     expect(rowsRead).toBe(289);
     expect(invalidRows).toBe(0);
-    expect(records).toHaveLength(100);
-    expect(towns).toMatchObject({ Newark: 30, 'East Orange': 13, Montclair: 7, Bloomfield: 2, 'South Orange': 2 });
+    // Nutley's permit-only Lot #6 (11 East Plaza) is left out as not for visitors (ADR-0017).
+    expect(records).toHaveLength(99);
+    expect(towns).toMatchObject({ Newark: 30, 'East Orange': 13, Montclair: 7, Bloomfield: 2, 'South Orange': 2, Nutley: 1 });
     const names = records.map((record) => record.name);
     expect(names).not.toContain('463-465 Roseville Ave'); // "parking / tax lien foreclosure"
     expect(records.find((record) => record.name === 'Crescent Plaza')).toMatchObject({ kind: 'garage', locality: 'Montclair', facilityKey: 'montclair-site-2206-13' });
@@ -100,15 +103,56 @@ describe("South Orange's metered lots (S4-27)", () => {
   });
 });
 
+describe("Nutley's metered lots (S4-29)", () => {
+  it('REC-10 shows the six metered lots, enforced around the clock at $1.00 an hour, and leaves out the permit lots', async () => {
+    const fetched = await nutleyParkingLots.fetch(fixtureHttp().http);
+    const { rowsRead, records, invalidRows } = normalizeNutley(fetched.body);
+
+    expect([rowsRead, invalidRows]).toEqual([9, 0]);
+    expect(records.map((record) => [record.name, record.meterPeriods[0]?.maxStayMinutes])).toEqual([
+      ['Municipal Parking Lot #1', 240], ['Municipal Parking Lot #2', 180], ['Municipal Parking Lot #4', 120],
+      ['Municipal Parking Lot #5', 120], ['Municipal Parking Lot #7', 180], ['Municipal Parking Lot #9', 180],
+    ]);
+    for (const record of records) {
+      expect(record).toMatchObject({ operatorName: 'Township of Nutley', operatorType: 'municipal', locality: 'Nutley', officialUrl: NUTLEY_PARKING_PAGE });
+      expect(record.meterPeriods[0]).toMatchObject({ days: 127, startsAt: '00:00', endsAt: '24:00' });
+      expect(record.rates).toEqual([{ days: 127, startsAt: '00:00', endsAt: '24:00', kind: 'per_hour', upToMinutes: null, amountMinor: 100, currency: 'USD' }]);
+    }
+  });
+
+  it('ING-3 fails when the lots\' enforcement hours are worded differently', () => {
+    expect(() => normalizeNutley(edited(fixtures.nutleyParking, '24 hours per day, 7 days a week', '8am to 6pm'))).toThrow(/enforcement hours/);
+  });
+});
+
+describe("Verona's lots (S4-30)", () => {
+  it('ADR-0014 shows the two lots with their spaces and how to get in', async () => {
+    const { records, invalidRows } = normalizeVerona((await veronaParkingLots.fetch(fixtureHttp().http)).body);
+
+    expect(invalidRows).toBe(0);
+    expect(records.map((record) => [record.name, record.addressLine, record.spaces])).toEqual([
+      ['Municipal Lot 1', 'Park Place (opposite Lakeside Ave), off Bloomfield Ave', 67],
+      ['Municipal Lot 2', 'Grove Ave, approximately 50 feet north of Bloomfield Ave', 32],
+    ]);
+  });
+
+  it('ING-10 counts a lot described differently as a row it can\'t read, and ING-3 fails when none read', () => {
+    const one = edited(fixtures.veronaParking, 'metered parking spaces and', 'meters and');
+    expect(normalizeVerona(one)).toMatchObject({ rowsRead: 2, invalidRows: 1 });
+    expect(() => normalizeVerona(edited(one, 'metered parking spaces and', 'meters and'))).toThrow(/expected wording/);
+  });
+});
+
 describe("Essex's sources together (ING-14)", () => {
   it('ING-14 merges the tax-record sites that are these lots into them', async () => {
     const context = { sql, http: fixtureHttp().http, logger: testLogger().logger };
-    for (const source of [njParcelsEssexParking, bloomfieldParkingLots, southOrangeParkingLots]) await runSource(source, context);
+    for (const source of [njParcelsEssexParking, bloomfieldParkingLots, southOrangeParkingLots, nutleyParkingLots, veronaParkingLots]) await runSource(source, context);
 
     const sourcesOf = async (id: string) =>
       (await sql`select source_id from facility_source where facility_id = ${id} order by source_id`).map((link) => link.source_id);
     expect(await sourcesOf('south-orange-irvington-avenue-lot-8')).toEqual(['nj-parcels-essex-parking', 'south-orange-parking-lots']);
     expect(await sourcesOf('bloomfield-pitt-st-lot')).toEqual(['bloomfield-parking-lots', 'nj-parcels-essex-parking']);
+    expect(await sourcesOf('verona-lot-2')).toEqual(['nj-parcels-essex-parking', 'verona-parking-lots']);
     const rates = await sql`select amount_minor from facility_rate where facility_id = 'bloomfield-pitt-st-lot'`;
     expect(rates.map((rate) => rate.amount_minor)).toEqual([100]);
   });

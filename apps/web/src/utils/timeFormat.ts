@@ -13,6 +13,12 @@ export function formatDays(intl: IntlShape, days: readonly Day[]): string {
   );
 }
 
+/** "8:00 AM to 6:00 PM", or "around the clock" for 00:00 to 24:00 (WEB-6, WEB-12). */
+export function formatTimes(intl: IntlShape, from: string, to: string): string {
+  if (from === '00:00' && to === '24:00') return intl.formatMessage({ id: 'time.allDay' });
+  return intl.formatMessage({ id: 'time.range' }, { from: formatTime(intl, from), to: formatTime(intl, to) });
+}
+
 /** "07:00" as a wall-clock time in the locale, such as "7:00 AM". */
 export function formatTime(intl: IntlShape, time: string): string {
   return intl.formatTime(referenceTime(time), { hour: 'numeric', minute: '2-digit', timeZone: 'UTC' });

@@ -7,7 +7,7 @@ export const en = {
 
   'search.heading': 'Find public parking near you',
   'search.intro':
-    "Garages, lots, and fields run by cities, counties, the state, and transit agencies. This release covers NYC Department of Transportation garages and fields; city lots and garages in Jersey City, West New York, Bayonne, Union City, Hoboken, Harrison, Bloomfield, and South Orange; and, across Hudson and Essex Counties, unconfirmed sites from tax records.",
+    "Garages, lots, and fields run by cities, counties, the state, and transit agencies. This release covers NYC Department of Transportation garages and fields; city lots and garages in Jersey City, West New York, Bayonne, Union City, Hoboken, Harrison, Bloomfield, South Orange, Nutley, and Verona; and, across Hudson and Essex Counties, unconfirmed sites from tax records.",
   'search.radius.label': 'Search within',
   'search.radius.option': '{km, number} km',
   // WEB-4: the device's location is offered apart from the search box, and shared only through the dialog.
@@ -68,21 +68,24 @@ export const en = {
   'facility.spaces': '{count, plural, one {# space} other {# spaces}}',
   // WEB-12: rates as the source states them. {hours} is "12 hours" for up-to rates.
   'rate.heading': 'Rates',
-  'rate.per_hour': '{price} per hour, {days}, {from} to {to}',
-  'rate.up_to_duration': 'Up to {hours}: {price}, {days}, {from} to {to}',
+  'rate.per_hour': '{price} per hour, {days}, {times}',
+  'rate.up_to_duration': 'Up to {hours}: {price}, {days}, {times}',
   'rate.daily_max': '{price} a day at most, {days}',
   'rate.monthly_permit': '{price} a month with a permit',
-  'rate.overnight_pass': 'Overnight pass: {price}, {days}, {from} to {to}',
+  'rate.overnight_pass': 'Overnight pass: {price}, {days}, {times}',
   // REC-8: an NJ Transit station's lots share a name, so their number tells them apart.
   'facility.nameWithLot': '{name}, lot {lot}',
 
   // WEB-6: these are when you pay at the meters, never opening hours.
   // REC-4: opening hours, as a source states them. "{days}" is "every day" or "Mon–Fri".
   'hours.allDay': 'Open 24 hours, {days}',
-  'hours.period': 'Open {days}, {from} to {to}',
+  'hours.period': 'Open {days}, {times}',
   'meter.heading': 'Metered hours',
-  'meter.period': 'Pay at the meter {days}, {from} to {to}',
-  'meter.periodCommercial': 'Commercial vehicles pay at the meter {days}, {from} to {to}',
+  'meter.period': 'Pay at the meter {days}, {times}',
+  'meter.periodCommercial': 'Commercial vehicles pay at the meter {days}, {times}',
+  // A time range, or the whole day when it runs from 00:00 to 24:00.
+  'time.range': '{from} to {to}',
+  'time.allDay': 'around the clock',
   'meter.limit': 'Time limit: {hours}',
   'meter.limitVaries': 'Time limit: {hours}, depending on the meter',
   'meter.hours': '{count, plural, one {# hour} other {# hours}}',

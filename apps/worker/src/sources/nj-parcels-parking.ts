@@ -71,7 +71,8 @@ export interface ParcelCounty {
 
 // 2: sites not for visitors left out (ADR-0017).
 export const HUDSON: ParcelCounty = { sourceId: 'nj-parcels-hudson-parking', county: 'HUDSON', towns: HUDSON_TOWNS, schedule: '55 5 * * 3', revision: 2 };
-export const ESSEX: ParcelCounty = { sourceId: 'nj-parcels-essex-parking', county: 'ESSEX', towns: ESSEX_TOWNS, schedule: '58 5 * * 3', revision: 1 };
+// 2: Nutley's permit lot left out (ADR-0017).
+export const ESSEX: ParcelCounty = { sourceId: 'nj-parcels-essex-parking', county: 'ESSEX', towns: ESSEX_TOWNS, schedule: '58 5 * * 3', revision: 2 };
 
 /**
  * ING-13: how Hudson's assessors write parking: "PARKING AREA", "PRKNG LOT 23PS", "MUNICIPAL PKG.", "PARK'G",
@@ -189,6 +190,7 @@ export const NOT_FOR_VISITORS: Readonly<Record<string, string>> = {
   '0903_31_11': 'Guttenberg, 127 71st St: "The town lot on 71st Street offers reserved, paid parking only" (Town news, 2020-01-08)',
   '0908_26_9': 'North Bergen, 1314 14th St: a rental lot on the Parking Authority\'s Parking Lots page',
   '0908_8_66': 'North Bergen, 600 Liberty Ave: a rental lot on the Parking Authority\'s Parking Lots page',
+  '0716_2003_1': 'Nutley, 11 East Plaza: Municipal Parking Lot #6, "Permit Parking" only (Public Works\' Parking page)',
 };
 
 /** Wording for the parking itself, which isn't another use: "PARKING GARAGE", "GARAGE#B-810", "PARK LOT". */

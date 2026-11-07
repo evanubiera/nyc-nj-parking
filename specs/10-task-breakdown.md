@@ -120,7 +120,10 @@ Decided with the user on 2026-11-04: show Jersey City's 7 city lots now, without
 | S4-25 | Essex County (asked for by the user on 2026-11-07, "Yes, start Essex"): unconfirmed sites in all 22 towns as `nj-parcels-essex-parking`, from a shared per-county adapter; land taken for unpaid taxes left out; parking decks as garages; ADR-0018 | ING-13 | Done |
 | S4-26 | Bloomfield's 2 metered lots with meter hours, limits, and rates, from the Parking Utility's page (`bloomfield-parking-lots`) | REC-10, ING-3, ING-14 | Done |
 | S4-27 | South Orange's 5 metered lots, two kinds of meter merged into one lot, from the Village's Meters & Pay Stations page (`south-orange-parking-lots`) | REC-10, ING-10, ING-14 | Done |
-| S4-28 | The rest of Essex's towns' own pages (East Orange, Orange, West Orange, Maplewood, Millburn, Irvington, Belleville, Nutley, Livingston, the Caldwells, Glen Ridge, Verona, Cedar Grove, Fairfield, Roseland, Essex Fells); Montclair (SRC-15) and Newark checked | — | To do |
+| S4-28 | The rest of Essex's towns' own pages, checked 2026-11-07 (asked for by the user: "Yes, continue Essex"): Nutley and Verona have lists (S4-29, S4-30); Maplewood refuses the worker (SRC-15); Millburn names lots only by number; the others have no list (specs/06) | SRC-15 | Done |
+| S4-29 | Nutley's 6 metered lots, enforced around the clock at $1.00 an hour, from Public Works' page (`nutley-parking-lots`); its permit lot's tax-record site left out (ADR-0017) | REC-10, ING-3, ING-14 | Done |
+| S4-30 | Verona's 2 lots with spaces and how to get in, from the Municipal Parking page (`verona-parking-lots`) | ING-10, ING-14 | Done |
+| S4-31 | Web: a period from 00:00 to 24:00 reads "around the clock" in meter hours, rates, and opening hours | WEB-6, WEB-12 | Done |
 
 ### Slice 4 status, Hudson County (2026-11-06)
 

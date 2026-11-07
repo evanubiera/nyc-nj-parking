@@ -1,7 +1,7 @@
 import type { MeteredHours as MeteredHoursData } from '@parking/api-client';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { meterLines } from '../utils/meterHours.ts';
-import { formatDays, formatTime } from '../utils/timeFormat.ts';
+import { formatDays, formatTimes } from '../utils/timeFormat.ts';
 
 /** WEB-6: when payment is required at the meters, and the time limit. Never shown as opening hours. */
 export function MeteredHours({ hours }: { hours: MeteredHoursData }) {
@@ -19,7 +19,7 @@ export function MeteredHours({ hours }: { hours: MeteredHoursData }) {
           <li key={[line.days.join(','), line.from, line.to, line.commercial].join('|')}>
             <FormattedMessage
               id={line.commercial ? 'meter.periodCommercial' : 'meter.period'}
-              values={{ days: formatDays(intl, line.days), from: formatTime(intl, line.from), to: formatTime(intl, line.to) }}
+              values={{ days: formatDays(intl, line.days), times: formatTimes(intl, line.from, line.to) }}
             />
             {line.limits.length > 0 && (
               <span className="metered-hours__limit">

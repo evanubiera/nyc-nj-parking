@@ -22,6 +22,8 @@ The `Admitted` table is read by a test (ING-6). Keep its format: one source ID p
 | `nj-parcels-essex-parking` | Parcels and MOD-IV Composite of NJ, candidate sites in Essex County's 22 towns, shown as unconfirmed | S4-25, 2026-11-07 (ADR-0018) |
 | `bloomfield-parking-lots` | Bloomfield Parking Utility's Meter Parking/Display & Go page, its metered lots with rates, terms unstated | S4-26, 2026-11-07 (ADR-0014, ADR-0018) |
 | `south-orange-parking-lots` | South Orange's Meters & Pay Stations page, the Parking Authority's metered lots with rates, terms unstated | S4-27, 2026-11-07 (ADR-0014, ADR-0018) |
+| `nutley-parking-lots` | Nutley Public Works' Parking page, its 6 metered lots, terms unstated | S4-29, 2026-11-07 (ADR-0014, ADR-0018) |
+| `verona-parking-lots` | Verona's Municipal Parking page, its 2 lots with spaces, terms unstated | S4-30, 2026-11-07 (ADR-0014, ADR-0018) |
 
 ## Terms that apply
 
@@ -215,6 +217,23 @@ Replaced `nj-parcels-jc-parking` (Jersey City only, 2026-11-04 to 2026-11-06); m
 - **Record:** the lot's name; kind `garage` for Taylor Place Garage; the address line from the lot's own entry; operator South Orange Parking Authority, `municipal`; one metered period and one hourly rate per kind of meter.
 - **Result:** 5 lots. Irvington Avenue Lot 8 takes in the tax-record site at 296 Irvington Avenue.
 
+### `nutley-parking-lots` (S4-29)
+
+- **Source:** the Department of Public Works' [Parking page](https://nutleynj.org/parking), checked 2026-11-07; no `Last-Modified`.
+- **Read:** the "Municipal Parking Lots" table: "Municipal Parking Lot #N", where it is, and its kinds of parking. A lot with "N Hr. Metered Parking" is shown with that time limit; a lot with permit parking only (#3, #6, #8) is left out (modification `no_hourly_parking_excluded`). The lots' enforcement ("24 hours per day, 7 days a week") and the meter rate ("25 cents per 15 minutes") must read as they do, or the run fails (ING-3).
+- **Locations:** #1, 38 William St (0716_6200_11, "parking area"); #2, 376 Centre St ("municipal pking lot"); #4, 161 Chestnut St ("parking lot", beside the health department); #5, 182 Franklin Ave ("parking area", across from 181); #7, 1 Franklin Terrace ("municipal pking lot", behind 507 Franklin Ave, Bella Luce's address); #9, 535-537 Franklin Ave.
+- **Record:** "Municipal Parking Lot #N"; operator Township of Nutley, `municipal`; meters every day, around the clock (00:00 to 24:00), with the time limit; rate $1.00 per hour (modification `rates_converted_to_hourly`).
+- **Not for visitors** (ADR-0017): the tax-record site at 11 East Plaza is Lot #6, "Permit Parking" only, and is left out of `nj-parcels-essex-parking`.
+- **Result:** 6 lots.
+
+### `verona-parking-lots` (S4-30)
+
+- **Source:** the Township's [Municipal Parking page](https://www.veronanj.org/MunicipalParking), checked 2026-11-07; no `Last-Modified`.
+- **Read:** each "Municipal Lot N", "can be accessed via|from …", and "Lot N contains M metered parking spaces and P permit parking spaces". A lot heading that doesn't read that way counts as a row that can't be read (ING-10).
+- **Locations:** Lot 1 on 0720_1703_65 (550 Bloomfield Ave rear, "parking area", on H.B. Whitehorne Middle School's block); Lot 2 on 0720_1702_20 (15 Grove Ave, "parking area"), which is also Verona's one unconfirmed site and merges into it.
+- **Record:** "Municipal Lot N"; the address line is how to get in, such as "Park Place (opposite Lakeside Ave), off Bloomfield Ave"; spaces are metered and permit together (67 and 32); operator Township of Verona, `municipal`; no meter hours or rates.
+- **Result:** 2 lots.
+
 ## New Jersey municipalities (researched 2026-11-03)
 
 Searched: ArcGIS Online for layers titled "parking" in 34 of NJ's largest cities and best-known parking towns; Socrata (none of the 83 portals with a parking dataset is in NJ); and each city's parking authority or utility. **No NJ city publishes its municipal lots as open data**, apart from Jersey City's 7 lots from 2020 (above) and Hoboken's small layer. Elsewhere, lot lists are on city or authority websites only.
@@ -244,6 +263,13 @@ Many of these authorities' lots at train stations are already in NJ Transit's Pa
 | Newark | No list of the Newark Parking Authority's lots or decks (searched 2026-11-07); only third-party listings | — | **No list.** 30 unconfirmed sites. |
 | Bloomfield | The Bloomfield Parking Utility's site, [Meter Parking/Display & Go](https://bloomfieldparking.org/pay-display-go/): two tables of meters, with rate ("25¢@15 min"), time limit, and enforcement hours (8 am – 6 pm, Monday to Saturday); the lots are Pitt St. Lot (12-hour meters), Conger St Lot (two hours), and State St. Lot (three hours); the rest are streets. Its Maps page is images only | WordPress; `Last-Modified` sent. Footer: "Copyright © 2026 Township of Bloomfield Parking Utility. All rights reserved." No terms page | **Admitted, terms unstated (ADR-0014, ADR-0018), as `bloomfield-parking-lots`, 2026-11-07.** See "Essex County" below. |
 | South Orange | The Village's [Meters & Pay Stations page](https://www.southorange.org/189/Meters-Pay-Stations), kept by the South Orange Parking Authority: "Meters by Lots", each entry a lot and where it is, its time limit, and its rate; meters are enforced Monday to Saturday 8am to 6pm, 12-hour meters from 6am. The [Permit Fees & Rules page](https://www.southorange.org/194/Permit-Fees-Rules) covers commuter lots and permits | CivicPlus; no `Last-Modified`. The [Copyright Notices](https://www.southorange.org/site/copyright) say only "All content © 2006-2026 South Orange Village, NJ and its representatives. All rights reserved." | **Admitted, terms unstated (ADR-0014, ADR-0018), as `south-orange-parking-lots`, 2026-11-07.** |
+| Nutley | The Department of Public Works' [Parking page](https://nutleynj.org/parking) (checked 2026-11-07): a table of Municipal Parking Lots #1 to #9, each with where it is and its parking ("3 Hr. Metered Parking", "Permit Parking", "Student Permit Parking"); lots are enforced "24 hours per day, 7 days a week"; meters cost 25 cents per 15 minutes ($1.00 an hour by card) | No `Last-Modified`; no terms page or terms in the footer | **Admitted, terms unstated (ADR-0014, ADR-0018), as `nutley-parking-lots`, 2026-11-07.** |
+| Verona | The Township's [Municipal Parking page](https://www.veronanj.org/MunicipalParking) (checked 2026-11-07): Municipal Lots 1 and 2, how to get into each, and their metered and permit spaces (42 and 25; 22 and 10). Meter hours and rates are on another page ("time limitations"), not read | No `Last-Modified`; no terms | **Admitted, terms unstated (ADR-0014, ADR-0018), as `verona-parking-lots`, 2026-11-07.** |
+| Maplewood | The Township's parking pages (maplewoodnj.gov) | Answer 403 to the worker's requests (2026-11-07), like Montclair's | **Not reachable (SRC-15).** 7 unconfirmed sites. |
+| Millburn | The Township's [Parking Information page](https://www.twp.millburn.nj.us/215/Parking-Information) (checked 2026-11-07): pay-by-plate stations in Lots #1, 2, 4, and 5 ($0.25 per 30 minutes, or $10 all day); Lot #3 (Short Hills train lot), Lot #7 (Millburn train lot, commuters only), Lot #9 (library) | Lots named only by number; the linked PDFs explain paying by phone and have no map or addresses | **No list we can place.** 7 unconfirmed sites. |
+| Belleville | The Township's notice [Municipal Parking Lots](https://www.bellevillenj.org/News/View/7524/municipal-parking-lots) (2026-01-05): every municipal lot now charges 24 hours a day by ParkMobile; a 2020 press release (PDF) about the 23-space Washington Avenue lot | No list of lots | **No list.** 6 unconfirmed sites. |
+| East Orange, Orange, Irvington, West Orange | No list on the cities' own sites (searched 2026-11-07); their lots appear in their codes on eCode360 (East Orange's Parking Authority sets rates; Orange's "Municipal Parking Plazas" I to IX; Irvington's lettered lots; West Orange's numbered "parking yards"), which can't be republished | — | **No list.** Unconfirmed sites: East Orange 13, Irvington 9, Orange 5, West Orange 5. |
+| Livingston, the Caldwells, Glen Ridge, Cedar Grove, Fairfield, Roseland, Essex Fells | No municipal lot lists found (searched 2026-11-07); Caldwell's code mentions borough lots | — | **No list.** Unconfirmed sites: Caldwell 3, Glen Ridge 1. |
 | Paterson | [Parking Authority](https://www.patersonnj.gov/department/?fDD=7-0) page: the authority runs 13 off-street facilities with 3,068 spaces | No list of facilities. The site footer reads "© 2026 City of Paterson" | **Blocked (SRC-8).** No list to use. Its station lots may be in NJ Transit's database. |
 | Camden | Camden County GIS layer "Parking Authority Camden City Parcels" (item 566c410a21fb4cee9136dce890db8632), 2025 | 20 tax parcels owned by the parking authority, not parking facilities | **Rejected.** |
 | "Newark" | ArcGIS "Public Parking Public" (item 1fc6bc53ca584761bcc2ab0b7243af5d) | Its 2 lots are at 43.05, −77.09, in Newark, New York | **Rejected** (not NJ). |

@@ -40,6 +40,8 @@ export const fixtures = {
   harrisonParking: read('harrison.parking-permits.html'),
   bloomfieldMeters: read('bloomfield.pay-display-go.html'),
   southOrangeMeters: read('south-orange.meters.html'),
+  nutleyParking: read('nutley.parking.html'),
+  veronaParking: read('verona.municipal-parking.html'),
 };
 
 export const NJT_SERVICE_PATH = '/M0t0HPE53pFK525U/arcgis/rest/services/ParkingLotDB_20260320_Sync_view/FeatureServer';
@@ -55,6 +57,8 @@ const PAGE_HEADERS: Record<string, Record<string, string>> = {
   '/223/Parking-Permits': { 'content-type': 'text/html; charset=utf-8' },
   '/pay-display-go/': { 'content-type': 'text/html; charset=UTF-8', 'last-modified': 'Thu, 05 Nov 2026 17:20:43 GMT' },
   '/189/Meters-Pay-Stations': { 'content-type': 'text/html; charset=utf-8' },
+  '/parking': { 'content-type': 'text/html; charset=utf-8' },
+  '/MunicipalParking': { 'content-type': 'text/html; charset=utf-8' },
 };
 
 /** The neighbours response for one query: the saved neighbours on the blocks its `where` names, such as
@@ -116,6 +120,8 @@ export function fixtureHttp(overrides: Partial<Record<keyof typeof fixtures, Uin
     '/223/Parking-Permits': bodies.harrisonParking,
     '/pay-display-go/': bodies.bloomfieldMeters,
     '/189/Meters-Pay-Stations': bodies.southOrangeMeters,
+    '/parking': bodies.nutleyParking,
+    '/MunicipalParking': bodies.veronaParking,
   };
   // The parcel layer's queries share a path; the candidates ask for class 15C, the neighbours for all of 15.
   const parcelsQuery = (url: URL) => {
