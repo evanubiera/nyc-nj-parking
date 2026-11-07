@@ -3,6 +3,7 @@
 // read; the query responses, which are what a run stores, are as received. Two exceptions, saved on 2026-11-06:
 // the Hudson parcel layer's neighbours are one response holding every neighbour, which the fake upstream filters
 // to each query's blocks; and Hoboken's page is saved as a run stores it, with its email addresses removed.
+// Bayonne's ordinance (a PDF) was saved on 2026-11-07, as received.
 import { readFileSync } from 'node:fs';
 import { UpstreamHttp } from '../src/http.ts';
 
@@ -30,6 +31,7 @@ export const fixtures = {
   parcelsNeighbours: read('nj-parcels-hudson.neighbours.json'),
   wnyFacilities: read('wny.facilities.html'),
   hobokenGarages: read('hoboken.garages.html'),
+  bayonneOrdinance: read('bayonne.o-16-64.pdf'),
 };
 
 export const NJT_SERVICE_PATH = '/M0t0HPE53pFK525U/arcgis/rest/services/ParkingLotDB_20260320_Sync_view/FeatureServer';
@@ -39,6 +41,7 @@ export const PARCELS_SERVICE_PATH = '/XVOqAjTOJ5P6ngMu/arcgis/rest/services/Parc
 const PAGE_HEADERS: Record<string, Record<string, string>> = {
   '/pages/parking-services/facilities/': { 'content-type': 'text/html; charset=UTF-8', 'last-modified': 'Fri, 06 Nov 2026 23:10:53 GMT' },
   '/resources/municipal-garages': { 'content-type': 'text/html; charset=utf-8', 'last-modified': 'Fri, 06 Nov 2026 22:16:52 GMT' },
+  '/_Content/pdf/ordinances/O-16-64.pdf': { 'content-type': 'application/pdf', 'last-modified': 'Fri, 15 Jan 2021 16:54:38 GMT' },
 };
 
 /** The neighbours response for one query: the saved neighbours on the blocks its `where` names, such as
@@ -95,6 +98,7 @@ export function fixtureHttp(overrides: Partial<Record<keyof typeof fixtures, Uin
     [`${PARCELS_SERVICE_PATH}/0`]: bodies.parcelsLayer,
     '/pages/parking-services/facilities/': bodies.wnyFacilities,
     '/resources/municipal-garages': bodies.hobokenGarages,
+    '/_Content/pdf/ordinances/O-16-64.pdf': bodies.bayonneOrdinance,
   };
   // The parcel layer's queries share a path; the candidates ask for class 15C, the neighbours for all of 15.
   const parcelsQuery = (url: URL) => {

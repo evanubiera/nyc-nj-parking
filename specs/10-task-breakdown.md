@@ -109,6 +109,8 @@ Decided with the user on 2026-11-04: show Jersey City's 7 city lots now, without
 | S4-14 | Unconfirmed sites in all 12 Hudson County towns (`nj-parcels-hudson-parking`, replacing `nj-parcels-jc-parking`; migration 0006): the county's wording for parking, the neighbours query in parts, playgrounds and public works buildings as other uses, per-town facility IDs, and 60 m matching for West New York's lots and Hoboken's garages | ING-13, ING-14 | Done |
 | S4-15 | Smoke test and a browser check in Hoboken and Bayonne | All slice 4 | Done |
 | S4-16 | Web: the search box first, as the default; "or", then "Use my current location" as a separate button that opens a dialog, where the person volunteers their location; NYC addresses in suggestions in proper case, with ordinals for numbered streets (asked for by the user on 2026-11-06) | WEB-4, WEB-11, PRIV-3 | Done |
+| S4-17 | Weehawken (asked for by the user on 2026-11-07): checked the Township's website, its code, the tax records, and OpenStreetMap; no list we can use (specs/06); request to the Parking Authority drafted | SRC-11 | Blocked (SRC-11) |
+| S4-18 | Bayonne (asked for by the user on 2026-11-07): `bayonne-parking-lots`, 9 metered lots from Ordinance O-16-64 on the City's site, transcribed and checked by its file's hash; placed on their tax parcels; 60 m matching; change code `names_from_streets`; ADR-0016 | ING-14, ING-15, ATT-2 | Done |
 
 ### Slice 4 status, Hudson County (2026-11-06)
 

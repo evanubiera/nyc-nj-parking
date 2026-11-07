@@ -1,4 +1,5 @@
 // The sources the worker runs. Exactly the Admitted table in specs/06-sources.md; a test checks that (ING-6).
+import { bayonneParkingLots } from './bayonne-parking-lots.ts';
 import { hobokenGarages } from './hoboken-garages.ts';
 import { jcMunicipalLots } from './jc-municipal-lots.ts';
 import { njParcelsHudsonParking } from './nj-parcels-hudson-parking.ts';
@@ -16,6 +17,7 @@ export const sources: readonly SourceDefinition[] = [
   njParcelsHudsonParking,
   wnyParkingLots,
   hobokenGarages,
+  bayonneParkingLots,
 ];
 
 /**

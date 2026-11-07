@@ -9,6 +9,7 @@ const LOT_52 = { latitude: 40.72158, longitude: -74.04504 };
 const MONTGOMERY_SITE = { latitude: 40.71703, longitude: -74.04278 };
 const WNY_66TH = { latitude: 40.79023, longitude: -74.00471 };
 const HOBOKEN_GARAGE_B = { latitude: 40.73804, longitude: -74.02905 };
+const BAYONNE_E24TH = { latitude: 40.66463, longitude: -74.11656 };
 
 async function recommendationsRequest(page: Page, action: () => Promise<void>): Promise<URL> {
   const [request] = await Promise.all([page.waitForRequest((request) => request.url().includes('/api/parking/recommendations')), action()]);
@@ -176,6 +177,23 @@ test.describe('in Hoboken', () => {
     await expect(garage.getByRole('link', { name: /^Data: Municipal Garages and Lots, as of Nov 6, 2026/ })).toBeVisible();
     await expect(page.getByRole('article', { name: 'Midtown Garage' })).toBeVisible();
     await expect(page.getByRole('article', { name: 'Garage G' })).toHaveCount(0);
+    expect(await axeViolations(page)).toEqual([]);
+  });
+});
+
+test.describe('in Bayonne', () => {
+  test.use({ geolocation: BAYONNE_E24TH, permissions: ['geolocation'] });
+
+  test('S4-18 shows the City\'s metered lots from its ordinance, named by street', async ({ page }) => {
+    await page.goto('/');
+    await shareLocation(page);
+
+    const lot = page.getByRole('article', { name: 'East 24th Street Lot (north side)' });
+    await expect(lot.getByText(/^Lot · City-run · \d+ m away$/)).toBeVisible();
+    await expect(lot.getByText('E 24th St, north side, Broadway to Avenue E, Bayonne')).toBeVisible();
+    await expect(lot.getByText('Not shown here: hours, rates, and number of spaces. Check with the operator before you park.')).toBeVisible();
+    await expect(lot.getByRole('link', { name: /^Data: Ordinance O-16-64, Time-Limited Metered Parking Lots, as of Jan 15, 2021/ })).toBeVisible();
+    await expect(page.getByRole('article', { name: '509-515 Broadway-Rear' })).toHaveCount(0); // that site is the West 24th Street lot
     expect(await axeViolations(page)).toEqual([]);
   });
 });

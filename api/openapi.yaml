@@ -453,6 +453,7 @@ components:
               - locations_from_records
               - rates_converted_to_hourly
               - no_hourly_parking_excluded
+              - names_from_streets
         dataUpdatedAt:
           type: [string, 'null']
           format: date-time

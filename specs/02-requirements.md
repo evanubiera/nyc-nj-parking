@@ -30,7 +30,8 @@ Each requirement has an ID. Tasks, tests, and contract operations (`x-requiremen
 | ING-11 | A record whose owner is recorded as private (ADR-0007), or that has no recorded owner (PRD-4), isn't published. A private record is kept as withheld, so the same lot from another source isn't published either. | 2 |
 | ING-12 | Records in different regions never match. An NJ Transit record and an NJDOT record within 100 m of each other are the same lot, whatever their names, and NJ Transit's record is the primary. | 2 |
 | ING-13 | `nj-parcels-hudson-parking` takes Hudson County parcels in class 15C whose building description or facility name says parking (in the county's wording, ADR-0015), groups touching parcels on a block into sites, and keeps a site only when none of its parcels is railroad or right of way and no public parcel on its block, its own included, is a school, public building (including a public works or maintenance building), park, playground, or church (ADR-0012, ADR-0015, specs/06). | 4 |
-| ING-14 | A candidate site from tax records is the same lot, and the lot's record is the primary, when it's within 90 m of a Jersey City or NJ Transit lot, or within 60 m of a West New York lot or Hoboken garage (those were placed on their own tax parcels). | 4 |
+| ING-14 | A candidate site from tax records is the same lot, and the lot's record is the primary, when it's within 90 m of a Jersey City or NJ Transit lot, or within 60 m of a West New York or Bayonne lot or a Hoboken garage (those were placed on their own tax parcels). | 4 |
+| ING-15 | A source transcribed by hand from a document the worker can't read, such as Bayonne's ordinance PDF, checks each run that the file's SHA-256 is the one transcribed; a different file fails the run and changes nothing, until someone checks it and updates the transcription (ADR-0016). | 4 |
 
 ## Privacy (PRIV)
 

@@ -21,6 +21,8 @@ export const NEARBY_MATCHES: readonly { sources: readonly [string, string]; mete
   // is close: 30 m for West New York's 55th Street lot (specs/06). A different site was 91 m from Garage D.
   { sources: ['wny-parking-lots', 'nj-parcels-hudson-parking'], meters: 60 },
   { sources: ['hoboken-garages', 'nj-parcels-hudson-parking'], meters: 60 },
+  // Bayonne's lots were placed on the parcels its ordinance names (ADR-0016).
+  { sources: ['bayonne-parking-lots', 'nj-parcels-hudson-parking'], meters: 60 },
 ];
 
 export interface Clusterable {

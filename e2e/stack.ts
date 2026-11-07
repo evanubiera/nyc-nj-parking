@@ -6,6 +6,7 @@ import { createServer } from 'node:http';
 import { connectTest, startTestDatabase } from '@parking/db/testing';
 import { buildApp } from '../apps/api/src/app.ts';
 import { runSource } from '../apps/worker/src/run.ts';
+import { bayonneParkingLots } from '../apps/worker/src/sources/bayonne-parking-lots.ts';
 import { hobokenGarages } from '../apps/worker/src/sources/hoboken-garages.ts';
 import { jcMunicipalLots } from '../apps/worker/src/sources/jc-municipal-lots.ts';
 import { njParcelsHudsonParking } from '../apps/worker/src/sources/nj-parcels-hudson-parking.ts';
@@ -32,7 +33,7 @@ const database = await startTestDatabase();
 const sql = connectTest(database);
 const { http } = fixtureHttp();
 const { logger } = testLogger();
-for (const source of [nycFacdbDot, nycMetersOffstreet, njtParkingLots, njdotParkRide, jcMunicipalLots, njParcelsHudsonParking, wnyParkingLots, hobokenGarages]) {
+for (const source of [nycFacdbDot, nycMetersOffstreet, njtParkingLots, njdotParkRide, jcMunicipalLots, njParcelsHudsonParking, wnyParkingLots, hobokenGarages, bayonneParkingLots]) {
   const outcome = await runSource(source, { sql, http, logger });
   if (outcome.status !== 'succeeded') throw new Error(`Seeding ${source.id} ended ${outcome.status} (${outcome.errorCode})`);
 }
