@@ -95,7 +95,8 @@ test.describe('at an NJ Transit station', () => {
     const townLot = page.getByRole('article', { name: 'Morristown, lot 2' });
     await expect(transitLot.getByText(/^Lot · Transit agency · \d+ m away$/)).toBeVisible();
     await expect(townLot.getByText(/^Lot · City-run · \d+ m away$/)).toBeVisible();
-    await expect(townLot.getByRole('link', { name: /^Data: Parking Lot Database View, as of Oct 8, 2026$/ })).toBeVisible();
+    // The lot's tax-record site merges into it (ING-14, S4-42), so both sources are credited.
+    await expect(townLot.getByRole('link', { name: /^Data: Parcels and MOD-IV Composite of NJ, as of Aug 18, 2026 and Parking Lot Database View, as of Oct 8, 2026$/ })).toBeVisible();
     // Lot 3 is recorded as part private, so it's never shown (ING-11).
     await expect(page.getByRole('article', { name: 'Morristown, lot 3' })).toHaveCount(0);
 

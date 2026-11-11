@@ -4,6 +4,7 @@ import type { TransactionSql } from '@parking/db';
 import { applyNormalized } from '../facilities/apply.ts';
 import type { Normalized, SourceRecordInput } from '../facilities/types.ts';
 import { facilityKey, matchTokens, titleCase } from '../normalize/names.ts';
+import { njTownName } from '../normalize/towns.ts';
 import { arcgisItemPage, attributeNumber, attributeText, fetchArcgisLayer, parseFeatures, type ArcgisLayerQuery } from './arcgis.ts';
 import { inCoverageArea, NJDOT_PARK_RIDE_PAGE } from './nj.ts';
 import { NEW_YORK_TIME } from './nyc.ts';
@@ -24,11 +25,13 @@ export const njdotParkRide: SourceDefinition = {
   publisher: 'New Jersey Department of Transportation (NJDOT)',
   title: 'New_Jersey_DOT_Park_Ride',
   datasetUrl: arcgisItemPage(NJDOT_ITEM_ID),
-  // The item's terms field has only a liability disclaimer (SRC-3). It's admitted under ADR-0011 once we've asked (S2-10).
+  // The item's terms field has only a liability disclaimer (SRC-3). Admitted, terms unstated, on 2026-11-10 (ADR-0014).
   termsUrl: arcgisItemPage(NJDOT_ITEM_ID),
   creditText: null,
-  modificationCodes: ['duplicates_removed', 'municipalities_reformatted', 'merged_across_sources'],
+  modificationCodes: ['duplicates_removed', 'municipalities_reformatted', 'town_names_standardized', 'merged_across_sources'],
   // Last edited in 2024. A weekly check is plenty, and unchanged data is skipped (ING-7).
+  // 2: towns named as the other sources name them (2026-11-10).
+  revision: 2,
   schedule: '40 5 * * 2',
   fetch: (http) => fetchArcgisLayer(http, NJDOT_QUERY),
   apply: (tx: TransactionSql, snapshot: StoredSnapshot) => applyNormalized(tx, 'njdot-park-ride', normalizeNjdot(snapshot.body), snapshot.fetchedAt),
@@ -61,14 +64,16 @@ export function normalizeNjdot(body: Uint8Array): Normalized {
     records.push({
       recordId: String(objectId),
       facilityKey: facilityKey('njdot', tokens),
-      priority: 2,
+      // After NJ Transit's (2): a lot both list takes NJ Transit's record (ING-12).
+      priority: 3,
       name,
       matchTokens: tokens,
       kind: 'lot',
       operatorName: NJDOT,
       operatorType: 'state',
       addressLine: null,
-      locality: titleCase(municipality),
+      // As the other sources write the town: "Clinton Twp" is Clinton Township (S4-44).
+      locality: njTownName(municipality, attributeText(attributes, 'County')) ?? titleCase(municipality),
       region: 'NJ',
       timeZone: NEW_YORK_TIME,
       lat: point.lat,

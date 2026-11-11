@@ -17,6 +17,14 @@ export const NEARBY_MATCHES: readonly { sources: readonly [string, string]; mete
   // ING-14: a candidate site from tax records is named by its address, never like the lot it may be.
   { sources: ['jc-municipal-lots', 'nj-parcels-hudson-parking'], meters: 90 },
   { sources: ['njt-parking-lots', 'nj-parcels-hudson-parking'], meters: 90 },
+  { sources: ['njt-parking-lots', 'nj-parcels-essex-parking'], meters: 90 },
+  { sources: ['njt-parking-lots', 'nj-parcels-bergen-parking'], meters: 90 },
+  { sources: ['njt-parking-lots', 'nj-parcels-rest-of-nj-parking'], meters: 90 },
+  // NJDOT's park-and-rides on State land the tax records also list, such as Clinton Point, 23 m from 194 Center Street.
+  { sources: ['njdot-park-ride', 'nj-parcels-hudson-parking'], meters: 90 },
+  { sources: ['njdot-park-ride', 'nj-parcels-essex-parking'], meters: 90 },
+  { sources: ['njdot-park-ride', 'nj-parcels-bergen-parking'], meters: 90 },
+  { sources: ['njdot-park-ride', 'nj-parcels-rest-of-nj-parking'], meters: 90 },
   // West New York's lots and Hoboken's garages were placed on their own tax parcels, so a site that's the same lot
   // is close: 30 m for West New York's 55th Street lot (specs/06). A different site was 91 m from Garage D.
   { sources: ['wny-parking-lots', 'nj-parcels-hudson-parking'], meters: 60 },
@@ -34,6 +42,9 @@ export const NEARBY_MATCHES: readonly { sources: readonly [string, string]; mete
   // Bergen (S4-35, S4-36), the same way.
   { sources: ['westwood-parking-lots', 'nj-parcels-bergen-parking'], meters: 60 },
   { sources: ['oradell-parking-lots', 'nj-parcels-bergen-parking'], meters: 60 },
+  // NJ Transit's Oradell #1 to #3 are three of the Borough's lots, 14 to 37 m apart; the nearest different lot was 75 m
+  // (2026-11-10). The Borough's record is the primary (priority 1 before NJ Transit's 2).
+  { sources: ['oradell-parking-lots', 'njt-parking-lots'], meters: 50 },
 ];
 
 export interface Clusterable {
@@ -41,6 +52,8 @@ export interface Clusterable {
   recordId: string;
   facilityKey: string;
   priority: number;
+  /** False for a candidate site from tax records (REC-9). Absent means confirmed. */
+  confirmed?: boolean;
   matchTokens: readonly string[];
   region: string;
   lat: number;
@@ -58,8 +71,11 @@ export function clusterRecords<T extends Clusterable>(
   maxDistance = MATCH_DISTANCE_M,
   nearby = NEARBY_MATCHES,
 ): Cluster<T>[] {
+  // Confirmed records first, so a lot, never a tax-record site, is the primary of a facility it shares (ING-14, REC-9);
+  // then by priority. NJDOT's park-and-rides and the sites are both priority 3 (S4-43).
+  const unconfirmed = (record: Clusterable) => (record.confirmed === false ? 1 : 0);
   const ordered = [...records].sort(
-    (a, b) => a.priority - b.priority || compare(a.sourceId, b.sourceId) || compare(a.recordId, b.recordId),
+    (a, b) => unconfirmed(a) - unconfirmed(b) || a.priority - b.priority || compare(a.sourceId, b.sourceId) || compare(a.recordId, b.recordId),
   );
   const clusters: Cluster<T>[] = [];
 

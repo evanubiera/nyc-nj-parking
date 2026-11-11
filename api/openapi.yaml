@@ -497,6 +497,7 @@ components:
               - lot_numbers_reformatted
               - duplicates_removed
               - municipalities_reformatted
+              - town_names_standardized
               - sites_from_parcels
               - unconfirmed_public_use
               - locations_from_records

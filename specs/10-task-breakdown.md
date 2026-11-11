@@ -76,7 +76,7 @@ Decided with the user on 2026-11-03: lots with no recorded owner are left out (P
 | S2-7 | API: the `operatorType` filter, and `lotNumber` in results | REC-7, REC-8 | Done |
 | S2-8 | Web: the operator filter, and lot numbers on cards and map markers | WEB-8, REC-8 | Done |
 | S2-9 | Smoke test: the e2e stack also loads both NJ fixtures; a search at an NJ station, and the filter | All slice 2 | Done |
-| S2-10 | Admission: once the user has sent the SRC-2 and SRC-3 requests, add both adapters to the registry, mark them Admitted, terms pending with the date asked, show "terms pending" on the Sources page, and update the search intro | ING-6, ATT-3 | Waiting for the requests |
+| S2-10 | Admission: once the user has sent the SRC-2 and SRC-3 requests, add both adapters to the registry, mark them Admitted, terms pending with the date asked, show "terms pending" on the Sources page, and update the search intro | ING-6, ATT-3 | Done another way: both went live on 2026-11-10 without the requests (S4-42, S4-43) |
 
 ### Slice 2 status (2026-11-03)
 
@@ -134,6 +134,9 @@ Decided with the user on 2026-11-04: show Jersey City's 7 city lots now, without
 | S4-39 | Areas (the user asked on 2026-11-10 to search by city or county, choosing a county to see every lot in it): NJ's 21 county and NYC's 5 borough outlines from NJOGIS and NYC Planning, built by `scripts/build-areas.ts`; `facility.area` (migration 0009), set by the worker when it rebuilds facilities; `pnpm rebuild`; ADR-0021 | REC-11 | Done |
 | S4-40 | API: `GET /api/parking/areas/{area}/facilities` (`listAreaFacilities`), every facility in an area by town, no cap of 50, `distanceMeters` null; `AreaId` in the contract | REC-11, REC-7 | Done |
 | S4-41 | Web: a "Search by" dropdown with town or address (the default), city (county, then town or neighbourhood), county or NYC borough (a list by town, the map fitted to it), and the device's location (the consent dialog moves here from its own button) | WEB-13, WEB-4, WEB-11 | Done |
+| S4-42 | NJ Transit's lots go live (the user asked on 2026-11-10, "lets turn on the NJ Transit's lot database!"), terms unstated, without asking first (ADR-0014): 399 lots; paired with every county's tax-record sites at 90 m and with Oradell's lots at 50 m; NJ Transit's records at priority 2, after towns' own, and NJDOT's at 3; a facility's spaces from the first record that states them | ING-6, ING-12, ING-14, REC-10 | Done |
+| S4-43 | NJDOT's park-and-rides go live (the user asked on 2026-11-10, "can I turn on both nj transit and nj dot?"), terms unstated (ADR-0014): 15 lots; paired with every county's tax-record sites at 90 m; the rebuild takes confirmed records before sites, so a lot is always the primary | ING-6, ING-12, ING-14, REC-9 | Done |
+| S4-44 | Town names alike across sources: NJ Transit's official labels and NJDOT's abbreviations read as the names the tax-record sites use, matched within the county (`normalize/towns.ts`, from every town's label and county written by `scripts/build-nj-towns.ts`); change code `town_names_standardized`. Towns written two ways in one county went from 88 to none | WEB-13, ATT-3 | Done |
 
 ### Slice 4 status, Hudson County (2026-11-06)
 

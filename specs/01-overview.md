@@ -35,7 +35,7 @@ A scheduled worker pulls public data from city and state portals, keeps a snapsh
 |---|---|---|
 | 0 | Nothing user-facing yet: the foundation (repo, contract, database, ingestion skeleton, web shell, CI). | Done |
 | 1 | Find NYC DOT municipal garages and fields near them, nearest first, on a list and a map, with hours, sources, and the disclaimer. | Done |
-| 2 | Also find NJ commuter lots (NJ Transit and NJDOT), filtered by operator type. Under ADR-0011 the two sources go live once SRC-2 and SRC-3 are asked; PRD-4 decided. | In progress |
+| 2 | Also find NJ commuter lots (NJ Transit and NJDOT), filtered by operator type. Both live since 2026-11-10, without asking first (ADR-0014); PRD-4 decided. | Done |
 | 3 | See rates and an "open now" filter. Rates depend on SRC-1. | Planned |
 | 4 | More NJ municipalities, one city at a time, plus state-run lots if PRD-3 includes them. Jersey City first: its 7 city lots, and unconfirmed sites from tax records (ADR-0012). Then West New York's 9 lots (ADR-0014), Hoboken's garages, and unconfirmed sites in all of Hudson County (ADR-0015); Bayonne, Union City, and Harrison; then Essex County, with Bloomfield's, South Orange's, Nutley's, and Verona's lots (ADR-0018); then Bergen County, with Westwood's and Oradell's lots (ADR-0019); then unconfirmed sites in the other 18 counties (ADR-0020). | In progress |
 | Later | On-street parking; a native app if needed. | — |

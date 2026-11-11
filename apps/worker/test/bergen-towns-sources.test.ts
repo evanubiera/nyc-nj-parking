@@ -2,6 +2,7 @@ import { connectTest, resetData } from '@parking/db/testing';
 import { afterAll, beforeEach, describe, expect, inject, it } from 'vitest';
 import { runSource } from '../src/run.ts';
 import { njParcelsBergenParking } from '../src/sources/nj-parcels-parking.ts';
+import { njtParkingLots } from '../src/sources/njt-parking-lots.ts';
 import { normalizeOradell, ORADELL_PARKING_PAGE, oradellParkingLots } from '../src/sources/oradell-parking-lots.ts';
 import {
   normalizeWestwood,
@@ -115,5 +116,20 @@ describe("Bergen's town sources together (ING-14)", () => {
     }
     const unconfirmed = await sql`select id from facility where locality in ('Westwood', 'Oradell') and confirmed = false and status = 'active'`;
     expect(unconfirmed).toEqual([]);
+  });
+
+  it('ING-14 makes NJ Transit\'s Oradell lots the Borough\'s, with the Borough\'s names and REC-10 NJ Transit\'s spaces', async () => {
+    const context = { sql, http: fixtureHttp().http, logger: testLogger().logger };
+    for (const source of [njtParkingLots, oradellParkingLots]) await runSource(source, context);
+
+    const lots = await sql<{ id: string; name: string; spaces: number | null; sources: string }[]>`
+      select f.id, f.name, f.spaces, (select string_agg(source_id, ',' order by source_id) from facility_source s where s.facility_id = f.id) as sources
+      from facility f where f.status = 'active' and f.id like 'oradell-%' and f.spaces is not null order by f.id`;
+    expect(lots.map((lot) => [lot.name, lot.spaces, lot.sources])).toEqual([
+      ['Library Municipal Parking Lot', 134, 'njt-parking-lots,oradell-parking-lots'],
+      ['Veterans Memorial Building / Senior Center Municipal Parking Lot', 131, 'njt-parking-lots,oradell-parking-lots'],
+      ['World War I Memorial Municipal Parking Lot', 25, 'njt-parking-lots,oradell-parking-lots'],
+    ]);
+    expect(await sql`select id from facility where status = 'active' and id like 'njt-oradell%'`).toEqual([]);
   });
 });

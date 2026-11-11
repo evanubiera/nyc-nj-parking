@@ -7,7 +7,7 @@ export const en = {
 
   'search.heading': 'Find public parking near you',
   'search.intro':
-    "Garages, lots, and fields run by cities, counties, the state, and transit agencies. This release covers NYC Department of Transportation garages and fields; city lots and garages in Jersey City, West New York, Bayonne, Union City, Hoboken, Harrison, Bloomfield, South Orange, Nutley, Verona, Westwood, and Oradell; and, across New Jersey, unconfirmed sites from tax records.",
+    "Garages, lots, and fields run by cities, counties, the state, and transit agencies. This release covers NYC Department of Transportation garages and fields; NJ Transit's station and park-and-ride lots and NJDOT's park-and-rides across New Jersey; city lots and garages in Jersey City, West New York, Bayonne, Union City, Hoboken, Harrison, Bloomfield, South Orange, Nutley, Verona, Westwood, and Oradell; and, across New Jersey, unconfirmed sites from tax records.",
   'search.radius.label': 'Search within',
   'search.radius.option': '{km, number} km',
   // WEB-13: how to search. A town or address is the default (WEB-11); the device's location is shared only through the
@@ -154,6 +154,8 @@ export const en = {
   'sources.change.lot_numbers_reformatted': 'We show lot numbers without leading zeros, and only where a station has more than one lot.',
   'sources.change.duplicates_removed': 'Where a lot is listed twice under one name, we show it once.',
   'sources.change.municipalities_reformatted': 'We reformat municipality names written in capitals.',
+  'sources.change.town_names_standardized':
+    'We write each town as the rest of the app does: "Oradell Borough" is Oradell, and "Clinton Twp" is Clinton Township.',
   'sources.change.sites_from_parcels':
     'We combine touching parcels into one site, and keep only public land described as parking with no school, public building, park, playground, or church on the same block.',
   'sources.change.locations_from_records':

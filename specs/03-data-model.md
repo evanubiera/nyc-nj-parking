@@ -68,7 +68,7 @@ One facility as one source describes it, after normalizing. Each successful run 
 |---|---|---|
 | source_id, record_id | text, primary key together | The Facilities Database `uid`, or the meters' field name in match-token form, such as `avenue-m` |
 | facility_key | text | The facility ID this record would give, such as `nyc-dot-avenue-m` |
-| priority | smallint | Lower wins. 1 for the Facilities Database, 2 for the meters |
+| priority | smallint | Lower wins. 1 for the Facilities Database and a town's or city's own source, 2 for the NYC meters and NJ Transit's lots, 3 for NJDOT's park-and-rides and tax-record sites. Confirmed records come before unconfirmed ones whatever their priority |
 | name, kind, operator_name, operator_type, address_line, locality, region, time_zone, location, spaces, official_url | as in `facility` | |
 | match_tokens | text[] | Lower-case name words for matching, such as `{bensonhurst,1}` |
 | meter_periods | jsonb | Parsed metered periods (meters only) |
@@ -143,10 +143,10 @@ Each successful run of a source, inside its transaction (ING-3):
 1. Normalize the snapshot into source records. Rows that are excluded on purpose (inactive meters, meters with no field name) aren't errors. Rows that should give a record but can't (no coordinates, outside NYC) are counted as invalid. If invalid rows outnumber records, or there are no records, the run fails with `normalize.invalid_record` or `normalize.empty` and changes nothing (ING-10).
 2. Replace that source's `source_record` rows. Records it no longer lists are deleted and counted as withdrawn.
 3. Rebuild the facility tables from every source's records, under an advisory lock:
-   - Records are taken in priority order. A record joins an existing facility when that facility has no record from the same source yet, one of its records has a matching name, and that record is within 750 m. The nearest such facility wins. Otherwise the record starts a new facility.
+   - Records are taken confirmed first (a tax-record site last, REC-9), then in priority order. A record joins an existing facility when that facility has no record from the same source yet, one of its records has a matching name, and that record is within 750 m. The nearest such facility wins. Otherwise the record starts a new facility.
    - Names match when their match tokens are the same letters ("SUNNY SIDE" and "Sunnyside") or one's words are all in the other's ("White Plains Road" and "White Plains Road & Maran Place"). Numbers count as words, so "Ditmars #1" never matches "Ditmars #2".
    - 750 m because correct matches in the sources on 2026-11-03 were up to 497 m apart (the Gowanus field runs for blocks under the expressway), and the name has to match too.
-   - A facility's ID, name, address, and location come from its primary record, the first in priority order. When a facility's primary changes (for example, the Facilities Database arrives after the meters), its ID can change; the old ID is withdrawn.
+   - A facility's ID, name, address, and location come from its primary record, the first in priority order. Its spaces, rates, and opening hours come from the first record in priority order that states them (S4-42). When a facility's primary changes (for example, the Facilities Database arrives after the meters), its ID can change; the old ID is withdrawn.
    - Facilities that no record supports any more are marked withdrawn, with the time (ING-8). A withdrawn facility that comes back is active again under the same ID.
    - From slice 2: records match only within the same region (NY or NJ), so a Staten Island field can't merge with a lot across the Arthur Kill. An NJ Transit record and an NJDOT record within 100 m of each other match whatever their names (ING-12), because the two sources name the same lot differently ("Fairlawn DPW" and "Fair Lawn Commuter Parking Lot", 25 m apart).
    - From slice 2: a facility with a withheld record (ING-11) isn't written at all. Its records stay in `source_record`, and a facility that was published under that ID is withdrawn.

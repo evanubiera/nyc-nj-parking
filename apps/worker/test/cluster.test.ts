@@ -70,7 +70,7 @@ describe('matching NJ lots (S2-6)', () => {
     sourceId,
     recordId,
     facilityKey: `${sourceId}-${recordId}`,
-    priority: sourceId === 'njdot-park-ride' ? 2 : 1,
+    priority: sourceId === 'njdot-park-ride' ? 3 : sourceId === 'njt-parking-lots' ? 2 : 1,
     matchTokens: matchTokens(name),
     region,
     lat,
@@ -107,5 +107,19 @@ describe('matching NJ lots (S2-6)', () => {
 
     expect(metersBetween(statenIsland, acrossTheKill)).toBeLessThan(MATCH_DISTANCE_M);
     expect(clusterRecords([statenIsland, acrossTheKill])).toHaveLength(2);
+  });
+});
+
+describe('a lot and a tax-record site (S4-43)', () => {
+  it('ING-14 makes the lot the primary even when the site has the same priority and comes first by name', () => {
+    // Clinton Point, NJDOT's park-and-ride, 23 m from the site at 194 Center Street (2026-11-10). Both priority 3.
+    const lot = { sourceId: 'njdot-park-ride', recordId: '9', facilityKey: 'njdot-clinton-point', priority: 3, matchTokens: matchTokens('Clinton Point'), region: 'NJ', lat: 40.6391, lng: -74.8943 };
+    const site = { sourceId: 'nj-parcels-rest-of-nj-parking', recordId: '1006_76_3', facilityKey: 'clinton-township-site-76-3', priority: 3, confirmed: false, matchTokens: [], region: 'NJ', lat: 40.6393, lng: -74.8941 };
+
+    const [cluster, ...rest] = clusterRecords([site, lot]);
+
+    expect(rest).toHaveLength(0);
+    expect(cluster?.primary.sourceId).toBe('njdot-park-ride');
+    expect(cluster?.facilityId).toBe('njdot-clinton-point');
   });
 });

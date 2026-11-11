@@ -108,6 +108,9 @@ export async function rebuildFacilities(tx: TransactionSql, now: Date): Promise<
   for (const { facilityId, primary, members } of clusters) {
     // REC-9: confirmed when any of its records is, such as a candidate site that turned out to be a city lot.
     const confirmed = members.some((member) => member.confirmed);
+    // REC-10: the spaces of the first record, in priority order, that states them, as for rates and opening hours: a
+    // town's lot that NJ Transit also lists takes the town's name and NJ Transit's count (Oradell).
+    const spaces = members.find((member) => member.spaces !== null)?.spaces ?? null;
     await tx`
       insert into facility (
         id, name, kind, operator_name, operator_type, address_line, locality, region, time_zone, location,
@@ -115,7 +118,7 @@ export async function rebuildFacilities(tx: TransactionSql, now: Date): Promise<
       values (
         ${facilityId}, ${primary.name}, ${primary.kind}, ${primary.operatorName}, ${primary.operatorType},
         ${primary.addressLine}, ${primary.locality}, ${primary.region}, ${primary.timeZone},
-        ST_SetSRID(ST_MakePoint(${primary.lng}, ${primary.lat}), 4326)::geography, ${primary.spaces},
+        ST_SetSRID(ST_MakePoint(${primary.lng}, ${primary.lat}), 4326)::geography, ${spaces},
         ${primary.officialUrl}, ${primary.lotNumber}, ${confirmed}, ${areaOf(primary)}, 'active', ${now}, ${now}, null)
       on conflict (id) do update set
         name = excluded.name, kind = excluded.kind, operator_name = excluded.operator_name,

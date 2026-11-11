@@ -4,6 +4,7 @@ import type { TransactionSql } from '@parking/db';
 import { applyNormalized } from '../facilities/apply.ts';
 import type { FacilityKind, Normalized, OperatorType, SourceRecordInput, WithheldReason } from '../facilities/types.ts';
 import { facilityKey, matchTokens } from '../normalize/names.ts';
+import { njTownName } from '../normalize/towns.ts';
 import { arcgisItemPage, attributeNumber, attributeText, fetchArcgisLayer, parseFeatures, type ArcgisLayerQuery, type Feature } from './arcgis.ts';
 import { inCoverageArea, NJT_PARKING_PAGE } from './nj.ts';
 import { NEW_YORK_TIME } from './nyc.ts';
@@ -24,12 +25,14 @@ export const njtParkingLots: SourceDefinition = {
   publisher: 'NJ Transit',
   title: 'Parking Lot Database View',
   datasetUrl: arcgisItemPage(NJT_ITEM_ID),
-  // The item states no terms (SRC-2). It's admitted under ADR-0011 once we've asked (S2-10).
+  // The item states no terms (SRC-2). Admitted, terms unstated, on 2026-11-10 (ADR-0014).
   termsUrl: arcgisItemPage(NJT_ITEM_ID),
   creditText: null,
-  modificationCodes: ['location_from_outline', 'private_or_unowned_excluded', 'lot_numbers_reformatted', 'merged_across_sources'],
+  modificationCodes: ['location_from_outline', 'private_or_unowned_excluded', 'lot_numbers_reformatted', 'town_names_standardized', 'merged_across_sources'],
   // The layer is edited every few weeks; ADR-0011 allows at most one fetch a day, and unchanged data is skipped (ING-7).
   schedule: '30 5 * * *',
+  // 2: records at priority 2, after a town's own source. 3: towns named as the other sources name them (2026-11-10).
+  revision: 3,
   fetch: (http) => fetchArcgisLayer(http, NJT_QUERY),
   apply: (tx: TransactionSql, snapshot: StoredSnapshot) => applyNormalized(tx, 'njt-parking-lots', normalizeNjt(snapshot.body), snapshot.fetchedAt),
 };
@@ -133,14 +136,16 @@ function toRecord(row: Row, numbered: boolean): SourceRecordInput | null {
   return {
     recordId: `${slug(row.lotUse)}/${row.facilityId}`,
     facilityKey: facilityKey('njt', keyTokens),
-    priority: 1,
+    // After a town's own source (1), which names its lots as the town does (Oradell's), before NJDOT's (3).
+    priority: 2,
     name: row.name,
     matchTokens: tokens,
     kind: kindOf(row.name),
     operatorName: operator.name,
     operatorType: operator.type,
     addressLine: attributeText(row.attributes, 'location'),
-    locality: row.municipality,
+    // As the other sources write the town: "Oradell Borough" is Oradell (S4-44).
+    locality: njTownName(row.municipality, row.county) ?? row.municipality,
     region: row.county && /\bNY\b/.test(row.county) ? 'NY' : 'NJ',
     timeZone: NEW_YORK_TIME,
     lat: row.point.lat,

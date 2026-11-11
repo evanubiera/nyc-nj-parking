@@ -3,7 +3,8 @@
 // A town is named as people say it ("Township of Long Hill" is Long Hill), unless another New Jersey town shares that
 // name ("Washington" is a township in four counties and a borough in one), when its full name is kept ("Washington
 // Township"); where even that repeats, its facility IDs also carry the county ("washington-township-morris").
-// Hudson's, Essex's, and Bergen's towns are written out in nj-parcels-parking.ts and aren't touched.
+// Hudson's, Essex's, and Bergen's towns are written out in nj-parcels-parking.ts and aren't touched. Every town's official
+// label ("Oradell Borough") is written too, by code, so other sources' labels read as our names (S4-44).
 // Run: node scripts/build-nj-towns.ts
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -22,6 +23,8 @@ interface Municipality {
 }
 
 const slug = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+/** A TypeScript string literal in single quotes. */
+const quote = (text: string) => `'${text.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
 
 async function municipalities(): Promise<Municipality[]> {
   const body = new URLSearchParams({
@@ -63,7 +66,7 @@ const counties = new Map<string, string[]>();
 for (const town of all.filter((town) => !DONE.has(town.county))) {
   const name = keepsFullName(town) ? town.label : town.short;
   const key = (labels.get(town.label) ?? 0) > 1 && name === town.label ? `${slug(name)}-${slug(town.county)}` : slug(name);
-  const line = `    '${town.code}': { name: ${JSON.stringify(name).replace(/'/g, "\\'").replace(/^"|"$/g, "'")}, key: '${key}' },`;
+  const line = `    '${town.code}': { name: ${quote(name)}, key: '${key}' },`;
   counties.set(town.county, [...(counties.get(town.county) ?? []), line]);
 }
 
@@ -76,6 +79,11 @@ export type Towns = Readonly<Record<string, { name: string; key: string }>>;
 /** The towns of the counties \`nj-parcels-rest-of-nj-parking\` covers, by county as the parcel layer writes it. */
 export const REST_OF_NJ_TOWNS: Readonly<Record<string, Towns>> = {
 ${[...counties.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([county, lines]) => `  '${county}': {\n${lines.join('\n')}\n  },`).join('\n')}
+};
+
+/** Every New Jersey town's official label (MUN_LABEL) and county, by municipality code, in all 21 counties (S4-44). */
+export const NJ_MUNICIPAL_LABELS: Readonly<Record<string, { label: string; county: string }>> = {
+${all.map((town) => `  '${town.code}': { label: ${quote(town.label)}, county: ${quote(town.county)} },`).join('\n')}
 };
 `;
 writeFileSync(OUT, source);

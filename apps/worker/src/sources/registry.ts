@@ -37,13 +37,13 @@ export const sources: readonly SourceDefinition[] = [
   westwoodParkingLots,
   oradellParkingLots,
   njParcelsRestOfNjParking,
+  // Turned on by the user on 2026-11-10, without asking first (ADR-0014, SRC-2, SRC-3).
+  njtParkingLots,
+  njdotParkRide,
 ];
 
-/**
- * Built and tested, but not run. Under ADR-0014 they could go live without their requests being sent (SRC-2,
- * SRC-3); each moves into `sources` when the user says so (S2-10).
- */
-export const awaitingAdmission: readonly SourceDefinition[] = [njtParkingLots, njdotParkRide];
+/** Built and tested, but not run until the user says so (ADR-0014). None now: NJ Transit's and NJDOT's went live on 2026-11-10. */
+export const awaitingAdmission: readonly SourceDefinition[] = [];
 
 export function findSource(id: string, registry: readonly SourceDefinition[] = sources): SourceDefinition | undefined {
   return registry.find((source) => source.id === id);

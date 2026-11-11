@@ -158,9 +158,9 @@ describe('NJDOT park and ride (S2-5)', () => {
     expect(njdot.records.filter((record) => record.name.startsWith('Mount Arlington')).map((record) => record.recordId)).toEqual(['11']);
   });
 
-  it('ADR-0007 labels every lot as NJDOT\'s, with its municipality title-cased', () => {
+  it('ADR-0007 labels every lot as NJDOT\'s, with its town named as the rest of the app names it (S4-44)', () => {
     expect(njdot.records.every((record) => record.operatorType === 'state' && record.operatorName === 'New Jersey Department of Transportation')).toBe(true);
-    expect(njdot.records.find((record) => record.recordId === '2')).toMatchObject({ name: 'Montville', locality: 'Montville Twp' });
+    expect(njdot.records.find((record) => record.recordId === '2')).toMatchObject({ name: 'Montville', locality: 'Montville' }); // "Montville Twp"
     expect(njdot.records.find((record) => record.recordId === '3')?.name).toBe('Ross Corner');
   });
 });
