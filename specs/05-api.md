@@ -109,6 +109,13 @@ Distances above are made up. The other values come from the sources as checked o
 - `confirmed` (from slice 4, REC-9) is false for a candidate site from tax records (ADR-0012). Such a site has `operator: { "name": null, "type": "unknown" }` and `officialUrl: null`, and its `name` is its address from the tax record. Every other result is confirmed.
 - `lotNumber` (from slice 2, REC-8) is a string such as `"2"` when the source has several lots with the same name, such as an NJ Transit station's lots. Otherwise it's null, as for every NYC facility. The web app shows it with the name; the API sends no words such as "Lot".
 
+### `listAreaFacilities`: `GET /api/parking/areas/{area}/facilities` (slice 4, REC-11, ADR-0021)
+
+Every active facility in a New Jersey county or a New York City borough, for searching a whole area (WEB-13). `area` is an `AreaId`: `nj-` and the county's name (`nj-cape-may`), or `ny-` and the borough's (`ny-staten-island`); anything else is a 400 `request.invalid_parameter` for `area`. `operatorType` filters as for `getRecommendations` (REC-7).
+
+- The response is `{ "results": [ … ] }`, each result in the same shape as `getRecommendations`', sorted by town (`address.locality`), then name. At most 1,000; on 2026-11-10 Essex County had the most, 110.
+- `distanceMeters` is null: an area's list has no point. Nothing about where the person is reaches the server.
+
 ### `listSources`: `GET /api/sources`
 
 Each admitted source has: `id`, `publisher`, `title`, `datasetUrl`, `termsUrl`, `creditText` (nullable), `modifications` (codes), and `dataUpdatedAt`.

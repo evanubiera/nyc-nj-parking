@@ -2,13 +2,22 @@ import { fireEvent, screen, within } from '@testing-library/react';
 import { act } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { en } from '../i18n/en.ts';
-import { fetchRecommendations } from '../services/recommendations.ts';
+import { fetchAreaFacilities, fetchRecommendations } from '../services/recommendations.ts';
 import { avenueM, delancey, montgomerySite, morristown2, sources } from '../test/facilities.ts';
 import { maps, resetMaps } from '../test/maplibre.ts';
 import { axeViolations, renderWithProviders } from '../test/render.tsx';
 import { SearchPage } from './SearchPage.tsx';
 
-vi.mock('../services/recommendations.ts', () => ({ fetchRecommendations: vi.fn() }));
+vi.mock('../services/recommendations.ts', () => ({ fetchRecommendations: vi.fn(), fetchAreaFacilities: vi.fn() }));
+vi.mock('../services/areas.ts', () => ({
+  loadAreas: vi.fn(async () => [
+    { id: 'nj-morris', name: 'Morris County', state: 'NJ', places: [
+      { name: 'Madison Borough', point: { lat: 40.758, lng: -74.416 } },
+      { name: 'Morristown Town', point: { lat: 40.797, lng: -74.481 } },
+    ] },
+    { id: 'ny-brooklyn', name: 'Brooklyn', state: 'NY', places: [{ name: 'Park Slope', point: { lat: 40.672, lng: -73.977 } }] },
+  ]),
+}));
 vi.mock('../services/sources.ts', () => ({ fetchSources: vi.fn(async () => sources) }));
 vi.mock('maplibre-gl', () => import('../test/maplibre.ts'));
 vi.mock('../services/geocoding.ts', () => ({
@@ -19,6 +28,7 @@ vi.mock('../services/geocoding.ts', () => ({
   pointFor: vi.fn(async () => ({ lat: 40.745, lng: -74.032 })),
 }));
 const recommend = vi.mocked(fetchRecommendations);
+const listArea = vi.mocked(fetchAreaFacilities);
 
 function geolocationAnswering(answer: { lat: number; lng: number } | { error: number }): Geolocation {
   return {
@@ -34,9 +44,14 @@ function geolocationAnswering(answer: { lat: number; lng: number } | { error: nu
   } as unknown as Geolocation;
 }
 
-/** WEB-4: the location button, then "Share my location" in the dialog it opens. */
+/** WEB-13: a "Search by" choice. */
+function searchBy(mode: 'place' | 'city' | 'area' | 'location') {
+  fireEvent.change(screen.getByRole('combobox', { name: en['searchBy.label'] }), { target: { value: mode } });
+}
+
+/** WEB-4: "My current location" under "Search by", then "Share my location" in the dialog it opens. */
 function shareLocation() {
-  fireEvent.click(screen.getByRole('button', { name: en['search.useLocation'] }));
+  searchBy('location');
   fireEvent.click(within(screen.getByRole('dialog', { name: en['location.dialog.title'] })).getByRole('button', { name: en['location.dialog.share'] }));
 }
 
@@ -44,6 +59,7 @@ beforeEach(() => {
   resetMaps();
   recommend.mockReset();
   recommend.mockResolvedValue({ status: 'ok', results: [avenueM, delancey] });
+  listArea.mockReset();
 });
 
 describe('SearchPage', () => {
@@ -51,7 +67,7 @@ describe('SearchPage', () => {
     const geolocation = geolocationAnswering({ lat: 40.71949, lng: -73.98751 });
     renderWithProviders(<SearchPage geolocation={geolocation} />);
 
-    fireEvent.click(screen.getByRole('button', { name: en['search.useLocation'] }));
+    searchBy('location');
 
     const dialog = screen.getByRole('dialog', { name: en['location.dialog.title'] });
     expect(dialog).toHaveAccessibleDescription(en['location.dialog.body']);
@@ -70,8 +86,10 @@ describe('SearchPage', () => {
     const geolocation = geolocationAnswering({ lat: 40.71949, lng: -73.98751 });
     renderWithProviders(<SearchPage geolocation={geolocation} />);
 
-    fireEvent.click(screen.getByRole('button', { name: en['search.useLocation'] }));
+    searchBy('location');
     fireEvent.click(screen.getByRole('button', { name: en['location.dialog.cancel'] }));
+
+    expect(screen.getByRole('combobox', { name: en['searchBy.label'] })).toHaveFocus();
 
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(geolocation.getCurrentPosition).not.toHaveBeenCalled();
@@ -90,13 +108,66 @@ describe('SearchPage', () => {
     expect(geolocation.getCurrentPosition).toHaveBeenCalledTimes(2);
   });
 
-  it('WEB-11 offers the search box first, with the location as a separate choice after it', () => {
+  it('WEB-13 searches by town or address unless the person chooses another way, the device\'s location among them', () => {
     renderWithProviders(<SearchPage />);
 
-    const box = screen.getByRole('combobox', { name: en['address.label'] });
-    const button = screen.getByRole('button', { name: en['search.useLocation'] });
-    expect(box.compareDocumentPosition(button) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(button).toHaveAttribute('aria-haspopup', 'dialog');
+    const choice = screen.getByRole('combobox', { name: en['searchBy.label'] });
+    expect(choice).toHaveValue('place');
+    expect(within(choice).getAllByRole('option').map((option) => option.textContent)).toEqual([
+      en['searchBy.place'], en['searchBy.city'], en['searchBy.area'], en['searchBy.location'],
+    ]);
+    expect(screen.getByRole('combobox', { name: en['address.label'] })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: en['search.useLocation'] })).toBeNull();
+  });
+
+  it('WEB-13 searches around a city chosen from its county, without asking for the device\'s location', async () => {
+    const geolocation = geolocationAnswering({ lat: 40.6, lng: -73.9 });
+    renderWithProviders(<SearchPage geolocation={geolocation} />);
+
+    searchBy('city');
+    const city = screen.getByRole('combobox', { name: en['city.label'] });
+    expect(city).toBeDisabled();
+    const county = await screen.findByRole('combobox', { name: en['area.label'] });
+    await vi.waitFor(() => expect(county).toBeEnabled());
+    fireEvent.change(county, { target: { value: 'nj-morris' } });
+    fireEvent.change(city, { target: { value: 'Morristown Town' } });
+
+    await vi.waitFor(() => expect(recommend).toHaveBeenCalledWith({ lat: 40.797, lng: -74.481 }, 2000));
+    expect(await screen.findByText('Searching near Morristown Town')).toBeInTheDocument();
+    expect(listArea).not.toHaveBeenCalled();
+    expect(geolocation.getCurrentPosition).not.toHaveBeenCalled();
+  });
+
+  it('WEB-13 lists a whole county by town, with no radius and no distances, and sends no point', async () => {
+    const inMadison = { ...morristown2, id: 'madison-lot', name: 'Madison Lot', address: { line: null, locality: 'Madison', region: 'NJ' as const }, distanceMeters: null };
+    listArea.mockResolvedValue({ status: 'ok', results: [inMadison, { ...morristown2, distanceMeters: null }] });
+    const { container } = renderWithProviders(<SearchPage />);
+
+    searchBy('area');
+    const county = await screen.findByRole('combobox', { name: en['area.label'] });
+    await vi.waitFor(() => expect(county).toBeEnabled());
+    fireEvent.change(county, { target: { value: 'nj-morris' } });
+
+    expect(await screen.findByRole('heading', { level: 2, name: '2 places in Morris County' })).toBeInTheDocument();
+    expect(listArea).toHaveBeenCalledWith('nj-morris');
+    expect(recommend).not.toHaveBeenCalled();
+    expect(screen.getAllByRole('heading', { level: 3 }).map((heading) => heading.textContent)).toEqual(['Madison', 'Morristown Town']);
+    expect(screen.queryByRole('combobox', { name: en['search.radius.label'] })).toBeNull();
+    expect(screen.getByText('Showing all of Morris County')).toBeInTheDocument();
+    expect(screen.queryByText(/ m$| km$/)).toBeNull();
+    expect(await axeViolations(container)).toEqual([]);
+  });
+
+  it('WEB-13 says when a county has nothing to show', async () => {
+    listArea.mockResolvedValue({ status: 'ok', results: [] });
+    renderWithProviders(<SearchPage />);
+
+    searchBy('area');
+    const county = await screen.findByRole('combobox', { name: en['area.label'] });
+    await vi.waitFor(() => expect(county).toBeEnabled());
+    fireEvent.change(county, { target: { value: 'ny-brooklyn' } });
+
+    expect(await screen.findByText('No public parking found in Brooklyn.')).toBeInTheDocument();
   });
 
   it('PRIV-3 passes on only the rounded point', async () => {

@@ -23,6 +23,9 @@ export interface SeedFacility {
   /** REC-9: an unconfirmed site has operator type `unknown`, no operator name, and no official page. */
   unconfirmed?: boolean;
   spaces?: number | null;
+  /** REC-11: the county or borough, as the worker sets it. */
+  area?: string | null;
+  locality?: string;
   rates?: { days: number; startsAt: string; endsAt: string; kind: string; upToMinutes: number | null; amountMinor: number }[];
   sourceIds?: string[];
   openingHours?: { days: number; opensAt: string; closesAt: string }[];
@@ -35,12 +38,13 @@ export async function seedFacility(sql: Sql, facility: SeedFacility): Promise<vo
   const unconfirmed = facility.unconfirmed ?? false;
   await sql`
     insert into facility (id, name, kind, operator_name, operator_type, address_line, locality, region, time_zone,
-      location, official_url, lot_number, confirmed, spaces, status, first_seen_at, last_seen_at, withdrawn_at)
+      location, official_url, lot_number, confirmed, spaces, area, status, first_seen_at, last_seen_at, withdrawn_at)
     values (${facility.id}, ${facility.name ?? `Facility ${facility.id}`}, ${facility.kind ?? 'field'},
       ${unconfirmed ? null : 'NYC Department of Transportation'}, ${unconfirmed ? 'unknown' : (facility.operatorType ?? 'municipal')},
       ${facility.addressLine === undefined ? '1 Test Street' : facility.addressLine},
-      'Brooklyn', 'NY', 'America/New_York', ST_SetSRID(ST_MakePoint(${facility.lng}, ${facility.lat}), 4326)::geography,
+      ${facility.locality ?? 'Brooklyn'}, 'NY', 'America/New_York', ST_SetSRID(ST_MakePoint(${facility.lng}, ${facility.lat}), 4326)::geography,
       ${unconfirmed ? null : 'https://www.nyc.gov/html/dot/html/motorist/parkinglist.shtml#kings'}, ${facility.lotNumber ?? null}, ${!unconfirmed}, ${facility.spaces ?? null},
+      ${facility.area === undefined ? 'ny-brooklyn' : facility.area},
       ${status}, ${now}, ${now},
       ${status === 'withdrawn' ? now : null})`;
   for (const sourceId of facility.sourceIds ?? ['test-source']) {

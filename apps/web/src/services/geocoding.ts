@@ -20,7 +20,7 @@ export interface Suggestion {
   magicKey?: string;
 }
 
-interface Place {
+export interface Place {
   name: string;
   aliases: string[];
   state: 'NJ' | 'NY';
@@ -35,8 +35,8 @@ const MAX_PLACES = 5;
 const MAX_ADDRESSES = 5;
 
 let places: Promise<Place[]> | undefined;
-/** The list is large, so it loads the first time someone types, in its own file. */
-function loadPlaces(): Promise<Place[]> {
+/** The list is large, so it loads the first time someone types or picks an area, in its own file. */
+export function loadPlaces(): Promise<Place[]> {
   places ??= import('../data/places.json').then((module) => (module.default as { places: Place[] }).places);
   return places;
 }

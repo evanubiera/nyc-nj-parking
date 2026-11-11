@@ -21,7 +21,8 @@ describe('contract', () => {
     await app.ready();
 
     for (const { method, path } of readContract().operations) {
-      expect(app.hasRoute({ method, url: path }), `${method} ${path}`).toBe(true);
+      // Fastify writes a path parameter as `:area`, the contract as `{area}`.
+      expect(app.hasRoute({ method, url: path.replace(/\{(\w+)\}/g, ':$1') }), `${method} ${path}`).toBe(true);
     }
     await app.close();
   });

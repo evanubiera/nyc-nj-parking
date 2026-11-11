@@ -6,7 +6,18 @@ import { FormattedMessage } from 'react-intl';
  * until they choose to share. A native modal dialog: the page behind it is inert, focus starts on its first button,
  * Escape closes it, and focus goes back to the button that opened it.
  */
-export function LocationDialog({ open, onShare, onCancel }: { open: boolean; onShare: () => void; onCancel: () => void }) {
+export function LocationDialog({
+  open,
+  onShare,
+  onCancel,
+  onClosed,
+}: {
+  open: boolean;
+  onShare: () => void;
+  onCancel: () => void;
+  /** After the dialog has closed and the browser has put focus back, to move it elsewhere. */
+  onClosed?: () => void;
+}) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const bodyId = useId();
@@ -24,6 +35,7 @@ export function LocationDialog({ open, onShare, onCancel }: { open: boolean; onS
       className="dialog"
       aria-labelledby={titleId}
       aria-describedby={bodyId}
+      onClose={onClosed}
       // Escape: close through our own state, so it stays in step.
       onCancel={(event) => {
         event.preventDefault();

@@ -5,6 +5,7 @@ import { textArray, type TransactionSql } from '@parking/db';
 import { IngestionError } from '../errors.ts';
 import type { MeterPeriod } from '../normalize/meter-hours.ts';
 import type { ApplyResult } from '../sources/types.ts';
+import { areaOf } from './areas.ts';
 import { clusterRecords } from './cluster.ts';
 import type { Normalized, OpeningPeriod, RateInput, SourceRecordInput } from './types.ts';
 
@@ -110,17 +111,17 @@ export async function rebuildFacilities(tx: TransactionSql, now: Date): Promise<
     await tx`
       insert into facility (
         id, name, kind, operator_name, operator_type, address_line, locality, region, time_zone, location,
-        spaces, official_url, lot_number, confirmed, status, first_seen_at, last_seen_at, withdrawn_at)
+        spaces, official_url, lot_number, confirmed, area, status, first_seen_at, last_seen_at, withdrawn_at)
       values (
         ${facilityId}, ${primary.name}, ${primary.kind}, ${primary.operatorName}, ${primary.operatorType},
         ${primary.addressLine}, ${primary.locality}, ${primary.region}, ${primary.timeZone},
         ST_SetSRID(ST_MakePoint(${primary.lng}, ${primary.lat}), 4326)::geography, ${primary.spaces},
-        ${primary.officialUrl}, ${primary.lotNumber}, ${confirmed}, 'active', ${now}, ${now}, null)
+        ${primary.officialUrl}, ${primary.lotNumber}, ${confirmed}, ${areaOf(primary)}, 'active', ${now}, ${now}, null)
       on conflict (id) do update set
         name = excluded.name, kind = excluded.kind, operator_name = excluded.operator_name,
         operator_type = excluded.operator_type, address_line = excluded.address_line, locality = excluded.locality,
         region = excluded.region, time_zone = excluded.time_zone, location = excluded.location,
-        spaces = excluded.spaces, official_url = excluded.official_url, lot_number = excluded.lot_number, confirmed = excluded.confirmed, status = 'active',
+        spaces = excluded.spaces, official_url = excluded.official_url, lot_number = excluded.lot_number, confirmed = excluded.confirmed, area = excluded.area, status = 'active',
         last_seen_at = excluded.last_seen_at, withdrawn_at = null`;
 
     for (const member of members) {

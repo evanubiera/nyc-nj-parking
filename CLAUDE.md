@@ -48,4 +48,5 @@ pnpm build            # every package
 pnpm api:generate     # regenerate packages/api-client after editing api/openapi.yaml
 pnpm db:migrate       # apply migrations to DATABASE_URL
 pnpm ingest <source>  # run one admitted source once
+pnpm rebuild          # rebuild facilities from stored records, without fetching (ADR-0021)
 ```

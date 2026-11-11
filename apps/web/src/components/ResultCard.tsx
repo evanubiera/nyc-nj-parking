@@ -7,8 +7,8 @@ import { OpeningHours } from './OpeningHours.tsx';
 import { Rates } from './Rates.tsx';
 import { SourceCredits } from './SourceCredits.tsx';
 
-/** One suggestion (REC-4, ATT-2, WEB-6). */
-export function ResultCard({ facility, position }: { facility: RecommendedFacility; position?: number }) {
+/** One suggestion (REC-4, ATT-2, WEB-6). Its heading is an h4 under a town's heading in an area's list (WEB-13). */
+export function ResultCard({ facility, position, headingLevel = 3 }: { facility: RecommendedFacility; position?: number; headingLevel?: 3 | 4 }) {
   const intl = useIntl();
   const hoursKnown = facility.meteredHours !== null || facility.openingHours !== null;
   // WEB-6: lists only what this result doesn't show.
@@ -18,27 +18,32 @@ export function ResultCard({ facility, position }: { facility: RecommendedFacili
     facility.spaces === null ? intl.formatMessage({ id: 'details.item.spaces' }) : null,
   ].filter((item): item is string => item !== null);
   const name = facilityName(intl, facility);
+  const Heading = headingLevel === 4 ? 'h4' : 'h3';
+  const distanceMeters = facility.distanceMeters;
 
   return (
     <article id={`card-${facility.id}`} className="result" aria-labelledby={`result-${facility.id}`} tabIndex={-1}>
-      <h3 id={`result-${facility.id}`} className="result__name">
+      <Heading id={`result-${facility.id}`} className="result__name">
         {position !== undefined && (
           <span className={facility.confirmed ? 'result__number' : 'result__number result__number--unconfirmed'} aria-hidden="true">
             {position}
           </span>
         )}
         {name}
-      </h3>
+      </Heading>
       <p className="result__meta">
+        {/* An area's list has no point, so no distance (REC-11). */}
         <FormattedMessage
-          id="facility.meta"
+          id={distanceMeters === null ? 'facility.metaNoDistance' : 'facility.meta'}
           values={{
             kind: intl.formatMessage({ id: `facility.kind.${facility.kind}` }),
             operator: intl.formatMessage({ id: `facility.operatorType.${facility.operator.type}` }),
             distance:
-              facility.distanceMeters < 1000
-                ? intl.formatMessage({ id: 'facility.distance.meters' }, { meters: facility.distanceMeters })
-                : intl.formatMessage({ id: 'facility.distance.kilometers' }, { km: facility.distanceMeters / 1000 }),
+              distanceMeters === null
+                ? null
+                : distanceMeters < 1000
+                  ? intl.formatMessage({ id: 'facility.distance.meters' }, { meters: distanceMeters })
+                  : intl.formatMessage({ id: 'facility.distance.kilometers' }, { km: distanceMeters / 1000 }),
           }}
         />
       </p>

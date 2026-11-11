@@ -23,3 +23,5 @@ Each ADR records one decision: the context, the options, the choice, and what fo
 | [0017](0017-sites-not-for-visitors.md) | Unconfirmed sites a town says aren't for visitors are left out | Accepted |
 | [0018](0018-essex-county.md) | Essex County: unconfirmed sites in every town, and towns' own metered lots | Accepted |
 | [0019](0019-bergen-county.md) | Bergen County: unconfirmed sites, and a tighter rule for what isn't a public lot | Accepted |
+| [0020](0020-rest-of-new-jersey.md) | The rest of New Jersey: unconfirmed sites in the other 18 counties, in one source | Accepted |
+| [0021](0021-search-by-area.md) | Searching a whole county or borough: each facility's area from simplified boundaries | Accepted |

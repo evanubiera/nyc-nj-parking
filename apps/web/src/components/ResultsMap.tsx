@@ -75,9 +75,11 @@ export default function ResultsMap({ styleUrl, point, results, onSelectPoint, on
     }
     results.forEach((facility, index) => {
       // WEB-9: an unconfirmed site says so in its label, and its marker is outlined rather than filled.
+      // An area's list has no point, so its markers say the town instead of a distance (WEB-13).
+      const distance = facility.distanceMeters === null ? facility.address.locality : distanceText(intl, facility.distanceMeters);
       const label = intl.formatMessage(
         { id: facility.confirmed ? 'map.facility' : 'map.facilityUnconfirmed' },
-        { position: index + 1, name: facilityName(intl, facility), distance: distanceText(intl, facility.distanceMeters) },
+        { position: index + 1, name: facilityName(intl, facility), distance },
       );
       const element = markerElement('facility', label, String(index + 1));
       if (!facility.confirmed) element.classList.add('map-marker--unconfirmed');
@@ -88,9 +90,10 @@ export default function ResultsMap({ styleUrl, point, results, onSelectPoint, on
       markers.push(new Marker({ element }).setLngLat([facility.location.lng, facility.location.lat]).addTo(instance));
     });
 
-    if (point && results.length > 0) {
-      const lngs = [point.lng, ...results.map((facility) => facility.location.lng)];
-      const lats = [point.lat, ...results.map((facility) => facility.location.lat)];
+    // A point's search fits the point and its results; an area's (WEB-13), which has no point, fits its results.
+    if (results.length > 0) {
+      const lngs = [...(point ? [point.lng] : []), ...results.map((facility) => facility.location.lng)];
+      const lats = [...(point ? [point.lat] : []), ...results.map((facility) => facility.location.lat)];
       instance.fitBounds(
         [
           [Math.min(...lngs), Math.min(...lats)],

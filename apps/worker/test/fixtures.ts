@@ -6,7 +6,10 @@
 // Essex's and Bergen's parcel responses were saved on 2026-11-07, the same way as Hudson's. Bayonne's ordinance (a PDF) was saved on
 // 2026-11-07, as received; Union City's and Harrison's pages on 2026-11-07, as a
 // run stores them (no email addresses). Westwood's and Oradell's pages were saved on 2026-11-07 as a run stores them.
+// The rest of NJ's parcel responses (ADR-0020) were saved on 2026-11-10, gzipped in one file: each county's candidates
+// response, and one neighbours response holding every neighbour, filtered to each query's blocks as for Hudson.
 import { readFileSync } from 'node:fs';
+import { gunzipSync } from 'node:zlib';
 import { UpstreamHttp } from '../src/http.ts';
 
 const read = (name: string) => new Uint8Array(readFileSync(new URL(`./fixtures/${name}`, import.meta.url)));
@@ -35,6 +38,7 @@ export const fixtures = {
   essexNeighbours: read('nj-parcels-essex.neighbours.json'),
   bergenCandidates: read('nj-parcels-bergen.candidates.json'),
   bergenNeighbours: read('nj-parcels-bergen.neighbours.json'),
+  restOfNj: new Uint8Array(gunzipSync(read('nj-parcels-rest-of-nj.json.gz'))),
   wnyFacilities: read('wny.facilities.html'),
   hobokenGarages: read('hoboken.garages.html'),
   bayonneOrdinance: read('bayonne.o-16-64.pdf'),
@@ -136,12 +140,29 @@ export function fixtureHttp(overrides: Partial<Record<keyof typeof fixtures, Uin
     '/1410/Municipal-Parking': bodies.oradellParking,
   };
   // The parcel layer's queries share a path; the candidates ask for class 15C, the neighbours for all of 15.
+  // Parsed only when a test asks for the rest of NJ: it's 2.5 MB.
+  let restOfNjParsed: { candidates: Record<string, unknown>; neighbours: Uint8Array } | undefined;
+  const encode = (value: unknown) => new TextEncoder().encode(JSON.stringify(value));
+  const restOfNj = () => {
+    if (!restOfNjParsed) {
+      const parsed = JSON.parse(new TextDecoder().decode(bodies.restOfNj)) as { candidates: Record<string, unknown>; neighbours: unknown };
+      restOfNjParsed = { candidates: parsed.candidates, neighbours: encode(parsed.neighbours) };
+    }
+    return restOfNjParsed;
+  };
   const parcelsQuery = (url: URL) => {
     const where = url.searchParams.get('where') ?? '';
-    // Each county by its name in the candidates' query, or its municipality codes (07xx Essex, 02xx Bergen) in the neighbours'.
-    const county = where.includes("COUNTY='ESSEX'") || where.includes("PCL_MUN='07") ? 'essex'
-      : where.includes("COUNTY='BERGEN'") || where.includes("PCL_MUN='02") ? 'bergen' : 'hudson';
-    if (where.includes("PROP_CLASS='15C'")) return { hudson: bodies.parcelsCandidates, essex: bodies.essexCandidates, bergen: bodies.bergenCandidates }[county];
+    // Each county by its name in the candidates' query, or its municipality codes (09xx Hudson, 07xx Essex, 02xx Bergen)
+    // in the neighbours'; anything else is the rest of NJ.
+    const named = /COUNTY='([A-Z ]+)'/.exec(where)?.[1];
+    const prefix = /PCL_MUN='(\d\d)/.exec(where)?.[1];
+    const county = named === 'ESSEX' || prefix === '07' ? 'essex' : named === 'BERGEN' || prefix === '02' ? 'bergen'
+      : named === 'HUDSON' || prefix === '09' ? 'hudson' : 'rest';
+    if (where.includes("PROP_CLASS='15C'")) {
+      if (county === 'rest') return encode(restOfNj().candidates[named ?? ''] ?? { features: [] });
+      return { hudson: bodies.parcelsCandidates, essex: bodies.essexCandidates, bergen: bodies.bergenCandidates }[county];
+    }
+    if (county === 'rest') return neighboursFor(restOfNj().neighbours, where);
     return neighboursFor({ hudson: bodies.parcelsNeighbours, essex: bodies.essexNeighbours, bergen: bodies.bergenNeighbours }[county], where);
   };
   const http = new UpstreamHttp({

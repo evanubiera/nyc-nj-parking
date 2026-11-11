@@ -20,9 +20,9 @@ async function recommendationsRequest(page: Page, action: () => Promise<void>): 
   return new URL(request.url());
 }
 
-/** WEB-4: the location button, then "Share my location" in the dialog it opens. */
+/** WEB-4, WEB-13: "My current location" under "Search by", then "Share my location" in the dialog it opens. */
 async function shareLocation(page: Page) {
-  await page.getByRole('button', { name: 'Use my current location' }).click();
+  await page.getByRole('combobox', { name: 'Search by' }).selectOption('location');
   await page.getByRole('dialog', { name: 'Search near your current location?' }).getByRole('button', { name: 'Share my location' }).click();
 }
 
@@ -63,7 +63,7 @@ test.describe('with location sharing on', () => {
     });
     await page.goto('/');
 
-    await page.getByRole('button', { name: 'Use my current location' }).click();
+    await page.getByRole('combobox', { name: 'Search by' }).selectOption('location');
 
     const dialog = page.getByRole('dialog', { name: 'Search near your current location?' });
     await expect(dialog).toBeVisible();
@@ -71,7 +71,7 @@ test.describe('with location sharing on', () => {
     expect(await axeViolations(page)).toEqual([]);
     await dialog.getByRole('button', { name: 'Not now' }).click();
     await expect(dialog).toBeHidden();
-    await expect(page.getByRole('button', { name: 'Use my current location' })).toBeFocused();
+    await expect(page.getByRole('combobox', { name: 'Search by' })).toBeFocused();
     expect(searches).toEqual([]);
   });
 
@@ -295,6 +295,39 @@ test('S4-10 suggests a town from the built-in list', async ({ page }) => {
   await box.press('Enter');
 
   await expect(page.getByText('Searching near Hoboken City')).toBeVisible();
+});
+
+test('S4-41 lists a whole county by town, sending no point', async ({ page }) => {
+  const searches: string[] = [];
+  page.on('request', (request) => {
+    if (request.url().includes('/api/parking/')) searches.push(new URL(request.url()).pathname + new URL(request.url()).search);
+  });
+  await page.goto('/');
+
+  await page.getByRole('combobox', { name: 'Search by' }).selectOption('area');
+  await page.getByRole('combobox', { name: 'County or borough' }).selectOption({ label: 'Hudson County' });
+
+  await expect(page.getByRole('heading', { level: 2, name: /places in Hudson County$/ })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 3, name: 'Jersey City' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 4, name: '179 Montgomery St.' })).toBeVisible();
+  await expect(page.getByText('Showing all of Hudson County')).toBeVisible();
+  await expect(page.getByRole('combobox', { name: 'Search within' })).toHaveCount(0);
+  expect(searches).toEqual(['/api/parking/areas/nj-hudson/facilities']);
+  expect(await axeViolations(page)).toEqual([]);
+});
+
+test('S4-41 searches around a city chosen from its county', async ({ page }) => {
+  await page.goto('/');
+
+  await page.getByRole('combobox', { name: 'Search by' }).selectOption('city');
+  await page.getByRole('combobox', { name: 'County or borough' }).selectOption({ label: 'Morris County' });
+  const url = await recommendationsRequest(page, async () => {
+    await page.getByRole('combobox', { name: 'City or town' }).selectOption('Morristown Town');
+  });
+
+  expect(url.searchParams.get('radius')).toBe('2000');
+  await expect(page.getByText('Searching near Morristown Town')).toBeVisible();
+  await expect(page.getByRole('heading', { level: 2, name: /within 2 km$/ })).toBeVisible();
 });
 
 test('S1-10 points to the map when location sharing is off', async ({ page }) => {

@@ -1,9 +1,9 @@
 // One method per operationId in api/openapi.yaml (FND-2). fastify-openapi-glue calls these with `this`
 // bound to the instance. A test checks that the methods and the contract's operations match exactly.
-import type { ApiError, Health, RecommendationList, SourceList } from '@parking/api-client';
+import type { ApiError, AreaFacilityList, Health, RecommendationList, SourceList } from '@parking/api-client';
 import type { Sql } from '@parking/db';
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { findRecommendations, inCoverage, roundCoordinate, type RecommendationQuery } from './recommendations.ts';
+import { findAreaFacilities, findRecommendations, inCoverage, roundCoordinate, type AreaQuery, type RecommendationQuery } from './recommendations.ts';
 import { listSources } from './sources.ts';
 
 const HEALTH_TIMEOUT_MS = 2_000;
@@ -30,6 +30,13 @@ export class Handlers {
       return { code: 'location.out_of_area' };
     }
     return findRecommendations(this.#sql, query);
+  }
+
+  /** REC-11: the area and filter have been validated against the contract. */
+  async listAreaFacilities(request: FastifyRequest): Promise<AreaFacilityList> {
+    const { area } = request.params as Pick<AreaQuery, 'area'>;
+    const { operatorType } = request.query as Pick<AreaQuery, 'operatorType'>;
+    return findAreaFacilities(this.#sql, { area, operatorType });
   }
 
   /** ATT-3 */

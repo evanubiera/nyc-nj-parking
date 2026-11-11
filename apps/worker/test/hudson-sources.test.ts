@@ -87,8 +87,9 @@ describe('Hudson County candidate sites from tax records (S4-3, S4-14)', () => {
     expect(queries.every((request) => request.url.length <= 1_800)).toBe(true);
     // Owner names are redacted in the layer, and never asked for.
     expect(requests.every((request) => !/OWNER/i.test(new URL(request.url).searchParams.get('outFields') ?? ''))).toBe(true);
-    const envelope = JSON.parse(decode(fetched.body)) as { candidates: string; neighbours: string[] };
-    expect(envelope.candidates).toBe(decode(fixtures.parcelsCandidates));
+    // One candidates response per county (ADR-0020); Hudson's source has one county.
+    const envelope = JSON.parse(decode(fetched.body)) as { candidates: string[]; neighbours: string[] };
+    expect(envelope.candidates).toEqual([decode(fixtures.parcelsCandidates)]);
     expect(envelope.neighbours).toEqual(wheres.slice(1).map((where) => decode(neighboursFor(fixtures.parcelsNeighbours, where))));
     expect(fetched.upstreamUpdatedAt).toEqual(new Date(1787045558134));
   });

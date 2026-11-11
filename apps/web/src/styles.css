@@ -151,6 +151,22 @@ a {
   color: var(--color-text-muted);
 }
 
+/* WEB-13: how to search, and the county and city dropdowns. Full width, each its own row, easy to tap. */
+.search-by,
+.area-search__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.search-by select,
+.area-search select {
+  width: 100%;
+}
+
 /* WEB-11: address search, a combobox with its suggestions below. */
 .address {
   position: relative;
@@ -266,6 +282,8 @@ a {
 }
 
 .radius select,
+.search-by select,
+.area-search select,
 .button {
   min-height: 2.75rem;
   border-radius: var(--radius);
@@ -273,7 +291,9 @@ a {
   font-size: 1rem;
 }
 
-.radius select {
+.radius select,
+.search-by select,
+.area-search select {
   padding: 0 var(--space-3);
   border: 1px solid var(--color-border);
   background: var(--color-surface);
@@ -300,23 +320,11 @@ a {
   color: var(--color-accent);
 }
 
-/* WEB-4: the search box is the main way in; "or", then the device's location as a second, quieter one. */
-.search__or {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin: 0 0 var(--space-3);
+.area-search select:disabled {
   color: var(--color-text-muted);
-  font-size: 0.875rem;
 }
 
-.search__or::before,
-.search__or::after {
-  content: '';
-  flex: 1;
-  border-top: 1px solid var(--color-border);
-}
-
+/* WEB-4, WEB-13: searching near the device is one of the "Search by" choices; this button asks again. */
 .search__locate {
   display: flex;
   align-items: center;
@@ -394,6 +402,16 @@ a {
   border-radius: var(--radius);
   background: var(--color-surface);
   color: var(--color-text-muted);
+}
+
+/* WEB-13: an area's list, a heading per town. */
+.results__town + .results__town {
+  margin-top: var(--space-4);
+}
+
+.results__town-name {
+  margin: 0 0 var(--space-2);
+  font-size: 1rem;
 }
 
 .results__list {

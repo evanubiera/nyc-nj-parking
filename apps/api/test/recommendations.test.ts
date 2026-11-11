@@ -47,7 +47,7 @@ describe('GET /api/parking/recommendations', () => {
 
     expect(body.results).toHaveLength(50);
     const distances = body.results.map((result) => result.distanceMeters);
-    expect(distances).toEqual([...distances].sort((a, b) => a - b));
+    expect(distances).toEqual([...distances].sort((a, b) => a! - b!));
   });
 
   it('REC-2 uses a 2 km radius unless told otherwise', async () => {

@@ -1,6 +1,6 @@
-// S4-3, S4-14, and S4-25: unconfirmed parking sites in a county's towns, from the State's parcel and tax-record layer
-// (ADR-0012, ADR-0015, ADR-0018, ADR-0019, specs/06 "State parcels and tax records"). One source per county: Hudson,
-// Essex, and Bergen. A site is public land (class 15C) that the
+// S4-3, S4-14, S4-25, S4-32, and S4-37: unconfirmed parking sites in New Jersey's towns, from the State's parcel and
+// tax-record layer (ADR-0012, ADR-0015, ADR-0018, ADR-0019, ADR-0020, specs/06 "State parcels and tax records"). One
+// source each for Hudson, Essex, and Bergen, and one for the other 18 counties. A site is public land (class 15C) that the
 // assessor describes as parking. The layer doesn't say who owns it (owner names are redacted) or whether the public
 // may park there, so every site is marked unconfirmed, with operator type `unknown` and no official page (REC-9).
 import type { TransactionSql } from '@parking/db';
@@ -11,13 +11,13 @@ import type { Normalized, SourceRecordInput } from '../facilities/types.ts';
 import type { UpstreamHttp } from '../http.ts';
 import { titleCase } from '../normalize/names.ts';
 import { arcgisItemPage, parseJson, queryArcgisLayer, resolveArcgisLayer } from './arcgis.ts';
+import { REST_OF_NJ_TOWNS, type Towns } from './nj-towns.ts';
 import { NEW_YORK_TIME } from './nyc.ts';
 import type { FetchedData, SourceDefinition, StoredSnapshot } from './types.ts';
 
 export const NJ_PARCELS_ITEM_ID = '533599bbfbaa4748bf39faf1375a8a9c';
 
-/** A county's towns by municipality code, and how their facility IDs start. */
-export type Towns = Readonly<Record<string, { name: string; key: string }>>;
+export type { Towns };
 
 /** Hudson County's towns (Jersey City's and West New York's IDs as before). */
 export const HUDSON_TOWNS: Towns = {
@@ -135,20 +135,28 @@ export const BERGEN_TOWNS: Towns = {
   '0270': { name: 'Wyckoff', key: 'wyckoff' },
 };
 
-/** One county's source: its ID, the layer's COUNTY value, and its towns. */
+/** A source's counties: its ID, the layer's COUNTY values, and their towns. */
 export interface ParcelCounty {
   sourceId: string;
-  county: 'HUDSON' | 'ESSEX' | 'BERGEN';
+  counties: readonly string[];
   towns: Towns;
   schedule: string;
   revision: number;
 }
 
 // 2: sites not for visitors left out (ADR-0017).
-export const HUDSON: ParcelCounty = { sourceId: 'nj-parcels-hudson-parking', county: 'HUDSON', towns: HUDSON_TOWNS, schedule: '55 5 * * 3', revision: 2 };
+export const HUDSON: ParcelCounty = { sourceId: 'nj-parcels-hudson-parking', counties: ['HUDSON'], towns: HUDSON_TOWNS, schedule: '55 5 * * 3', revision: 2 };
 // 2: Nutley's permit lot left out (ADR-0017). 3: pools, ballfields, and rinks as other uses (Glen Ridge's site).
-export const ESSEX: ParcelCounty = { sourceId: 'nj-parcels-essex-parking', county: 'ESSEX', towns: ESSEX_TOWNS, schedule: '58 5 * * 3', revision: 3 };
-export const BERGEN: ParcelCounty = { sourceId: 'nj-parcels-bergen-parking', county: 'BERGEN', towns: BERGEN_TOWNS, schedule: '1 6 * * 3', revision: 1 };
+export const ESSEX: ParcelCounty = { sourceId: 'nj-parcels-essex-parking', counties: ['ESSEX'], towns: ESSEX_TOWNS, schedule: '58 5 * * 3', revision: 3 };
+export const BERGEN: ParcelCounty = { sourceId: 'nj-parcels-bergen-parking', counties: ['BERGEN'], towns: BERGEN_TOWNS, schedule: '1 6 * * 3', revision: 1 };
+/** The other 18 counties (ADR-0020), in one source: each county's candidates are one query. */
+export const REST_OF_NJ: ParcelCounty = {
+  sourceId: 'nj-parcels-rest-of-nj-parking',
+  counties: Object.keys(REST_OF_NJ_TOWNS).sort(),
+  towns: Object.assign({}, ...Object.values(REST_OF_NJ_TOWNS)) as Towns,
+  schedule: '4 6 * * 3',
+  revision: 1,
+};
 
 /**
  * ING-13: how Hudson's assessors write parking: "PARKING AREA", "PRKNG LOT 23PS", "MUNICIPAL PKG.", "PARK'G",
@@ -158,7 +166,7 @@ export const SAYS_PARKING = /PARKING|PRKNG|\bPKG\b|PARK'?G|GARAGE ?#|\d+ ?P\.?S\
 
 /** The layer is filtered by LIKE, which can't say all of SAYS_PARKING; this is wider, and SAYS_PARKING sorts after. */
 const LIKE_PARKING = ['%PARKING%', '%PRKNG%', '%PKG%', "%PARK''G%", '%PARKG%', '%PARK LOT%', '%GARAGE#%', '%GARAGE #%', '%PS%', '%P.S%', '%MUNI%LOT%', '%PAVED%'];
-export const candidatesWhere = (county: ParcelCounty['county']) =>
+export const candidatesWhere = (county: string) =>
   `COUNTY='${county}' AND PROP_CLASS='15C' AND (${LIKE_PARKING.flatMap((pattern) => [`BLDG_DESC LIKE '${pattern}'`, `FAC_NAME LIKE '${pattern}'`]).join(' OR ')})`;
 const CANDIDATE_FIELDS = 'PAMS_PIN,PCL_MUN,PCLBLOCK,PCLLOT,PROP_LOC,BLDG_DESC,FAC_NAME';
 const NEIGHBOUR_FIELDS = 'PAMS_PIN,PCL_MUN,PCLBLOCK,PROP_CLASS,BLDG_DESC,FAC_NAME';
@@ -188,22 +196,27 @@ export function parcelSitesSource(config: ParcelCounty): SourceDefinition {
 export const njParcelsHudsonParking = parcelSitesSource(HUDSON);
 export const njParcelsEssexParking = parcelSitesSource(ESSEX);
 export const njParcelsBergenParking = parcelSitesSource(BERGEN);
+export const njParcelsRestOfNjParking = parcelSitesSource(REST_OF_NJ);
 
 /**
- * The candidate parcels, then the other public parcels on their blocks, in as many queries as the URL length allows.
- * Stored together, each response exactly as received (specs/03).
+ * Each county's candidate parcels, then the other public parcels on their blocks, in as many queries as the URL length
+ * allows. Stored together, each response exactly as received (specs/03).
  */
 async function fetchCandidates(http: UpstreamHttp, config: ParcelCounty): Promise<FetchedData> {
   const { layerUrl, editedAt } = await resolveArcgisLayer(http, NJ_PARCELS_ITEM_ID);
-  const candidates = await queryArcgisLayer(http, layerUrl, {
-    where: candidatesWhere(config.county),
-    outFields: CANDIDATE_FIELDS,
-    orderByFields: 'PAMS_PIN',
-    returnGeometry: 'true',
-    returnCentroid: 'true',
-  });
+  const decode = (body: Uint8Array) => new TextDecoder().decode(body);
+  const candidates: string[] = [];
+  for (const county of config.counties) {
+    candidates.push(decode((await queryArcgisLayer(http, layerUrl, {
+      where: candidatesWhere(county),
+      outFields: CANDIDATE_FIELDS,
+      orderByFields: 'PAMS_PIN',
+      returnGeometry: 'true',
+      returnCentroid: 'true',
+    })).body));
+  }
   const blocks = new Map<string, Set<string>>();
-  for (const { attributes } of features(candidates.body)) {
+  for (const { attributes } of candidates.flatMap((part) => features(part))) {
     const town = text(attributes, 'PCL_MUN');
     const block = text(attributes, 'PCLBLOCK').replace(/'/g, '');
     if (town in config.towns && block && SAYS_PARKING.test(describe(attributes))) blocks.set(town, (blocks.get(town) ?? new Set()).add(block));
@@ -232,10 +245,9 @@ async function fetchCandidates(http: UpstreamHttp, config: ParcelCounty): Promis
     if (last && urlLength([...last, clause]) <= MAX_QUERY_URL) last.push(clause);
     else parts.push([clause]);
   }
-  const decode = (body: Uint8Array) => new TextDecoder().decode(body);
   const neighbours: string[] = [];
   for (const part of parts) neighbours.push(decode((await queryArcgisLayer(http, layerUrl, params(part))).body));
-  const body = new TextEncoder().encode(JSON.stringify({ candidates: decode(candidates.body), neighbours }));
+  const body = new TextEncoder().encode(JSON.stringify({ candidates, neighbours }));
   return { body, contentType: 'application/json', upstreamUpdatedAt: editedAt };
 }
 
@@ -255,16 +267,30 @@ interface Parcel {
 /** Railroad or right-of-way land isn't a parking lot (ING-13). */
 const RIGHT_OF_WAY = /R\.?O\.?W|RAILROAD|RIGHT OF WAY/i;
 /**
- * Not a public lot (ADR-0018, ADR-0019): land a town took for unpaid taxes ("PARKING TAX LIEN FORECLOSURE" in Newark)
- * was a private lot, and "FUTURE PARKING" (Oradell) isn't a lot yet.
+ * Not a public lot (ADR-0018, ADR-0019, ADR-0020): land a town took for unpaid taxes ("PARKING TAX LIEN FORECLOSURE" in
+ * Newark) was a private lot, "FUTURE PARKING" (Oradell) isn't a lot yet, and a parcel recorded as a residence, or with
+ * a disabled veteran's exemption (a home's), isn't one either.
  */
-const NOT_A_LOT = /TAX LIEN|FORECLOS|FUTURE PARKING/i;
+const NOT_A_LOT = /TAX LIEN|FORECLOS|FUTURE PARKING|RESIDEN|DISABLED VET/i;
+/**
+ * Another use the parking serves, when the site's own parcels say so (ADR-0020): a water works, well, water tower, or
+ * filtering plant ("WATER UTILITY PRKG"), Green Acres park land, a museum or historical society, or a rescue squad
+ * ("SQUAD PARKNG LOT"). Elsewhere on the block they don't count: pump stations, rescue squads, and Green Acres land sit
+ * beside downtown and beach lots (Toms River, Chatham, Madison, Long Branch).
+ */
+const OWN_OTHER_USE =
+  /FILTER|WATER (?:WORKS|UTILITY|TOWER|TREATMENT)|\bWELL\b|\bW TWR\b|GREEN ACRES|\bGR AC\b|MUSEUM|HIST(?:ORICAL)? SOC|SQUAD|RESCUE/i;
 /**
  * Another public use on the block that the parking most likely serves (ING-13): also a pool, a ballfield, a rink, or a
- * park written "PK" ("PARKING VET PK", Ridgefield Park) (ADR-0019).
+ * park written "PK" ("PARKING VET PK", Ridgefield Park) (ADR-0019); and, since ADR-0020, any field ("ROBINSON FIELD",
+ * "BALLFIELDS") or tennis court, and a church named by its denomination ("LIBERTY BAPTIST", "RECTORY/PARISH CNTR").
  */
-const SERVES =
-  /SCHOOL|COLLEGE|POLICE|FIRE|HOUSING|POST|COURT|LIBRARY|HOSPITAL|ADMIN|OFFICE|COMMUNITY|\bDEPT\b|DEPARTMENT|\bDPW\b|PUBLIC WORKS|MAINTENANCE|\bGARAGES?\b|\bPARKS?\b|\bPK\b(?! ?LOT)|PLAYGROUND|RECREATION|POOL|\bRINK\b|\b(?:HOCKEY|BALL|ATHLETIC|SOCCER|FOOTBALL|BASEBALL|SOFTBALL) FIELD|CHURCH|CEMET/i;
+const SERVES = new RegExp([
+  'SCHOOL|COLLEGE|POLICE|FIRE|HOUSING|POST|COURT|LIBRARY|HOSPITAL|ADMIN|OFFICE|COMMUNITY|\\bDEPT\\b|DEPARTMENT|\\bDPW\\b',
+  'PUBLIC WORKS|MAINTENANCE|\\bGARAGES?\\b|\\bPARKS?\\b|\\bPK\\b(?! ?LOT)|PLAYGROUND|RECREATION|POOL|\\bRINK\\b|CHURCH|CEMET',
+  '\\bFIELDS?\\b|\\bFLDS\\b|BALL ?FIELDS?|TENNIS',
+  'BAPTIST|METHODIST|LUTHERAN|PRESBYTER|EPISCOPAL|SYNAGOGUE|MOSQUE|RECTORY|CONVENT|PARISH',
+].join('|'), 'i');
 /**
  * ADR-0017: sites their own town says aren't for visitors (rented, reserved, or private), by the site's first PIN.
  * Checked by hand on 2026-11-07. A town's page is used only to leave a site out; nothing from it is shown.
@@ -283,10 +309,13 @@ const PARKING_ITSELF = /PARKING GARAGES?|GARAGE ?#\S*|\bPARK LOT\b|PARK'G/gi;
 
 export function normalizeCandidates(body: Uint8Array, config: ParcelCounty): Normalized {
   const envelope = parseJson(body);
-  if (typeof envelope.candidates !== 'string' || !Array.isArray(envelope.neighbours) || envelope.neighbours.some((part) => typeof part !== 'string')) {
+  // One response per county; snapshots stored before ADR-0020 hold one county's response as a string.
+  const candidateParts: unknown[] = typeof envelope.candidates === 'string' ? [envelope.candidates] : Array.isArray(envelope.candidates) ? envelope.candidates : [];
+  const isText = (part: unknown) => typeof part === 'string';
+  if (candidateParts.length === 0 || !candidateParts.every(isText) || !Array.isArray(envelope.neighbours) || !envelope.neighbours.every(isText)) {
     throw new IngestionError('normalize.unexpected_format', 'snapshot is missing a query response');
   }
-  const candidateFeatures = features(envelope.candidates);
+  const candidateFeatures = (candidateParts as string[]).flatMap((part) => features(part));
   const byPin = new Map<string, Parcel>();
   let invalidRows = 0;
   for (const feature of candidateFeatures) {
@@ -323,7 +352,7 @@ export function normalizeCandidates(body: Uint8Array, config: ParcelCounty): Nor
 
   const records: SourceRecordInput[] = [];
   for (const site of sitesOf(parcels)) {
-    if (site.some((parcel) => RIGHT_OF_WAY.test(parcel.description) || NOT_A_LOT.test(parcel.description))) continue;
+    if (site.some((parcel) => RIGHT_OF_WAY.test(parcel.description) || NOT_A_LOT.test(parcel.description) || OWN_OTHER_USE.test(parcel.description))) continue;
     const uses = [...(blockUses.get(blockKey(site[0]!.town, site[0]!.block)) ?? []), ...site.map((parcel) => parcel.description.replace(PARKING_ITSELF, ''))];
     if (uses.some((use) => SERVES.test(use))) continue;
     if (site[0]!.pin in NOT_FOR_VISITORS) continue; // modification `sites_not_for_visitors_excluded`

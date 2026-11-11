@@ -18,6 +18,7 @@
     "api:generate": "pnpm --filter @parking/api-client generate",
     "db:migrate": "pnpm --filter @parking/db migrate",
     "ingest": "pnpm --filter @parking/worker ingest",
+    "rebuild": "pnpm --filter @parking/worker rebuild",
     "test:e2e": "pnpm --filter @parking/e2e e2e"
   },
   "devDependencies": {

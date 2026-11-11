@@ -1,9 +1,12 @@
 // S1-7 and S2-7: public facilities near a point, nearest first, optionally of some operator types (REC-1 to REC-8). The request point is rounded
-// to 3 decimal places before use and is never logged, stored, or returned (PRIV-3, ADR-0006).
-import type { MeterPeriod, OpeningHours, OperatorType, Rate, RecommendationList, RecommendedFacility } from '@parking/api-client';
+// to 3 decimal places before use and is never logged, stored, or returned (PRIV-3, ADR-0006). Every facility in a county or
+// borough, by town (S4-40, REC-11, ADR-0021).
+import type { AreaFacilityList, AreaId, MeterPeriod, OpeningHours, OperatorType, Rate, RecommendationList, RecommendedFacility } from '@parking/api-client';
 import { maskToDays, textArray, timeOfDay, type Sql } from '@parking/db';
 
 export const MAX_RESULTS = 50;
+/** REC-11: far more than any area has (Essex County has the most, 110, on 2026-11-10). */
+export const MAX_AREA_RESULTS = 1_000;
 
 /** NYC and NJ (specs/05-api.md). Outside it: 422 location.out_of_area (REC-3). */
 export const COVERAGE = { minLat: 38.9, maxLat: 41.4, minLng: -75.6, maxLng: -73.6 } as const;
@@ -41,8 +44,19 @@ interface FacilityRow {
   lng: number;
   officialUrl: string | null;
   spaces: number | null;
-  distance: number;
+  /** Null in an area's list, which has no point. */
+  distance: number | null;
 }
+
+export interface AreaQuery {
+  area: AreaId;
+  /** REC-7: only these types. Absent means every type. */
+  operatorType?: OperatorType[];
+}
+
+const FACILITY_COLUMNS = (sql: Sql) => sql`f.id, f.name, f.lot_number as "lotNumber", f.confirmed, f.kind, f.operator_name as "operatorName",
+  f.operator_type as "operatorType", f.address_line as "addressLine", f.locality, f.region, f.time_zone as "timeZone",
+  ST_Y(f.location::geometry) as lat, ST_X(f.location::geometry) as lng, f.official_url as "officialUrl", f.spaces`;
 
 export async function findRecommendations(sql: Sql, query: RecommendationQuery): Promise<RecommendationList> {
   const lat = roundCoordinate(query.lat);
@@ -50,16 +64,30 @@ export async function findRecommendations(sql: Sql, query: RecommendationQuery):
 
   const facilities = await sql<FacilityRow[]>`
     with origin as (select ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography as point)
-    select f.id, f.name, f.lot_number as "lotNumber", f.confirmed, f.kind, f.operator_name as "operatorName", f.operator_type as "operatorType",
-      f.address_line as "addressLine", f.locality, f.region, f.time_zone as "timeZone",
-      ST_Y(f.location::geometry) as lat, ST_X(f.location::geometry) as lng, f.official_url as "officialUrl", f.spaces,
-      ST_Distance(f.location, origin.point) as distance
+    select ${FACILITY_COLUMNS(sql)}, ST_Distance(f.location, origin.point) as distance
     from facility f, origin
     where f.status = 'active' and ST_DWithin(f.location, origin.point, ${query.radius})
       ${query.operatorType ? sql`and f.operator_type = any(${textArray(sql, query.operatorType)})` : sql``}
     order by distance, f.id
     limit ${MAX_RESULTS}`;
-  if (facilities.length === 0) return { results: [] };
+  return { results: await withDetails(sql, facilities) };
+}
+
+/** REC-11: every active facility in the area, by town, then name. No point is involved. */
+export async function findAreaFacilities(sql: Sql, query: AreaQuery): Promise<AreaFacilityList> {
+  const facilities = await sql<FacilityRow[]>`
+    select ${FACILITY_COLUMNS(sql)}, null as distance
+    from facility f
+    where f.status = 'active' and f.area = ${query.area}
+      ${query.operatorType ? sql`and f.operator_type = any(${textArray(sql, query.operatorType)})` : sql``}
+    order by f.locality, f.name, f.id
+    limit ${MAX_AREA_RESULTS}`;
+  return { results: await withDetails(sql, facilities) };
+}
+
+/** Each facility with its meter periods, opening hours, rates, and sources (REC-4, ATT-2). */
+async function withDetails(sql: Sql, facilities: FacilityRow[]): Promise<RecommendedFacility[]> {
+  if (facilities.length === 0) return [];
 
   const ids = textArray(sql, facilities.map((facility) => facility.id));
   const [meterRows, hourRows, rateRows, sourceRows] = await Promise.all([
@@ -91,8 +119,7 @@ export async function findRecommendations(sql: Sql, query: RecommendationQuery):
   const ratesOf = byFacility(rateRows);
   const sourcesOf = byFacility(sourceRows);
 
-  return {
-    results: facilities.map((facility) => {
+  return facilities.map((facility) => {
       const meters = metersOf(facility.id);
       const hours = hoursOf(facility.id);
       return {
@@ -104,7 +131,7 @@ export async function findRecommendations(sql: Sql, query: RecommendationQuery):
         operator: { name: facility.operatorName, type: facility.operatorType },
         address: { line: facility.addressLine, locality: facility.locality, region: facility.region },
         location: { lat: round(Number(facility.lat), 5), lng: round(Number(facility.lng), 5) },
-        distanceMeters: Math.round(Number(facility.distance) / 10) * 10,
+        distanceMeters: facility.distance === null ? null : Math.round(Number(facility.distance) / 10) * 10,
         spaces: facility.spaces,
         openingHours: hours.length === 0 ? null : openingHours(facility.timeZone, hours),
         meteredHours:
@@ -135,8 +162,7 @@ export async function findRecommendations(sql: Sql, query: RecommendationQuery):
           dataUpdatedAt: row.dataUpdatedAt ? row.dataUpdatedAt.toISOString() : null,
         })),
       } satisfies RecommendedFacility;
-    }),
-  };
+  });
 }
 
 function openingHours(timeZone: string, rows: { days: number; opensAt: string; closesAt: string }[]): OpeningHours {

@@ -7,12 +7,27 @@ export const en = {
 
   'search.heading': 'Find public parking near you',
   'search.intro':
-    "Garages, lots, and fields run by cities, counties, the state, and transit agencies. This release covers NYC Department of Transportation garages and fields; city lots and garages in Jersey City, West New York, Bayonne, Union City, Hoboken, Harrison, Bloomfield, South Orange, Nutley, Verona, Westwood, and Oradell; and, across Hudson, Essex, and Bergen Counties, unconfirmed sites from tax records.",
+    "Garages, lots, and fields run by cities, counties, the state, and transit agencies. This release covers NYC Department of Transportation garages and fields; city lots and garages in Jersey City, West New York, Bayonne, Union City, Hoboken, Harrison, Bloomfield, South Orange, Nutley, Verona, Westwood, and Oradell; and, across New Jersey, unconfirmed sites from tax records.",
   'search.radius.label': 'Search within',
   'search.radius.option': '{km, number} km',
-  // WEB-4: the device's location is offered apart from the search box, and shared only through the dialog.
-  'search.or': 'or',
+  // WEB-13: how to search. A town or address is the default (WEB-11); the device's location is shared only through the
+  // dialog (WEB-4).
+  'searchBy.label': 'Search by',
+  'searchBy.place': 'Town or address',
+  'searchBy.city': 'City or town',
+  'searchBy.area': 'County or NYC borough',
+  'searchBy.location': 'My current location',
   'search.useLocation': 'Use my current location',
+  'area.label': 'County or borough',
+  'area.placeholder': 'Choose a county or borough',
+  'area.loading': 'Loading counties and boroughs…',
+  'area.group.NJ': 'New Jersey',
+  'area.group.NY': 'New York City',
+  'city.label': 'City or town',
+  'city.labelNeighbourhood': 'Neighbourhood',
+  'city.placeholder': 'Choose one',
+  'city.chooseAreaFirst': 'Choose a county or borough first',
+  'search.in': 'Showing all of {label}',
   // WEB-11, ADR-0013: address search.
   'address.label': 'Search near a town or address',
   'address.placeholder': 'Hoboken, NJ or 174 Newark Ave',
@@ -46,10 +61,13 @@ export const en = {
   'results.searching': 'Looking for public parking…',
   'results.heading': '{count, plural, one {# place} other {# places}} within {distance}',
   'results.empty': 'No public parking found within {distance}. Try a wider search.',
+  'results.headingArea': '{count, plural, one {# place} other {# places}} in {area}',
+  'results.emptyArea': 'No public parking found in {area}.',
   'results.error.location.out_of_area': 'That location is outside New York City and New Jersey.',
   'results.error.generic': "Search isn't working right now. Try again in a few minutes.",
 
   'facility.meta': '{kind} · {operator} · {distance}',
+  'facility.metaNoDistance': '{kind} · {operator}',
   'facility.kind.garage': 'Garage',
   'facility.kind.lot': 'Lot',
   'facility.kind.field': 'Parking field',
