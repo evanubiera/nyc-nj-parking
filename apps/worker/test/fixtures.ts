@@ -8,6 +8,8 @@
 // run stores them (no email addresses). Westwood's and Oradell's pages were saved on 2026-11-07 as a run stores them.
 // The rest of NJ's parcel responses (ADR-0020) were saved on 2026-11-10, gzipped in one file: each county's candidates
 // response, and one neighbours response holding every neighbour, filtered to each query's blocks as for Hudson.
+// New York State's (ADR-0022) were saved on 2026-11-11: the Thruway's rows as received, the parcel layer's query as
+// received (gzipped), and the dataset's and service's metadata trimmed to the fields the adapters read.
 import { readFileSync } from 'node:fs';
 import { gunzipSync } from 'node:zlib';
 import { UpstreamHttp } from '../src/http.ts';
@@ -39,6 +41,10 @@ export const fixtures = {
   bergenCandidates: read('nj-parcels-bergen.candidates.json'),
   bergenNeighbours: read('nj-parcels-bergen.neighbours.json'),
   restOfNj: new Uint8Array(gunzipSync(read('nj-parcels-rest-of-nj.json.gz'))),
+  thruwayRows: read('nys-thruway.rows.json'),
+  thruwayView: read('nys-thruway.view.json'),
+  nysParcelsService: read('nys-parcels.service.json'),
+  nysParcelsQuery: new Uint8Array(gunzipSync(read('nys-parcels.query.json.gz'))),
   wnyFacilities: read('wny.facilities.html'),
   hobokenGarages: read('hoboken.garages.html'),
   bayonneOrdinance: read('bayonne.o-16-64.pdf'),
@@ -138,6 +144,10 @@ export function fixtureHttp(overrides: Partial<Record<keyof typeof fixtures, Uin
     '/408/Downtown-Customer-Parking': bodies.westwoodCustomer,
     '/399/Parking-Utility': bodies.westwoodUtility,
     '/1410/Municipal-Parking': bodies.oradellParking,
+    '/resource/nvxe-b625.json': bodies.thruwayRows,
+    '/api/views/nvxe-b625.json': bodies.thruwayView,
+    '/arcgis/rest/services/NYS_Tax_Parcels_Public/MapServer': bodies.nysParcelsService,
+    '/arcgis/rest/services/NYS_Tax_Parcels_Public/MapServer/1/query': bodies.nysParcelsQuery,
   };
   // The parcel layer's queries share a path; the candidates ask for class 15C, the neighbours for all of 15.
   // Parsed only when a test asks for the rest of NJ: it's 2.5 MB.

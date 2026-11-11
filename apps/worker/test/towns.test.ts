@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { njTownName } from '../src/normalize/towns.ts';
+import { otherStateTown } from '../src/sources/njt-parking-lots.ts';
 
 describe('NJ town names (S4-44)', () => {
   it('WEB-13 reads an official label as the name the rest of the app uses', () => {
@@ -28,5 +29,14 @@ describe('NJ town names (S4-44)', () => {
   it('WEB-13 leaves a place outside New Jersey, or a name no town has, unread', () => {
     expect(njTownName('Philadelphia, PA', 'Philadelphia, PA')).toBeNull();
     expect(njTownName('Monmouth', null)).toBeNull();
+  });
+});
+
+describe('Towns outside New Jersey in NJ Transit\'s lots (S5-3)', () => {
+  it('WEB-13 names them plainly, as New York\'s parcel sites do', () => {
+    expect(otherStateTown('Ramapo Town, NY')).toBe('Ramapo');
+    expect(otherStateTown('Greenwood Lake Village')).toBe('Greenwood Lake');
+    expect(otherStateTown('Philadelphia, PA')).toBe('Philadelphia');
+    expect(otherStateTown('Warwick')).toBe('Warwick');
   });
 });

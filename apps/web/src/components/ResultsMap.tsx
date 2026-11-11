@@ -27,8 +27,8 @@ setWorkerUrl(workerUrl);
 const START = { center: [-73.97, 40.73] as [number, number], zoom: 10 };
 /** The API's coverage area (specs/05-api.md). The map doesn't pan outside it. */
 const COVERAGE: [[number, number], [number, number]] = [
-  [-75.6, 38.9],
-  [-73.6, 41.4],
+  [-79.8, 38.9],
+  [-71.8, 45.1],
 ];
 
 export default function ResultsMap({ styleUrl, point, results, onSelectPoint, onSelectFacility }: ResultsMapProps) {

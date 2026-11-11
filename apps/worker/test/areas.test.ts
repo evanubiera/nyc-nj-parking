@@ -11,8 +11,10 @@ afterAll(() => sql.end());
 beforeEach(() => resetData(sql));
 
 describe('Areas: NJ counties and NYC boroughs (ADR-0021)', () => {
-  it('REC-11 knows the 21 counties and 5 boroughs', () => {
-    expect(AREA_IDS).toHaveLength(26);
+  it('REC-11 knows New Jersey\'s 21 counties, New York City\'s 5 boroughs, and New York State\'s other 57 counties', () => {
+    expect(AREA_IDS).toHaveLength(83);
+    expect(AREA_IDS).toContain('ny-erie');
+    expect(AREA_IDS).toContain('ny-st-lawrence');
     expect(AREA_IDS).toContain('nj-cape-may');
     expect(AREA_IDS).toContain('ny-staten-island');
   });
@@ -25,6 +27,8 @@ describe('Areas: NJ counties and NYC boroughs (ADR-0021)', () => {
     expect(areaOf({ lat: 40.719, lng: -73.988, region: 'NY' })).toBe('ny-manhattan'); // the Delancey and Essex garage
     expect(areaOf({ lat: 40.6782, lng: -73.9442, region: 'NY' })).toBe('ny-brooklyn');
     expect(areaOf({ lat: 40.7465, lng: -74.0105, region: 'NY' })).toBe('ny-manhattan'); // Chelsea Piers, in the Hudson
+    expect(areaOf({ lat: 42.8864, lng: -78.8784, region: 'NY' })).toBe('ny-erie'); // Buffalo
+    expect(areaOf({ lat: 41.1169, lng: -74.1552, region: 'NY' })).toBe('ny-rockland'); // Suffern
   });
 
   it('REC-11 gives a point near a coast its nearest area, and one far out at sea none', () => {
@@ -32,9 +36,9 @@ describe('Areas: NJ counties and NYC boroughs (ADR-0021)', () => {
     expect(areaOf({ lat: 39.9, lng: -73.5, region: 'NJ' })).toBeNull();
   });
 
-  it('REC-11 gives a point only an area in its own state: NJ Transit\'s Suffern lots, in New York State, have none', () => {
-    // Suffern's lot A, 1 km over the state line from Mahwah, Bergen County (S4-45).
-    expect(areaOf({ lat: 41.1169, lng: -74.1552, region: 'NY' })).toBeNull();
+  it('REC-11 gives a point only an area in its own state: Suffern, 1 km over the line from Bergen County, is in Rockland', () => {
+    // NJ Transit's Suffern lot A (S4-45); since ADR-0022, New York's counties are areas too.
+    expect(areaOf({ lat: 41.1169, lng: -74.1552, region: 'NY' })).toBe('ny-rockland');
     expect(areaOf({ lat: 41.1169, lng: -74.1552, region: 'NJ' })).toBe('nj-bergen');
   });
 

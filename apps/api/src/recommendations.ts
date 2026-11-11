@@ -8,8 +8,14 @@ export const MAX_RESULTS = 50;
 /** REC-11: far more than any area has (Essex County has the most, 110, on 2026-11-10). */
 export const MAX_AREA_RESULTS = 1_000;
 
-/** NYC and NJ (specs/05-api.md). Outside it: 422 location.out_of_area (REC-3). */
-export const COVERAGE = { minLat: 38.9, maxLat: 41.4, minLng: -75.6, maxLng: -73.6 } as const;
+/**
+ * New Jersey and New York State, as two boxes (specs/05-api.md, ADR-0022). Outside both: 422 location.out_of_area
+ * (REC-3). Two boxes, not one round both, so the ocean south of Long Island stays outside.
+ */
+export const COVERAGE = [
+  { name: 'NJ', minLat: 38.9, maxLat: 41.4, minLng: -75.6, maxLng: -73.6 },
+  { name: 'NY', minLat: 40.49, maxLat: 45.02, minLng: -79.77, maxLng: -71.85 },
+] as const;
 
 export interface RecommendationQuery {
   lat: number;
@@ -25,7 +31,7 @@ export function roundCoordinate(value: number): number {
 }
 
 export function inCoverage(lat: number, lng: number): boolean {
-  return lat >= COVERAGE.minLat && lat <= COVERAGE.maxLat && lng >= COVERAGE.minLng && lng <= COVERAGE.maxLng;
+  return COVERAGE.some((box) => lat >= box.minLat && lat <= box.maxLat && lng >= box.minLng && lng <= box.maxLng);
 }
 
 interface FacilityRow {

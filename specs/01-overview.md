@@ -2,11 +2,11 @@
 
 ## What it is
 
-A public web app, usable on phones, that suggests public parking near the user across New York City and New Jersey: garages, lots, and fields run by a city, county, state, or transit agency. It answers "where's the nearest public parking, and what are its hours and rates?" A suggestion isn't a guarantee that a space is free, open, or legal to use. The app says so on every page (ADR-0008).
+A public web app, usable on phones, that suggests public parking near the user across New York State and New Jersey (ADR-0022): garages, lots, and fields run by a city, county, state, or transit agency. It answers "where's the nearest public parking, and what are its hours and rates?" A suggestion isn't a guarantee that a space is free, open, or legal to use. The app says so on every page (ADR-0008).
 
 ## Who uses it
 
-- Drivers in or heading to NYC and northern NJ who want public parking rather than private garages.
+- Drivers in or heading to NYC, New Jersey, or the rest of New York State who want public parking rather than private garages.
 - Commuters looking for a park-and-ride lot near a train or bus (from slice 2).
 
 There are no accounts. Anyone can use it without signing in.
@@ -38,6 +38,7 @@ A scheduled worker pulls public data from city and state portals, keeps a snapsh
 | 2 | Also find NJ commuter lots (NJ Transit and NJDOT), filtered by operator type. Both live since 2026-11-10, without asking first (ADR-0014); PRD-4 decided. | Done |
 | 3 | See rates and an "open now" filter. Rates depend on SRC-1. | Planned |
 | 4 | More NJ municipalities, one city at a time, plus state-run lots if PRD-3 includes them. Jersey City first: its 7 city lots, and unconfirmed sites from tax records (ADR-0012). Then West New York's 9 lots (ADR-0014), Hoboken's garages, and unconfirmed sites in all of Hudson County (ADR-0015); Bayonne, Union City, and Harrison; then Essex County, with Bloomfield's, South Orange's, Nutley's, and Verona's lots (ADR-0018); then Bergen County, with Westwood's and Oradell's lots (ADR-0019); then unconfirmed sites in the other 18 counties (ADR-0020). | In progress |
+| 5 | All of New York State (ADR-0022, PRD-3 decided): the Thruway's commuter lots, unconfirmed sites from the State's public tax parcels, and New York's counties and towns in search; then NYSDOT's park-and-rides and cities' own lot pages. | In progress |
 | Later | On-street parking; a native app if needed. | — |
 
 ## Spec index

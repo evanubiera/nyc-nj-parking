@@ -1,6 +1,6 @@
 // Builds apps/worker/src/data/areas.json: the areas a person can search as a whole (ADR-0021), New Jersey's 21 counties
-// from NJOGIS and New York City's five boroughs from NYC Planning (water areas included, so a pier is in its borough),
-// each outline simplified to about 20 m. The worker gives each facility its area from these when it rebuilds them.
+// from NJOGIS, New York City's five boroughs from NYC Planning (water areas included, so a pier is in its borough), and
+// New York State's other 57 counties from NYS GIS (ADR-0022), each outline simplified to about 20 m. The worker gives each facility its area from these when it rebuilds them.
 // Run: node scripts/build-areas.ts
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -8,6 +8,8 @@ import { fileURLToPath } from 'node:url';
 const OUT = fileURLToPath(new URL('../apps/worker/src/data/areas.json', import.meta.url));
 const NJ_COUNTIES = 'https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/NJ_Counties_3857/FeatureServer/0/query';
 const NYC_BOROUGHS = 'https://data.cityofnewyork.us/resource/wh2p-dxnf.geojson';
+/** Counties with their water areas (layer 3 is cut at the shoreline). The five NYC counties are the boroughs above. */
+const NYS_COUNTIES = 'https://gisservices.its.ny.gov/arcgis/rest/services/NYS_Civil_Boundaries/FeatureServer/2/query';
 const USER_AGENT = 'nyc-nj-parking build-areas';
 /** Simplification tolerance, in degrees of latitude (about 20 m). */
 const TOLERANCE = 0.00018;
@@ -82,8 +84,20 @@ async function newYorkCity(): Promise<Area[]> {
   }));
 }
 
-const areas = [...(await newJersey()), ...(await newYorkCity())].sort((a, b) => a.id.localeCompare(b.id));
-if (areas.length !== 26) throw new Error(`expected 21 counties and 5 boroughs, got ${areas.length}`);
-const about = 'Built by scripts/build-areas.ts (ADR-0021). NJ counties: NJOGIS, County Boundaries of NJ. NYC boroughs: NYC Planning, Borough Boundaries (water areas included).';
+async function newYorkState(): Promise<Area[]> {
+  const body = new URLSearchParams({ where: "NYC = 'N'", outFields: 'NAME', outSR: '4326', returnGeometry: 'true', f: 'json' });
+  const data = await json(NYS_COUNTIES, { method: 'POST', body });
+  if (data.exceededTransferLimit) throw new Error('more counties than one query returns');
+  return data.features.map((feature: { attributes: Record<string, string>; geometry: { rings: Ring[] } }) => ({
+    id: `ny-${slug(feature.attributes.NAME!)}`,
+    name: `${feature.attributes.NAME!.trim()} County`,
+    state: 'NY',
+    rings: feature.geometry.rings.map(simplify).filter((ring) => ring.length > 0),
+  }));
+}
+
+const areas = [...(await newJersey()), ...(await newYorkCity()), ...(await newYorkState())].sort((a, b) => a.id.localeCompare(b.id));
+if (areas.length !== 83 || new Set(areas.map((area) => area.id)).size !== 83) throw new Error(`expected 21 NJ counties, 5 boroughs, and 57 NY counties, got ${areas.length}`);
+const about = 'Built by scripts/build-areas.ts (ADR-0021, ADR-0022). NJ counties: NJOGIS, County Boundaries of NJ. NYC boroughs: NYC Planning, Borough Boundaries (water areas included). NY counties: NYS GIS, NYS Civil Boundaries (Counties).';
 writeFileSync(OUT, `${JSON.stringify({ about, builtOn: new Date().toISOString().slice(0, 10), areas })}\n`);
 console.log(`${areas.length} areas, ${areas.reduce((sum, area) => sum + area.rings.reduce((s, ring) => s + ring.length, 0), 0)} points → ${OUT}`);

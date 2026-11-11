@@ -222,10 +222,10 @@ components:
             $ref: '#/components/schemas/RecommendedFacility'
     AreaId:
       description: >
-        A New Jersey county ("nj-" and its name) or a New York City borough ("ny-" and its name), as
-        scripts/build-areas.ts names them (ADR-0021).
+        A New Jersey county ("nj-" and its name), a New York City borough, or another New York State county
+        ("ny-" and its name), as scripts/build-areas.ts names them (ADR-0021, ADR-0022).
       type: string
-      enum: [nj-atlantic, nj-bergen, nj-burlington, nj-camden, nj-cape-may, nj-cumberland, nj-essex, nj-gloucester, nj-hudson, nj-hunterdon, nj-mercer, nj-middlesex, nj-monmouth, nj-morris, nj-ocean, nj-passaic, nj-salem, nj-somerset, nj-sussex, nj-union, nj-warren, ny-bronx, ny-brooklyn, ny-manhattan, ny-queens, ny-staten-island]
+      enum: [nj-atlantic, nj-bergen, nj-burlington, nj-camden, nj-cape-may, nj-cumberland, nj-essex, nj-gloucester, nj-hudson, nj-hunterdon, nj-mercer, nj-middlesex, nj-monmouth, nj-morris, nj-ocean, nj-passaic, nj-salem, nj-somerset, nj-sussex, nj-union, nj-warren, ny-albany, ny-allegany, ny-bronx, ny-brooklyn, ny-broome, ny-cattaraugus, ny-cayuga, ny-chautauqua, ny-chemung, ny-chenango, ny-clinton, ny-columbia, ny-cortland, ny-delaware, ny-dutchess, ny-erie, ny-essex, ny-franklin, ny-fulton, ny-genesee, ny-greene, ny-hamilton, ny-herkimer, ny-jefferson, ny-lewis, ny-livingston, ny-madison, ny-manhattan, ny-monroe, ny-montgomery, ny-nassau, ny-niagara, ny-oneida, ny-onondaga, ny-ontario, ny-orange, ny-orleans, ny-oswego, ny-otsego, ny-putnam, ny-queens, ny-rensselaer, ny-rockland, ny-saratoga, ny-schenectady, ny-schoharie, ny-schuyler, ny-seneca, ny-st-lawrence, ny-staten-island, ny-steuben, ny-suffolk, ny-sullivan, ny-tioga, ny-tompkins, ny-ulster, ny-warren, ny-washington, ny-wayne, ny-westchester, ny-wyoming, ny-yates]
     AreaFacilityList:
       type: object
       additionalProperties: false
@@ -498,6 +498,7 @@ components:
               - duplicates_removed
               - municipalities_reformatted
               - town_names_standardized
+              - sites_from_parcels_by_owner
               - sites_from_parcels
               - unconfirmed_public_use
               - locations_from_records

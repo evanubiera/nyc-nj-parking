@@ -331,6 +331,20 @@ test('S4-41 searches around a city chosen from its county', async ({ page }) => 
   await expect(page.getByRole('heading', { level: 2, name: /within 2 km$/ })).toBeVisible();
 });
 
+test('S5-1 lists a New York county, with the Thruway\'s commuter lot and towns\' sites', async ({ page }) => {
+  await page.goto('/');
+
+  await page.getByRole('combobox', { name: 'Search by' }).selectOption('area');
+  await page.getByRole('combobox', { name: 'County or borough' }).selectOption({ label: 'Orange County' });
+
+  await expect(page.getByRole('heading', { level: 2, name: /places in Orange County$/ })).toBeVisible();
+  const lot = page.getByRole('article', { name: 'Newburgh' });
+  await expect(lot.getByText('Lot · State-run')).toBeVisible();
+  await expect(lot.getByText('289 spaces')).toBeVisible();
+  await expect(page.getByRole('heading', { level: 3, name: 'Middletown' })).toBeVisible();
+  expect(await axeViolations(page)).toEqual([]);
+});
+
 test('S1-10 points to the map when location sharing is off', async ({ page }) => {
   await page.goto('/');
 

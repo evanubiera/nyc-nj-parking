@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-A public web app, usable on phones, that suggests public parking near the user across New York City and New Jersey. It's built spec-first, in thin vertical slices (ADR-0001).
+A public web app, usable on phones, that suggests public parking near the user across New York State and New Jersey. It's built spec-first, in thin vertical slices (ADR-0001).
 
 ## Read first
 - `specs/01-overview.md`: scope, users, slices, and the spec index.

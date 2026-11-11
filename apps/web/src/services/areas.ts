@@ -16,11 +16,23 @@ export interface AreaOption {
 const slug = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 // Every area in the contract (AreaId). Typecheck fails here when the contract adds one.
 const ALL: Record<AreaId, true> = {
-  'nj-atlantic': true, 'nj-bergen': true, 'nj-burlington': true, 'nj-camden': true, 'nj-cape-may': true, 'nj-cumberland': true,
-  'nj-essex': true, 'nj-gloucester': true, 'nj-hudson': true, 'nj-hunterdon': true, 'nj-mercer': true, 'nj-middlesex': true,
-  'nj-monmouth': true, 'nj-morris': true, 'nj-ocean': true, 'nj-passaic': true, 'nj-salem': true, 'nj-somerset': true,
-  'nj-sussex': true, 'nj-union': true, 'nj-warren': true,
-  'ny-bronx': true, 'ny-brooklyn': true, 'ny-manhattan': true, 'ny-queens': true, 'ny-staten-island': true,
+  'nj-atlantic': true, 'nj-bergen': true, 'nj-burlington': true, 'nj-camden': true, 'nj-cape-may': true,
+  'nj-cumberland': true, 'nj-essex': true, 'nj-gloucester': true, 'nj-hudson': true, 'nj-hunterdon': true,
+  'nj-mercer': true, 'nj-middlesex': true, 'nj-monmouth': true, 'nj-morris': true, 'nj-ocean': true,
+  'nj-passaic': true, 'nj-salem': true, 'nj-somerset': true, 'nj-sussex': true, 'nj-union': true, 'nj-warren': true,
+  'ny-albany': true, 'ny-allegany': true, 'ny-bronx': true, 'ny-brooklyn': true, 'ny-broome': true,
+  'ny-cattaraugus': true, 'ny-cayuga': true, 'ny-chautauqua': true, 'ny-chemung': true, 'ny-chenango': true,
+  'ny-clinton': true, 'ny-columbia': true, 'ny-cortland': true, 'ny-delaware': true, 'ny-dutchess': true,
+  'ny-erie': true, 'ny-essex': true, 'ny-franklin': true, 'ny-fulton': true, 'ny-genesee': true, 'ny-greene': true,
+  'ny-hamilton': true, 'ny-herkimer': true, 'ny-jefferson': true, 'ny-lewis': true, 'ny-livingston': true,
+  'ny-madison': true, 'ny-manhattan': true, 'ny-monroe': true, 'ny-montgomery': true, 'ny-nassau': true,
+  'ny-niagara': true, 'ny-oneida': true, 'ny-onondaga': true, 'ny-ontario': true, 'ny-orange': true,
+  'ny-orleans': true, 'ny-oswego': true, 'ny-otsego': true, 'ny-putnam': true, 'ny-queens': true,
+  'ny-rensselaer': true, 'ny-rockland': true, 'ny-saratoga': true, 'ny-schenectady': true, 'ny-schoharie': true,
+  'ny-schuyler': true, 'ny-seneca': true, 'ny-st-lawrence': true, 'ny-staten-island': true, 'ny-steuben': true,
+  'ny-suffolk': true, 'ny-sullivan': true, 'ny-tioga': true, 'ny-tompkins': true, 'ny-ulster': true,
+  'ny-warren': true, 'ny-washington': true, 'ny-wayne': true, 'ny-westchester': true, 'ny-wyoming': true,
+  'ny-yates': true,
 };
 export const AREA_IDS = Object.keys(ALL) as readonly AreaId[];
 const known = new Set<string>(AREA_IDS);

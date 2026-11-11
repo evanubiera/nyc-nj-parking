@@ -152,3 +152,13 @@ Decided with the user on 2026-11-04: show Jersey City's 7 city lots now, without
 - In the browser at phone width, near Lot 52 downtown: 9 places within 2 km, Lot 52 first (city-run, with the city's Parking page link and its 2020 data date), then 8 unconfirmed sites, each with the unconfirmed label, "Owner not recorded", no link, a dashed map marker, and "Check the signs on site before you park". The Sources page lists both new sources and what we change.
 - `pnpm dev` applied `0004_unconfirmed_sites` on restart. The two sources were loaded into its database with `pnpm ingest`, because `pnpm dev` loads data only into an empty database.
 - On a phone, the search controls now push the map below the first screen; the smoke test scrolls to it.
+
+## Slice 5: New York State (ADR-0022)
+
+| Task | What | Requirements | Status |
+|---|---|---|---|
+| S5-1 | Coverage to all of New York State (the user asked on 2026-11-11, "can we move onto the rest of NY state?"; PRD-3 decided): two coverage boxes in the API and the map; the app renamed "NY and NJ public parking"; New York's 57 counties outside NYC as areas, and its 1,526 cities, towns, and villages in search, from NYS GIS | REC-3, REC-11, WEB-13 | Done |
+| S5-2 | The Thruway's commuter park-and-ride lots from data.ny.gov (`nys-thruway-park-ride`): 30 lots with operators and spaces; the shopping centre's left out | ING-6, ING-10, REC-10, ADR-0007 | Done |
+| S5-3 | Unconfirmed sites from the State's public tax parcels (`nys-parcels-parking`): parking lots and garages a county, city, town, or village owns, 650 sites in 171 towns; change code `sites_from_parcels_by_owner` | ING-13, ING-14, REC-9 | Done |
+| S5-4 | NYSDOT's park-and-rides (its own copy, or permission), and cities' own lot pages, largest first (Buffalo, Rochester, Syracuse, Albany, Yonkers, White Plains, New Rochelle) | — | To do |
+

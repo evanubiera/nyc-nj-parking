@@ -32,7 +32,8 @@ export const njtParkingLots: SourceDefinition = {
   // The layer is edited every few weeks; ADR-0011 allows at most one fetch a day, and unchanged data is skipped (ING-7).
   schedule: '30 5 * * *',
   // 2: records at priority 2, after a town's own source. 3: towns named as the other sources name them (2026-11-10).
-  revision: 3,
+  // 4: towns outside New Jersey named plainly (2026-11-11).
+  revision: 4,
   fetch: (http) => fetchArcgisLayer(http, NJT_QUERY),
   apply: (tx: TransactionSql, snapshot: StoredSnapshot) => applyNormalized(tx, 'njt-parking-lots', normalizeNjt(snapshot.body), snapshot.fetchedAt),
 };
@@ -144,8 +145,9 @@ function toRecord(row: Row, numbered: boolean): SourceRecordInput | null {
     operatorName: operator.name,
     operatorType: operator.type,
     addressLine: attributeText(row.attributes, 'location'),
-    // As the other sources write the town: "Oradell Borough" is Oradell (S4-44).
-    locality: njTownName(row.municipality, row.county) ?? row.municipality,
+    // As the other sources write the town: "Oradell Borough" is Oradell (S4-44); outside New Jersey, "Ramapo Town, NY"
+    // is Ramapo, as New York's parcel sites name their towns (S5-3).
+    locality: njTownName(row.municipality, row.county) ?? otherStateTown(row.municipality),
     region: row.county && /\bNY\b/.test(row.county) ? 'NY' : 'NJ',
     timeZone: NEW_YORK_TIME,
     lat: row.point.lat,
@@ -187,4 +189,9 @@ export function officialUrl(website: string | null): string {
 
 function slug(text: string): string {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+/** A town outside New Jersey without its state and kind: "Ramapo Town, NY" is Ramapo, "Greenwood Lake Village" Greenwood Lake. */
+export function otherStateTown(label: string): string {
+  return label.replace(/,\s*[A-Z]{2}$/, '').replace(/\s+(Town|Village|City|Borough|Township)$/i, '').trim();
 }

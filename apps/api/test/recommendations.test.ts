@@ -87,8 +87,9 @@ describe('GET /api/parking/recommendations', () => {
 
   it.each([
     ['Baltimore', 39.29, -76.612],
-    ['Albany', 42.652, -73.757],
-    ['the Atlantic', 40.5, -72.5],
+    ['Pittsburgh', 40.441, -79.996],
+    ['Montreal', 45.502, -73.567],
+    ['the Atlantic, south of Long Island', 40.3, -72.5],
   ])('REC-3 answers a point in %s with 422 location.out_of_area', async (_, lat, lng) => {
     const { status, body } = await recommend(`lat=${lat}&lng=${lng}`);
 

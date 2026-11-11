@@ -135,7 +135,7 @@ describe('NJ Transit parking lots (S2-4)', () => {
   });
 
   it('puts the lots in Rockland and Orange counties in NY, and the rest in NJ', () => {
-    expect(njtRecord('rail/Suffern_R')).toMatchObject({ region: 'NY', locality: 'Ramapo Town, NY' });
+    expect(njtRecord('rail/Suffern_R')).toMatchObject({ region: 'NY', locality: 'Ramapo' }); // "Ramapo Town, NY" (S5-3)
     expect(njt.records.filter((record) => record.region === 'NY')).toHaveLength(8);
   });
 

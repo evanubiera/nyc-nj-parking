@@ -7,11 +7,13 @@ import { jcMunicipalLots } from './jc-municipal-lots.ts';
 import { njParcelsBergenParking, njParcelsEssexParking, njParcelsHudsonParking, njParcelsRestOfNjParking } from './nj-parcels-parking.ts';
 import { njdotParkRide } from './njdot-park-ride.ts';
 import { njtParkingLots } from './njt-parking-lots.ts';
+import { nysParcelsParking } from './nys-parcels-parking.ts';
 import { nycFacdbDot } from './nyc-facdb-dot.ts';
 import { nutleyParkingLots } from './nutley-parking-lots.ts';
 import { nycMetersOffstreet } from './nyc-meters-offstreet.ts';
 import { oradellParkingLots } from './oradell-parking-lots.ts';
 import { southOrangeParkingLots } from './south-orange-parking-lots.ts';
+import { thruwayParkRide } from './thruway-park-ride.ts';
 import { unionCityParkingLots } from './union-city-parking-lots.ts';
 import { veronaParkingLots } from './verona-parking-lots.ts';
 import { westwoodParkingLots } from './westwood-parking-lots.ts';
@@ -40,6 +42,9 @@ export const sources: readonly SourceDefinition[] = [
   // Turned on by the user on 2026-11-10, without asking first (ADR-0014, SRC-2, SRC-3).
   njtParkingLots,
   njdotParkRide,
+  // New York State (ADR-0022).
+  thruwayParkRide,
+  nysParcelsParking,
 ];
 
 /** Built and tested, but not run until the user says so (ADR-0014). None now: NJ Transit's and NJDOT's went live on 2026-11-10. */

@@ -12,10 +12,12 @@ describe('areas for the Search by dropdowns (WEB-13)', () => {
     expect(areaId('NJ', 'Atlantis County')).toBeNull();
   });
 
-  it('WEB-13 lists New Jersey\'s 21 counties, then New York City\'s 5 boroughs, each with its places', () => {
-    expect(areas.map((area) => area.id)).toEqual(AREA_IDS); // listed NJ first, then NYC, each alphabetically
+  it('WEB-13 lists New Jersey\'s 21 counties, then New York\'s 57 counties and 5 boroughs, each with its places', () => {
+    // New Jersey's counties first, then New York's counties and boroughs, each by name.
+    expect([...areas.map((area) => area.id)].sort()).toEqual([...AREA_IDS].sort());
     expect(areas.slice(0, 2).map((area) => area.name)).toEqual(['Atlantic County', 'Bergen County']);
-    expect(areas.at(-1)?.name).toBe('Staten Island');
+    expect(areas.findIndex((area) => area.state === 'NY')).toBe(21);
+    expect(areas.find((area) => area.id === 'ny-erie')!.places.map((place) => place.name)).toContain('Buffalo City');
     const morris = areas.find((area) => area.id === 'nj-morris')!;
     expect(morris.places.map((place) => place.name)).toContain('Morristown Town');
     expect(morris.places.map((place) => place.name)).not.toContain('Hoboken City');

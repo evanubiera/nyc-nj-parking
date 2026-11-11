@@ -1,0 +1,31 @@
+[{"title":"West Nyack (Lot 1)","exit":"12","run_by":"NYS Department of Transportation","spaces":"232","comments":"Located at the NE Corner of Rt. 59 and Rt. 303","latitude":"41.09436","longitude":"-73.94979"}
+,{"title":"West Nyack (Lot J)","exit":"12","run_by":"Palisades Center","spaces":"900","comments":"Located on Palisades Center Ring Road","latitude":"41.09968","longitude":"-73.96232"}
+,{"title":"Spring Valley (East Lot)","exit":"14","run_by":"NYS Department of Transportation and Town of Clarkstown","spaces":"188","comments":"Located at the South Side of Rt. 59 at NYSTA Exit 14","latitude":"41.10289","longitude":"-74.02979"}
+,{"title":"Spring Valley (North Lot)","exit":"14","run_by":"NYS Department of Transportation and Town of Clarkstown","spaces":"390","comments":"Located at the North Side of Rt. 59 at NYSTA Exit 14","latitude":"41.10358","longitude":"-74.02896"}
+,{"title":"Spring Valley (West Lot)","exit":"14","run_by":"NYS Department of Transportation and Town of Clarkstown","spaces":"80","comments":"Located at the South Side of Rt. 59 at NYSTA Exit 14","latitude":"41.10343","longitude":"-74.03072"}
+,{"title":"Newburgh","exit":"17","run_by":"NYS Department of Transportation","spaces":"289","comments":"Located on Rt. 17K at Union Avenue at the Short Line Bus Station.","latitude":"41.50568","longitude":"-74.06309"}
+,{"title":"New Paltz","exit":"18","run_by":"NYS Thruway Authority","spaces":"150","comments":"Located on the South Side of Rt. 299 at the New Paltz Toll Plaza. (16-hour Parking Limit)","latitude":"41.74027","longitude":"-74.06242"}
+,{"title":"Kingston","exit":"19","run_by":"NYS Department of Transportation","spaces":"236","comments":"Located off Route 587","latitude":"41.94275","longitude":"-74.02749"}
+,{"title":"Saugerties","exit":"20","run_by":"NYS Department of Transportation","spaces":"43","comments":"Located off Routes 32 and 212","latitude":"42.08614","longitude":"-73.97564"}
+,{"title":"Catskill","exit":"21","run_by":"NYS Thruway Authority","spaces":"98","comments":"16-hour Parking Limit","latitude":"42.24651","longitude":"-73.88515"}
+,{"title":"Rotterdam","exit":"26","run_by":"NYS Department of Transportation","spaces":"57","comments":"Located off Route 5","latitude":"42.8532","longitude":"-74.00697"}
+,{"title":"Amsterdam","exit":"27","run_by":"NYS Thruway Authority","spaces":"91","comments":"16-hour Parking Limit","latitude":"42.92455","longitude":"-74.20021"}
+,{"title":"Little Falls","exit":"29A","run_by":"NYS Thruway Authority","spaces":"6","comments":"16-hour Parking Limit","latitude":"43.01946","longitude":"-74.81862"}
+,{"title":"Herkimer","exit":"30","run_by":"NYS Thruway Authority","spaces":"17","comments":"16-hour Parking Limit","latitude":"43.01716","longitude":"-74.99466"}
+,{"title":"Utica","exit":"31","run_by":"NYS Thruway Authority","spaces":"24","comments":"16-hour Parking Limit","latitude":"43.11213","longitude":"-75.21065"}
+,{"title":"Westmoreland","exit":"32","run_by":"NYS Thruway Authority","spaces":"50","comments":"16-hour Parking Limit","latitude":"43.12045","longitude":"-75.40194"}
+,{"title":"Verona","exit":"33","run_by":"NYS Thruway Authority","spaces":"27","comments":"16-hour Parking Limit","latitude":"43.12029","longitude":"-75.58679"}
+,{"title":"Canastota","exit":"34","run_by":"NYS Thruway Authority","spaces":"60","comments":"16-hour Parking Limit","latitude":"43.08893","longitude":"-75.74949"}
+,{"title":"Collamer","exit":"34A","run_by":"NYS Thruway Authority","spaces":"94","comments":"16-hour Parking Limit","latitude":"43.0986","longitude":"-76.04788"}
+,{"title":"Mattydale","exit":"36","run_by":"NYS Thruway Authority","spaces":"12","comments":"1-Hour Parking Limit","latitude":"43.09531","longitude":"-76.16428"}
+,{"title":"Liverpool","exit":"38","run_by":"NYS Thruway Authority","spaces":"36","comments":"16-hour Parking Limit","latitude":"43.11427","longitude":"-76.21399"}
+,{"title":"Syracuse (State Fair)","exit":"39","run_by":"NYS Department of Transportation","spaces":"50","comments":"16-hour Parking Limit","latitude":"43.1109","longitude":"-76.29029"}
+,{"title":"Weedsport","exit":"40","run_by":"NYS Department of Transportation","spaces":"40","comments":"16-hour Parking Limit","latitude":"43.05885","longitude":"-76.55943"}
+,{"title":"Geneva","exit":"42","run_by":"NYS Department of Transportation","spaces":"50","comments":"Located on Rt. 14.  Parking lot is unlined.","latitude":"42.94946","longitude":"-76.97677"}
+,{"title":"Manchester","exit":"43","run_by":"NYS Thruway Authority","spaces":"28","comments":"16-hour Parking Limit","latitude":"42.97686","longitude":"-77.22779"}
+,{"title":"Canandaigua","exit":"44","run_by":"NYS Department of Transportation","spaces":"92","latitude":"42.98765","longitude":"-77.36303"}
+,{"title":"LeRoy","exit":"47","run_by":"NYS Department of Transportation","spaces":"110","comments":"Located on I-490 E - Exit 1; 0.2 miles.  Trailways, shelter and pay phone.","latitude":"43.0333","longitude":"-77.96705"}
+,{"title":"Pembroke","exit":"48A","run_by":"NYS Thruway Authority","spaces":"36","comments":"16-hour Parking Limit","latitude":"43.00266","longitude":"-78.40682"}
+,{"title":"Depew","exit":"49","run_by":"NYS Thruway Authority","spaces":"50","comments":"16-hour Parking Limit","latitude":"42.94651","longitude":"-78.6977"}
+,{"title":"Williamsville","exit":"50","run_by":"Niagara Frontier Transportation Authority","spaces":"50","comments":"Located in the Village of Williamsville.  1.5 miles from I-90 - Exit 50. Directions: Exit 50 to I-290 West to Exit 7B, Route 5 East.  Turn right (Approx. 1/2 mile) at 3rd light to Union Road (Route 277). The lot is on the right.","latitude":"42.96059","longitude":"-78.75582"}
+,{"title":"Post Road","exit":"B1","run_by":"NYS Department of Transportation","spaces":"24","comments":"Located 1.5 Miles south on Route 9","latitude":"42.47574","longitude":"-73.68258"}]

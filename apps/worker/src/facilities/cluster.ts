@@ -25,6 +25,9 @@ export const NEARBY_MATCHES: readonly { sources: readonly [string, string]; mete
   { sources: ['njdot-park-ride', 'nj-parcels-essex-parking'], meters: 90 },
   { sources: ['njdot-park-ride', 'nj-parcels-bergen-parking'], meters: 90 },
   { sources: ['njdot-park-ride', 'nj-parcels-rest-of-nj-parking'], meters: 90 },
+  // New York State (ADR-0022): a lot NJ Transit or the Thruway lists on a town's parking parcel is that site.
+  { sources: ['njt-parking-lots', 'nys-parcels-parking'], meters: 90 },
+  { sources: ['nys-thruway-park-ride', 'nys-parcels-parking'], meters: 90 },
   // West New York's lots and Hoboken's garages were placed on their own tax parcels, so a site that's the same lot
   // is close: 30 m for West New York's 55th Street lot (specs/06). A different site was 91 m from Garage D.
   { sources: ['wny-parking-lots', 'nj-parcels-hudson-parking'], meters: 60 },

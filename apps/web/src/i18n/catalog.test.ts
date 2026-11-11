@@ -26,6 +26,7 @@ const MODIFICATIONS: Record<Source['modifications'][number], true> = {
   duplicates_removed: true,
   municipalities_reformatted: true,
   town_names_standardized: true,
+  sites_from_parcels_by_owner: true,
   sites_from_parcels: true,
   unconfirmed_public_use: true,
   locations_from_records: true,

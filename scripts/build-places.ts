@@ -1,6 +1,7 @@
 // Builds apps/web/src/data/places.json, the towns and neighbourhoods that address search matches in the browser
 // (ADR-0013, specs/06 "Address search"): New Jersey's municipalities from NJOGIS, and New York City's boroughs and
-// neighbourhood names from the City's 2020 Neighborhood Tabulation Areas, each at the centre of its area.
+// neighbourhood names from the City's 2020 Neighborhood Tabulation Areas, and New York State's cities, towns, and
+// villages from NYS GIS (ADR-0022), each at the centre of its area.
 // Run: node scripts/build-places.ts
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -8,6 +9,8 @@ import { fileURLToPath } from 'node:url';
 const OUT = fileURLToPath(new URL('../apps/web/src/data/places.json', import.meta.url));
 const NJ_MUNICIPALITIES = 'https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/NJ_Municipalities_3857/FeatureServer/0/query';
 const NYC_NTAS = 'https://data.cityofnewyork.us/resource/9nt8-h7nd.geojson?$limit=1000';
+const NYS_CITIES_TOWNS = 'https://gisservices.its.ny.gov/arcgis/rest/services/NYS_Civil_Boundaries/FeatureServer/6/query';
+const NYS_VILLAGES = 'https://gisservices.its.ny.gov/arcgis/rest/services/NYS_Civil_Boundaries/FeatureServer/7/query';
 const USER_AGENT = 'nyc-nj-parking build-places';
 
 export interface Place {
@@ -31,6 +34,49 @@ async function json(url: string, init?: RequestInit) {
   const response = await fetch(url, { ...init, headers: { 'user-agent': USER_AGENT, ...init?.headers } });
   if (!response.ok) throw new Error(`${new URL(url).host} answered ${response.status}`);
   return response.json();
+}
+
+/**
+ * New York State's cities, towns, and villages outside New York City (ADR-0022), from NYS GIS. Named as New Jersey's
+ * are, with the kind of place ("Buffalo City", "Islip Town", "Westfield Village"), and found by the bare name too.
+ */
+const NYC_COUNTIES = ['Bronx', 'Kings', 'New York', 'Queens', 'Richmond'];
+
+async function newYorkState(): Promise<Place[]> {
+  const places: Place[] = [];
+  for (const [layer, kind] of [[NYS_CITIES_TOWNS, null], [NYS_VILLAGES, 'Village']] as const) {
+    const body = new URLSearchParams({
+      where: '1=1',
+      // The villages layer has no MUNI_TYPE: every row is a village.
+      outFields: kind ? 'NAME,COUNTY,POP2020' : 'NAME,MUNI_TYPE,COUNTY,POP2020',
+      returnGeometry: 'true',
+      // A coarse outline is enough for the middle of a place.
+      maxAllowableOffset: '0.005',
+      outSR: '4326',
+      f: 'json',
+    });
+    const data = await json(layer, { method: 'POST', body });
+    if (data.exceededTransferLimit) throw new Error('more places than one query returns');
+    for (const feature of data.features as { attributes: Record<string, string | number>; geometry: { rings: number[][][] } }[]) {
+      const a = feature.attributes;
+      // A village in two counties names both ("Allegany, Steuben"): it's listed under the first. New York City itself,
+      // in all five of its counties, is left out: its boroughs and neighbourhoods are listed already.
+      const county = String(a.COUNTY).split(',')[0]!.trim();
+      if (NYC_COUNTIES.includes(county)) continue;
+      const points = feature.geometry.rings.flat();
+      const name = String(a.NAME).trim();
+      places.push({
+        name: `${name} ${kind ?? titleCase(String(a.MUNI_TYPE))}`,
+        aliases: [name],
+        state: 'NY',
+        area: `${county} County`,
+        lat: round(points.reduce((sum, point) => sum + point[1]!, 0) / points.length),
+        lng: round(points.reduce((sum, point) => sum + point[0]!, 0) / points.length),
+        population: typeof a.POP2020 === 'number' ? a.POP2020 : null,
+      });
+    }
+  }
+  return places;
 }
 
 async function newJersey(): Promise<Place[]> {
@@ -105,13 +151,13 @@ async function newYorkCity(): Promise<Place[]> {
   return places;
 }
 
-const [nj, ny] = await Promise.all([newJersey(), newYorkCity()]);
-const places = [...nj, ...ny].sort((a, b) => a.state.localeCompare(b.state) || a.name.localeCompare(b.name));
+const [nj, ny, nys] = await Promise.all([newJersey(), newYorkCity(), newYorkState()]);
+const places = [...nj, ...ny, ...nys].sort((a, b) => a.state.localeCompare(b.state) || a.name.localeCompare(b.name));
 writeFileSync(
   OUT,
   JSON.stringify(
     {
-      about: 'Built by scripts/build-places.ts (ADR-0013). NJ towns: NJOGIS, Municipal Boundaries of NJ. NYC areas: NYC Planning, 2020 Neighborhood Tabulation Areas.',
+      about: 'Built by scripts/build-places.ts (ADR-0013, ADR-0022). NJ towns: NJOGIS, Municipal Boundaries of NJ. NYC areas: NYC Planning, 2020 Neighborhood Tabulation Areas. NY State cities, towns, and villages: NYS GIS, NYS Civil Boundaries.',
       builtOn: new Date().toISOString().slice(0, 10),
       places,
     },
@@ -119,4 +165,4 @@ writeFileSync(
     0,
   ) + '\n',
 );
-console.log(`${nj.length} NJ towns and ${ny.length} NYC boroughs and neighbourhoods written to ${OUT}`);
+console.log(`${nj.length} NJ towns, ${ny.length} NYC boroughs and neighbourhoods, and ${nys.length} NY State places written to ${OUT}`);

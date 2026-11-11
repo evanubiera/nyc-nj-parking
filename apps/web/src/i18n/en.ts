@@ -1,13 +1,13 @@
 // The English message catalog (WEB-1). Every string people see or hear comes from here.
 // Text marked [Placeholder, …] waits on the open question it names (docs/open-questions.md).
 export const en = {
-  'app.title': 'NYC and NJ public parking',
-  'app.name': 'NYC and NJ public parking',
+  'app.title': 'NY and NJ public parking',
+  'app.name': 'NY and NJ public parking',
   'skipLink.label': 'Skip to main content',
 
   'search.heading': 'Find public parking near you',
   'search.intro':
-    "Garages, lots, and fields run by cities, counties, the state, and transit agencies. This release covers NYC Department of Transportation garages and fields; NJ Transit's station and park-and-ride lots and NJDOT's park-and-rides across New Jersey; city lots and garages in Jersey City, West New York, Bayonne, Union City, Hoboken, Harrison, Bloomfield, South Orange, Nutley, Verona, Westwood, and Oradell; and, across New Jersey, unconfirmed sites from tax records.",
+    "Garages, lots, and fields run by cities, counties, the state, and transit agencies. This release covers NYC Department of Transportation garages and fields; NJ Transit's station and park-and-ride lots and NJDOT's park-and-rides across New Jersey; the New York State Thruway's commuter lots; city lots and garages in Jersey City, West New York, Bayonne, Union City, Hoboken, Harrison, Bloomfield, South Orange, Nutley, Verona, Westwood, and Oradell; and, across New Jersey and much of New York State, unconfirmed sites from tax records.",
   'search.radius.label': 'Search within',
   'search.radius.option': '{km, number} km',
   // WEB-13: how to search. A town or address is the default (WEB-11); the device's location is shared only through the
@@ -22,7 +22,7 @@ export const en = {
   'area.placeholder': 'Choose a county or borough',
   'area.loading': 'Loading counties and boroughs…',
   'area.group.NJ': 'New Jersey',
-  'area.group.NY': 'New York City',
+  'area.group.NY': 'New York',
   'city.label': 'City or town',
   'city.labelNeighbourhood': 'Neighbourhood',
   'city.placeholder': 'Choose one',
@@ -63,7 +63,7 @@ export const en = {
   'results.empty': 'No public parking found within {distance}. Try a wider search.',
   'results.headingArea': '{count, plural, one {# place} other {# places}} in {area}',
   'results.emptyArea': 'No public parking found in {area}.',
-  'results.error.location.out_of_area': 'That location is outside New York City and New Jersey.',
+  'results.error.location.out_of_area': 'That location is outside New York State and New Jersey.',
   'results.error.generic': "Search isn't working right now. Try again in a few minutes.",
 
   'facility.meta': '{kind} · {operator} · {distance}',
@@ -154,6 +154,8 @@ export const en = {
   'sources.change.lot_numbers_reformatted': 'We show lot numbers without leading zeros, and only where a station has more than one lot.',
   'sources.change.duplicates_removed': 'Where a lot is listed twice under one name, we show it once.',
   'sources.change.municipalities_reformatted': 'We reformat municipality names written in capitals.',
+  'sources.change.sites_from_parcels_by_owner':
+    'We keep only parking lots and garages that a county, city, town, or village owns, and combine touching parcels with the same owner into one site.',
   'sources.change.town_names_standardized':
     'We write each town as the rest of the app does: "Oradell Borough" is Oradell, and "Clinton Twp" is Clinton Township.',
   'sources.change.sites_from_parcels':

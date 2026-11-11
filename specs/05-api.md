@@ -46,7 +46,7 @@ Parameters:
 | `radius` | integer, meters | 100 to 10,000. Default 2,000 (PRD-5, decided) |
 | `operatorType` | repeated code | Optional, from slice 2 (REC-7). One or more of `municipal`, `county`, `state`, `transit_agency`, `public_authority`, and from slice 4 `unknown`, repeated: `operatorType=municipal&operatorType=state`. Without it, every type is returned |
 
-Coverage area: latitude 38.9 to 41.4 and longitude −75.6 to −73.6, which covers NYC and NJ. Outside it, the server returns 422 `location.out_of_area`. Inside it, an area with no data gets an empty list. The box is a simplification: it also takes in nearby parts of Pennsylvania (including Philadelphia), New York State, and Connecticut, which get an empty list. Real boundaries can replace it once PRD-3 settles the coverage area.
+Coverage area (ADR-0022): two boxes, New Jersey's (latitude 38.9 to 41.4, longitude −75.6 to −73.6) and New York State's (latitude 40.49 to 45.02, longitude −79.77 to −71.85). Outside both, the server returns 422 `location.out_of_area`. Inside either, an area with no data gets an empty list. The boxes are a simplification: they also take in nearby parts of Pennsylvania, Connecticut, Massachusetts, Vermont, and Ontario, which get an empty list. Two boxes rather than one round both keep the ocean south of Long Island outside.
 
 Response, `200`:
 
@@ -111,7 +111,7 @@ Distances above are made up. The other values come from the sources as checked o
 
 ### `listAreaFacilities`: `GET /api/parking/areas/{area}/facilities` (slice 4, REC-11, ADR-0021)
 
-Every active facility in a New Jersey county or a New York City borough, for searching a whole area (WEB-13). `area` is an `AreaId`: `nj-` and the county's name (`nj-cape-may`), or `ny-` and the borough's (`ny-staten-island`); anything else is a 400 `request.invalid_parameter` for `area`. `operatorType` filters as for `getRecommendations` (REC-7).
+Every active facility in a New Jersey county or a New York City borough, for searching a whole area (WEB-13). `area` is an `AreaId`: `nj-` and the county's name (`nj-cape-may`), or `ny-` and the borough's (`ny-staten-island`) or another New York county's (`ny-st-lawrence`, ADR-0022); anything else is a 400 `request.invalid_parameter` for `area`. `operatorType` filters as for `getRecommendations` (REC-7).
 
 - The response is `{ "results": [ … ] }`, each result in the same shape as `getRecommendations`', sorted by town (`address.locality`), then name. At most 1,000; on 2026-11-10 Essex County had the most, 110.
 - `distanceMeters` is null: an area's list has no point. Nothing about where the person is reaches the server.
