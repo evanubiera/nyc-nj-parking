@@ -1,6 +1,7 @@
 // REC-11 (ADR-0021): the county or borough a facility is in, from the outlines in ../data/areas.json, built by
 // scripts/build-areas.ts. A point just outside every outline, such as a lot on a pier or a beach that the simplified
-// coastline misses, takes the nearest area within NEAREST_M; further out, it has none.
+// coastline misses, takes the nearest area within NEAREST_M; further out, it has none. Only areas in the facility's own
+// state count: NJ Transit's Suffern lots, in New York State 1 km from Bergen County, are in no area (S4-45).
 import { readFileSync } from 'node:fs';
 
 type Ring = [number, number][];
@@ -44,11 +45,12 @@ function distanceToEdge(area: Area, lat: number, lng: number): number {
   return best * METERS_PER_DEGREE;
 }
 
-export function areaOf(point: { lat: number; lng: number }): string | null {
-  const inside = AREAS.find((area) => contains(area, point.lat, point.lng));
+export function areaOf(point: { lat: number; lng: number; region: string }): string | null {
+  const inState = AREAS.filter((area) => area.state === point.region);
+  const inside = inState.find((area) => contains(area, point.lat, point.lng));
   if (inside) return inside.id;
   let nearest: { id: string; meters: number } | null = null;
-  for (const area of AREAS) {
+  for (const area of inState) {
     const meters = distanceToEdge(area, point.lat, point.lng);
     if (meters <= NEAREST_M && (!nearest || meters < nearest.meters)) nearest = { id: area.id, meters };
   }
